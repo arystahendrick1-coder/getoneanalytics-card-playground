@@ -5445,7 +5445,7 @@ export default function SinglePageDashboard() {
                       </div>
                       <div className="flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
                         {metric.type === 'Table' && metric.name === 'Traffic Acquisition' && (
-                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-contain">
+                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-y-auto">
                             <table className="w-full min-w-[620px] border-collapse">
                               <thead className="sticky top-0 z-[1] bg-white"><tr className="text-slate-500 border-b border-slate-200">{['Channel','Sessions','Views','User Engagement','Active Users','New Users'].map((h)=><th key={h} className="text-left font-semibold py-1 pr-2 whitespace-nowrap">{h}</th>)}</tr></thead>
                               <tbody>{[['Paid Search','4,820','7,932','2m 14s','3,247','2,188'],['Display','1,846','3,208','1m 42s','1,764','1,018'],['Referral','1,271','1,188','2m 07s','995','694'],['Organic Search','6,325','12,030','3m 06s','5,883','3,880'],['Direct','2,920','4,820','2m 31s','2,100','1,760'],['Email','620','1,420','1m 12s','490','320'],['Affiliates','820','840','0m 48s','680','480'],['Video','2,220','2,600','2m 20s','1,920','1,360'],['Cross-network','340','460','0m 50s','310','220'],['Unassigned','120','210','0m 32s','90','60']].map((row,i)=><tr key={i} className="border-b border-slate-100"><td className="py-1 pr-2 whitespace-nowrap">{row[0]}</td>{row.slice(1).map((v,j)=><td key={j} className="py-1 pr-2 whitespace-nowrap">{v}</td>)}</tr>)}</tbody>
@@ -5453,7 +5453,7 @@ export default function SinglePageDashboard() {
                           </div>
                         )}
                         {metric.type === 'Table' && metric.name === 'Top Landing Pages' && (
-                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-contain">
+                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-y-auto">
                             <table className="w-full min-w-[440px] border-collapse">
                               <thead className="sticky top-0 z-[1] bg-white"><tr className="text-slate-500 border-b border-slate-200">{['Page path and screen class','Views','Users','Avg. engagement time'].map((h)=><th key={h} className="text-left font-semibold py-1 pr-2 whitespace-nowrap">{h}</th>)}</tr></thead>
                               <tbody>{[['/','71','21','2m 52s'],['/pages/heritage-villas-ubud','34','20','1m 22s'],['/pages/skylight-villas-ubud','18','20','1m 24s'],['/pages/buki-spa','10','18','0m 47s'],['/pages/jingga-restaurant','7','24','1m 31s'],['/pages/lokal-kafe','25','30','4m 18s'],['/offers','11','22','1m 08s'],['/gallery','48','80','2m 06s'],['/experiences','38','42','2m 40s'],['/about-us','30','33','1m 12s']].map((row,i)=><tr key={i} className="border-b border-slate-100"><td className="py-1 pr-2 whitespace-nowrap text-blue-600">{row[0]}</td>{row.slice(1).map((v,j)=><td key={j} className="py-1 pr-2 whitespace-nowrap">{v}</td>)}</tr>)}</tbody>
