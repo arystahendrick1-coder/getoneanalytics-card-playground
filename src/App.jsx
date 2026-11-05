@@ -2090,7 +2090,8 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Total Users by Location": [\n      "Bar Chart",
+    "Total Users by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -2164,7 +2165,8 @@ export default function SinglePageDashboard() {
       "Pie Chart",
       "Table"
     ],
-    "Campaign by Country": [\n      "Bar Chart",
+    "Campaign by Country": [
+      "Bar Chart",
       "Table",
       "Map"
     ],
@@ -2304,75 +2306,93 @@ export default function SinglePageDashboard() {
       "Number and Chart",
       "Table"
     ],
-    "Clicks by Location": [\n      "Bar Chart",
+    "Clicks by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Impressions by Location": [\n      "Bar Chart",
+    "Impressions by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "CTR by Location": [\n      "Bar Chart",
+    "CTR by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Average CPC by Location": [\n      "Bar Chart",
+    "Average CPC by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Conversions by Location": [\n      "Bar Chart",
+    "Conversions by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Conversion Rate by Location": [\n      "Bar Chart",
+    "Conversion Rate by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Cost per Conversion by Location": [\n      "Bar Chart",
+    "Cost per Conversion by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Conversion Value by Location": [\n      "Bar Chart",
+    "Conversion Value by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "All Conversions by Location": [\n      "Bar Chart",
+    "All Conversions by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Average CPM by Location": [\n      "Bar Chart",
+    "Average CPM by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Interactions by Location": [\n      "Bar Chart",
+    "Interactions by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Interaction Rate by Location": [\n      "Bar Chart",
+    "Interaction Rate by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Engagements by Location": [\n      "Bar Chart",
+    "Engagements by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Engagement Rate by Location": [\n      "Bar Chart",
+    "Engagement Rate by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Video Views by Location": [\n      "Bar Chart",
+    "Video Views by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Video View Rate by Location": [\n      "Bar Chart",
+    "Video View Rate by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Average CPV by Location": [\n      "Bar Chart",
+    "Average CPV by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "View-through Conversions by Location": [\n      "Bar Chart",
+    "View-through Conversions by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -2534,11 +2554,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Views by Country": [\n      "Bar Chart",
+    "Views by Country": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Watch Time by Country": [\n      "Bar Chart",
+    "Watch Time by Country": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -2611,11 +2633,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Impressions by Location": [\n      "Bar Chart",
+    "Impressions by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Impressions by Country": [\n      "Bar Chart",
+    "Impressions by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Reach": [
@@ -2632,7 +2656,8 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Reach by Location": [\n      "Bar Chart",
+    "Reach by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -2654,11 +2679,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Frequency by Location": [\n      "Bar Chart",
+    "Frequency by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Frequency by Country": [\n      "Bar Chart",
+    "Frequency by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Total Spent": [
@@ -2677,11 +2704,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Spend by Location": [\n      "Bar Chart",
+    "Spend by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Spend by Country": [\n      "Bar Chart",
+    "Spend by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Clicks": [
@@ -2700,11 +2729,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Clicks by Location": [\n      "Bar Chart",
+    "Clicks by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Clicks by Country": [\n      "Bar Chart",
+    "Clicks by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Link Clicks": [
@@ -2723,11 +2754,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Link Clicks by Location": [\n      "Bar Chart",
+    "Link Clicks by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Link Clicks by Country": [\n      "Bar Chart",
+    "Link Clicks by Country": [
+      "Bar Chart",
       "Table"
     ],
     "CTR": [
@@ -2744,11 +2777,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "CTR by Location": [\n      "Bar Chart",
+    "CTR by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "CTR by Country": [\n      "Bar Chart",
+    "CTR by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Average CPC": [
@@ -2766,11 +2801,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Average CPC by Location": [\n      "Bar Chart",
+    "Average CPC by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Average CPC by Country": [\n      "Bar Chart",
+    "Average CPC by Country": [
+      "Bar Chart",
       "Table"
     ],
     "CPM": [
@@ -2787,11 +2824,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "CPM by Location": [\n      "Bar Chart",
+    "CPM by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "CPM by Country": [\n      "Bar Chart",
+    "CPM by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Result": [
@@ -2810,11 +2849,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Result by Location": [\n      "Bar Chart",
+    "Result by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Result by Country": [\n      "Bar Chart",
+    "Result by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Cost per Result": [
@@ -2831,11 +2872,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Cost per Result by Location": [\n      "Bar Chart",
+    "Cost per Result by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Cost per Result by Country": [\n      "Bar Chart",
+    "Cost per Result by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Purchases": [
@@ -2854,11 +2897,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Purchases by Location": [\n      "Bar Chart",
+    "Purchases by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Purchases by Country": [\n      "Bar Chart",
+    "Purchases by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Purchase Conversion Value": [
@@ -2877,11 +2922,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Purchase Value by Location": [\n      "Bar Chart",
+    "Purchase Value by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "Purchase Value by Country": [\n      "Bar Chart",
+    "Purchase Value by Country": [
+      "Bar Chart",
       "Table"
     ],
     "ROAS": [
@@ -2898,11 +2945,13 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "ROAS by Location": [\n      "Bar Chart",
+    "ROAS by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
-    "ROAS by Country": [\n      "Bar Chart",
+    "ROAS by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Campaign Performance": [
@@ -2934,7 +2983,8 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Click by Location": [\n      "Bar Chart",
+    "Click by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ]
@@ -2986,7 +3036,8 @@ export default function SinglePageDashboard() {
       "Table",
       "Pie Chart"
     ],
-    "Followers by Location": [\n      "Bar Chart",
+    "Followers by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -3083,7 +3134,8 @@ export default function SinglePageDashboard() {
       "Table",
       "Pie Chart"
     ],
-    "Followers by Location": [\n      "Bar Chart",
+    "Followers by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -3097,7 +3149,8 @@ export default function SinglePageDashboard() {
       "Table",
       "Pie Chart"
     ],
-    "Engaged Audience by Location": [\n      "Bar Chart",
+    "Engaged Audience by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -3256,7 +3309,8 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Followers by Location": [\n      "Bar Chart",
+    "Followers by Location": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
@@ -3279,25 +3333,29 @@ export default function SinglePageDashboard() {
       "Number and Chart",
       "Table"
     ],
-    "Engagement Rate by Views": [\n      "Bar Chart",
+    "Engagement Rate by Views": [
+      "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
       "Table"
     ],
-    "Like Rate by Views": [\n      "Bar Chart",
+    "Like Rate by Views": [
+      "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
       "Table"
     ],
-    "Comment Rate by Views": [\n      "Bar Chart",
+    "Comment Rate by Views": [
+      "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
       "Table"
     ],
-    "Share Rate by Views": [\n      "Bar Chart",
+    "Share Rate by Views": [
+      "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
@@ -4087,7 +4145,8 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Campaign by Location (Map)": [\n      "Bar Chart",
+    "Campaign by Location (Map)": [
+      "Bar Chart",
       "Map",
       "Table"
     ],
