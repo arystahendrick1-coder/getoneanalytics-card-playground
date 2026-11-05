@@ -1,26 +1,15 @@
 # GetOneAnalytics Card Playground
 
-Vite + React playground using the supplied `SinglePageDashboard` Master Index component as its starting point.
+This is the modified Master Index playground. The supplied Master Index component is retained and updated with the Excel default page order, platform list, and default card catalogue.
 
 ## Run locally
-
 ```bash
 npm install
 npm run dev
 ```
 
-## Build
+## Vercel
+Framework: Vite · Build: `npm run build` · Output: `dist`
 
-```bash
-npm run build
-```
-
-## Deploy to Vercel
-
-Import this GitHub repository in Vercel. The framework preset should be **Vite**.
-Build command: `npm run build`
-Output directory: `dist`
-
-## Important
-
-`src/App.jsx` is the original Master Index component supplied for this task. The Excel-driven platform/page/card revisions and the seven-card-type visual redesign are not yet applied in this starter package. Keep this repository as the playground; do not treat it as the final production dashboard.
+## Scope note
+This is a UI prototype using placeholder sample visual data. It does not connect to live platform APIs. Existing Master Index interactions and initial scroll-to-Google-Analytics behaviour are retained. Card type renderers are prototype visuals and still need a final design QA pass against the approved references.
