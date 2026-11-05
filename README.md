@@ -1,15 +1,41 @@
-# GetOneAnalytics Card Playground
+# GetOneAnalytics Master Index
 
-This is the modified Master Index playground. The supplied Master Index component is retained and updated with the Excel default page order, platform list, and default card catalogue.
+This repository contains the original GetOneAnalytics Master Index React application, updated against the approved card configuration and platform default-view references.
 
 ## Run locally
+
+Requirements: Node.js 20 or newer.
+
 ```bash
 npm install
 npm run dev
 ```
 
-## Vercel
-Framework: Vite · Build: `npm run build` · Output: `dist`
+## Production build
 
-## Scope note
-This is a UI prototype using placeholder sample visual data. It does not connect to live platform APIs. Existing Master Index interactions and initial scroll-to-Google-Analytics behaviour are retained. Card type renderers are prototype visuals and still need a final design QA pass against the approved references.
+```bash
+npm run build
+npm run preview
+```
+
+Vite output: `dist/`
+
+## What is included
+
+- Original Master Index application structure and existing interactions.
+- Original cover page and report page navigation.
+- Four-column dashboard canvas. Existing card sizes and placements are retained.
+- Seven card visualisation types: Number, Line Chart, Bar Chart, Pie Chart, Number and Chart, Table, and Maps.
+- Metric type compatibility catalogue synchronised with `GetOneAnalytics_Master_Metrics_QA_Reviewed_v3.xlsx` (437 metrics across 9 reporting surfaces).
+- Compare presentation for supported visual types.
+- TikTok Organic default page includes the four small KPI cards: Followers, Profile Views, Video Views, and Link Clicks.
+
+## Important scope notes
+
+This is a front-end prototype with sample display values. It does not connect to live platform APIs or validate account-level API access. Sample chart and table values are illustrative. The workbook remains the source of truth for metric inventory and allowed visualisation types.
+
+## QA status
+
+- JSX/TSX transpilation syntax check: passed (zero diagnostics).
+- Workbook catalogue count: 437 metrics across 9 platforms.
+- Production build: not verified in this environment because dependency installation timed out. Run `npm install` and `npm run build` before deploying.
