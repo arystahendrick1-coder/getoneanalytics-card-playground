@@ -5459,15 +5459,18 @@ export default function SinglePageDashboard() {
                           e.preventDefault();
                           const dragTypes = Array.from(e.dataTransfer.types || []);
                           if (!dragTypes.includes('application/getone-metric') && !dragTypes.includes('text/plain') && !draggedNewMetricRef.current) return;
-                          const pos = getGridDropPosition(e.currentTarget, e.clientX, e.clientY, 1, 1);
                           // Browsers may hide DataTransfer payload during dragover, so use the drag-start ref first.
                           let dragged = draggedNewMetricRef.current || {};
                           if (!dragged.platform || !dragged.name) {
                             const raw = e.dataTransfer.getData('application/getone-metric') || e.dataTransfer.getData('text/plain');
                             try { dragged = raw ? JSON.parse(raw) : dragged; } catch (_) {}
                           }
-                          if (!metricDragPreview || metricDragPreview.pageId !== page.id || metricDragPreview.col !== pos.col || metricDragPreview.row !== pos.row) captureMetricRects();
-                          setMetricDragPreview({ pageId: page.id, col: pos.col, row: pos.row, w: 1, h: 1, platform: dragged.platform, name: dragged.name });
+                          if (!dragged?.platform || !dragged?.name) return;
+                          const allowedTypes = getMetricTypeOptions(dragged.platform, dragged.name);
+                          const { w, h } = getDefaultMetricConfig(dragged.platform, dragged.name, allowedTypes);
+                          const pos = getGridDropPosition(e.currentTarget, e.clientX, e.clientY, w, h);
+                          if (!metricDragPreview || metricDragPreview.pageId !== page.id || metricDragPreview.col !== pos.col || metricDragPreview.row !== pos.row || metricDragPreview.w !== w || metricDragPreview.h !== h) captureMetricRects();
+                          setMetricDragPreview({ pageId: page.id, col: pos.col, row: pos.row, w, h, platform: dragged.platform, name: dragged.name });
                         }}
                         onDragLeave={(e) => {
                           if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -5481,7 +5484,9 @@ export default function SinglePageDashboard() {
                           try { if (payload) dragged = JSON.parse(payload); } catch (_) {}
                           if (!dragged?.platform || !dragged?.name) { setMetricDragPreview(null); draggedNewMetricRef.current = null; return; }
                           const { platform, name } = dragged;
-                          const pos = getGridDropPosition(e.currentTarget, e.clientX, e.clientY, 1, 1);
+                          const allowedTypes = getMetricTypeOptions(platform, name);
+                          const { w, h } = getDefaultMetricConfig(platform, name, allowedTypes);
+                          const pos = getGridDropPosition(e.currentTarget, e.clientX, e.clientY, w, h);
                           captureMetricRects();
                           setReportPages((prev) => prev.map((p) => ({ ...p, active: p.id === page.id })));
                           addDashboardMetric(platform, name, pos.col, pos.row, page.id);
