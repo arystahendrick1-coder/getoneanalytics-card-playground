@@ -39,3 +39,10 @@ This is a front-end prototype with sample display values. It does not connect to
 - JSX/TSX transpilation syntax check: passed (zero diagnostics).
 - Workbook catalogue count: 437 metrics across 9 platforms.
 - Production build: not verified in this environment because dependency installation timed out. Run `npm install` and `npm run build` before deploying.
+
+
+## Default View corrections (5 November 2026)
+- Google Analytics: Bar Chart rows now place each category title above its horizontal bar, with the value aligned to the right. Maps, Traffic Acquisition, and Top Landing Pages use 4 × 2 grid units.
+- Google Ads: default canvas now follows the approved 13-card arrangement: two 2 × 2 charts, four 1 × 1 KPI cards, four 2 × 2 analysis cards (including Campaign by Country as Maps with a country table), and one 4 × 2 Campaign Performance table.
+- Canvas remains four grid units wide; card interactions and resize controls are retained.
+- JSX transpilation check passed. Production build has not been verified because dependency installation timed out in this environment.
