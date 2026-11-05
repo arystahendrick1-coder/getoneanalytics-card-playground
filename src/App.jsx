@@ -728,15 +728,15 @@ export default function SinglePageDashboard() {
     "id": "p6-14",
     "platform": "Meta Ads",
     "name": "Reach by Country",
-    "type": "Table",
+    "type": "Bar Chart",
     "col": 0,
     "row": 28,
-    "w": 4,
-    "h": 3,
+    "w": 2,
+    "h": 2,
     "pageId": "p6",
     "section": "Geographic Analysis",
     "metricReference": "country + results + reach + impressions + spend",
-    "notes": "Approved country table. Columns: Country, Results, Reach, Impressions and Spend. Retain its existing Large size and position."
+    "notes": "Default Bar Chart breakdown by country. Size 2 x 2 grid."
   },
   {
     "id": "p8-1",
@@ -2637,6 +2637,7 @@ export default function SinglePageDashboard() {
       "Table"
     ],
     "Reach by Country": [
+      "Bar Chart",
       "Table"
     ],
     "Frequency": [
@@ -4301,7 +4302,24 @@ export default function SinglePageDashboard() {
     if (n.includes('keyword')) return { headers: ['Keyword', 'Clicks', 'Impressions', 'CTR'], rows: [['ubud villa','1,248','18,420','6.78%'],['private villa ubud','842','12,640','6.66%'],['bali jungle villa','624','9,820','6.35%']] };
     return { headers: ['Name', 'Current', 'Previous', 'Change'], rows: [['Organic Search','9,869','8,421','+17.2%'],['Direct','4,253','3,726','+14.1%'],['Paid Search','3,247','2,910','+11.6%'],['Referral','2,188','1,947','+12.4%']] };
   };
-  const defaultMetricSizes = { 'Number': [1, 1], 'Line Chart': [2, 2], 'Bar Chart': [2, 2], 'Pie Chart': [2, 2], 'Number and Chart': [2, 2], 'Table': [4, 2], 'Maps': [4, 3] };
+  const defaultMetricSizes = { 'Number': [1, 1], 'Line Chart': [2, 2], 'Bar Chart': [2, 2], 'Pie Chart': [2, 2], 'Number and Chart': [2, 2], 'Table': [4, 2], 'Maps': [4, 2], 'Map': [4, 2] };
+  // Each metric takes its own default visualisation from its ordered compatible
+  // type list. Its initial canvas size is then derived from that default type.
+  // Table and map cards always start at the full four-column, two-row size.
+  const getDefaultMetricConfig = (platform, name, allowedTypes = []) => {
+    const preferredDefaults = {
+      'Meta Ads|Reach by Country': 'Bar Chart',
+    };
+    const explicitPreferred = preferredDefaults[`${platform}|${name}`];
+    // Metrics named "X by Y" default to a Bar Chart whenever Bar Chart is
+    // an approved option for that metric. This gives breakdown metrics a
+    // useful comparison view without overriding the compatibility catalogue.
+    const isBreakdownMetric = /\\sby\\s/i.test(name);
+    const preferred = explicitPreferred || (isBreakdownMetric && allowedTypes.includes('Bar Chart') ? 'Bar Chart' : null);
+    const type = preferred && allowedTypes.includes(preferred) ? preferred : (allowedTypes[0] || 'Number');
+    const size = defaultMetricSizes[type] || defaultMetricSizes[type === 'Map' ? 'Maps' : 'Number'];
+    return { type, w: size[0], h: size[1] };
+  };
   const makeMetricId = () => `metric-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const metricValueFor = (metricName) => {
     const values = {
@@ -4319,15 +4337,13 @@ export default function SinglePageDashboard() {
       : reportPagesRef.current.find((p) => p.active) || reportPagesRef.current.find((p) => p.id === 'p3');
     const pageId = currentPage?.id || 'p3';
     const id = makeMetricId();
-    const [w, h] = [1, 1];
-    const targetCol = Math.max(0, Math.min(4 - w, col));
-    const targetRow = Math.max(0, row);
     // Treat a newly added metric as an insertion, not as a search for any
-    // nearby empty cell. Existing cards (including wide/tall cards) must flow
-    // around it in reading order, wrapping to the next row when needed.
+    // nearby empty cell. Its initial size comes from its own default type.
     setDashboardMetrics((current) => {
       const allowedTypes = getMetricTypeOptions(platform, name);
-      const initialType = allowedTypes[0] || 'Number';
+      const { type: initialType, w, h } = getDefaultMetricConfig(platform, name, allowedTypes);
+      const targetCol = Math.max(0, Math.min(4 - w, col));
+      const targetRow = Math.max(0, row);
       const newMetric = {
         id, platform, name, type: initialType, allowedTypes,
         col: targetCol, row: targetRow, w, h, pageId
@@ -4572,7 +4588,7 @@ export default function SinglePageDashboard() {
     const compatible = targetMetric?.allowedTypes || getMetricTypeOptions(targetMetric?.platform, targetMetric?.name);
     if (compatible.length && !compatible.includes(type)) return;
     captureMetricRects();
-    const [w, h] = defaultMetricSizes[type] || [1, 1];
+    const [w, h] = defaultMetricSizes[type] || defaultMetricSizes[type === 'Map' ? 'Maps' : 'Number'];
     setDashboardMetrics((curr) => {
       const updated = curr.map((m) => m.id === id ? { ...m, type, w: Math.min(w, 4 - m.col), h } : m);
       return reflowAfterMetricChange(updated, id);
