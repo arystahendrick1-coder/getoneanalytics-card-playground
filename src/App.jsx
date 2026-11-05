@@ -8,6 +8,7 @@ export default function SinglePageDashboard() {
   // Metric builder state for Master V4
   const [selectedMetricPlatform, setSelectedMetricPlatform] = useState(null);
   const [metricSearch, setMetricSearch] = useState('');
+  const [selectedMetricSearch, setSelectedMetricSearch] = useState('');
   const [dashboardMetrics, setDashboardMetrics] = useState([
   {
     "id": "p3-1",
@@ -1955,13 +1956,13 @@ export default function SinglePageDashboard() {
   }, [draggedPageId, dragInitialOffsetY]);
 
   const integrationsList = [
-    { id: '1', name: 'Google Analytics', connected: true, svg: <span className="w-5 h-5 rounded-md bg-slate-100 text-[9px] font-bold flex items-center justify-center">GA</span> },
-    { id: '2', name: 'Google Ads', connected: true, svg: <span className="w-5 h-5 rounded-md bg-slate-100 text-[9px] font-bold flex items-center justify-center">GAds</span> },
-    { id: '3', name: 'Google Business Profile', connected: true, svg: <span className="w-5 h-5 rounded-md bg-slate-100 text-[9px] font-bold flex items-center justify-center">GBP</span> },
-    { id: '4', name: 'YouTube Analytics', connected: true, svg: <span className="w-5 h-5 rounded-md bg-slate-100 text-[9px] font-bold flex items-center justify-center">YT</span> },
-    { id: '5', name: 'Meta Ads', connected: true, svg: <span className="w-5 h-5 rounded-md bg-slate-100 text-[9px] font-bold flex items-center justify-center">Meta</span> },
-    { id: '6', name: 'Facebook Pages (Organic)', connected: true, svg: <span className="w-5 h-5 rounded-md bg-slate-100 text-[9px] font-bold flex items-center justify-center">FB</span> },
-    { id: '7', name: 'Instagram Professional', connected: true, svg: <span className="w-5 h-5 rounded-md bg-slate-100 text-[9px] font-bold flex items-center justify-center">IG</span> },
+    { id: '1', name: 'Google Analytics', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Google Analytics"><path fill="#F9AB00" d="M17.4 2.2a2.4 2.4 0 0 1 4.8 0v19.6h-4.8z"/><path fill="#E37400" d="M9.6 10.1a2.4 2.4 0 0 1 4.8 0v11.7H9.6z"/><circle cx="4.2" cy="19.4" r="2.4" fill="#F9AB00"/></svg> },
+    { id: '2', name: 'Google Ads', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Google Ads"><path d="M8.3 3.3a3.3 3.3 0 0 1 5.7 0l7.2 12.5a3.3 3.3 0 0 1-5.7 3.3L8.3 6.6a3.3 3.3 0 0 1 0-3.3Z" fill="#4285F4"/><path d="M8.3 3.3a3.3 3.3 0 0 0-5.7 0L.8 6.5a3.3 3.3 0 0 0 5.7 3.3l1.8-3.2a3.3 3.3 0 0 0 0-3.3Z" fill="#FBBC04"/><circle cx="4.2" cy="19.2" r="3.1" fill="#34A853"/></svg> },
+    { id: '3', name: 'Google Business Profile', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Google Business Profile"><path fill="#4285F4" d="M12 2.2a7 7 0 0 0-7 7c0 5.1 7 12.6 7 12.6s7-7.5 7-12.6a7 7 0 0 0-7-7Z"/><circle cx="12" cy="9.2" r="2.6" fill="white"/></svg> },
+    { id: '4', name: 'YouTube Analytics', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="YouTube"><rect x="1.5" y="5" width="21" height="14" rx="4" fill="#FF0033"/><path d="m10 8.5 6 3.5-6 3.5z" fill="white"/></svg> },
+    { id: '5', name: 'Meta Ads', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Meta"><path d="M3 16.8C5.2 7.4 8.7 4.1 12 10c3.3-5.9 6.8-2.6 9 6.8" fill="none" stroke="#0866FF" strokeWidth="3.2" strokeLinecap="round"/><path d="M3 16.8c2.2 3.7 5.2 2.5 9-6.8 3.8 9.3 6.8 10.5 9 6.8" fill="none" stroke="#0866FF" strokeWidth="2.2" strokeLinecap="round"/></svg> },
+    { id: '6', name: 'Facebook Pages (Organic)', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Facebook"><circle cx="12" cy="12" r="11" fill="#0866FF"/><path fill="white" d="M13.7 20v-7h2.4l.4-2.8h-2.8V8.4c0-.8.3-1.4 1.4-1.4h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.1H8.3V13h2.4v7z"/></svg> },
+    { id: '7', name: 'Instagram Professional', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Instagram"><defs><linearGradient id="igBrand" x1="0" y1="1" x2="1" y2="0"><stop stopColor="#FFB000"/><stop offset=".5" stopColor="#F00075"/><stop offset="1" stopColor="#7048FF"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igBrand)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.4" fill="none" stroke="white" strokeWidth="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="white" strokeWidth="1.8"/><circle cx="17.2" cy="6.9" r="1" fill="white"/></svg> },
     { id: '8', name: 'TikTok Organic', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="TikTok"><path fill="#25F4EE" d="M15.8 3c.3 2.3 1.6 3.8 4.2 4v3.2c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v3.3a2.1 2.1 0 1 0 1.1 1.9V3h3z"/><path fill="#FE2C55" d="M14.5 2c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2h3z"/><path fill="#111827" d="M15.1 2.5c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2.5h3z"/></svg> },
     { id: '9', name: 'TikTok Ads', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="TikTok Ads"><path fill="#25F4EE" d="M15.8 3c.3 2.3 1.6 3.8 4.2 4v3.2c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v3.3a2.1 2.1 0 1 0 1.1 1.9V3h3z"/><path fill="#FE2C55" d="M14.5 2c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2h3z"/><path fill="#111827" d="M15.1 2.5c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2.5h3z"/></svg> }
   ];
@@ -4243,11 +4244,11 @@ export default function SinglePageDashboard() {
     ]
   }
 };
-  const getMetricTypeOptions = (platform, name) => {
-    const aliases = { 'Google Analytics': 'Google Analytics (GA4)', 'YouTube Analytics': 'YouTube Analytics' };
-    const catalogPlatform = aliases[platform] || platform;
-    return metricCatalog[catalogPlatform]?.[name] || [];
+  const getMetricCatalogPlatform = (platform) => {
+    const aliases = { 'Google Analytics': 'Google Analytics (GA4)' };
+    return aliases[platform] || platform;
   };
+  const getMetricTypeOptions = (platform, name) => metricCatalog[getMetricCatalogPlatform(platform)]?.[name] || [];
   const metricBreakdown = (metric) => {
     const n = metric.name.toLowerCase();
     if (n.includes('country') || n.includes('location') || n.includes('city')) return [
@@ -5712,7 +5713,7 @@ export default function SinglePageDashboard() {
                 <input type="text" value={metricSearch} onChange={(e) => setMetricSearch(e.target.value)} placeholder="Search platform..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500" />
                 <div className="flex flex-col gap-0.5 overflow-y-auto pr-1">
                   {integrationsList.filter((item) => item.name.toLowerCase().includes(metricSearch.toLowerCase())).map((item) => (
-                    <button key={item.id} type="button" onClick={() => { setSelectedMetricPlatform(item); setMetricSearch(''); }} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 cursor-default transition-all border border-transparent hover:border-slate-200 group text-left">
+                    <button key={item.id} type="button" onClick={() => { setSelectedMetricPlatform(item); setMetricSearch(''); setSelectedMetricSearch(''); }} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 cursor-default transition-all border border-transparent hover:border-slate-200 group text-left">
                       <span className="flex items-center gap-3 min-w-0"><span className="w-5 h-5 flex items-center justify-center shrink-0">{item.svg}</span><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{item.name}</span></span>
                       <span className="text-slate-400 group-hover:text-slate-600 font-bold text-base">›</span>
                     </button>
@@ -5721,12 +5722,16 @@ export default function SinglePageDashboard() {
               </div>
               <div className={`absolute inset-0 p-4 flex flex-col gap-3 transition-transform duration-300 ease-out ${selectedMetricPlatform ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-                  <button type="button" onClick={() => setSelectedMetricPlatform(null)} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600" aria-label="Back to platforms"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 12h12" strokeLinecap="round"/></svg></button>
+                  <button type="button" onClick={() => { setSelectedMetricPlatform(null); setSelectedMetricSearch(''); }} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600" aria-label="Back to platforms"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 12h12" strokeLinecap="round"/></svg></button>
                   <span className="font-bold text-sm text-slate-900 truncate">{selectedMetricPlatform?.name} Metrics</span>
                 </div>
                 <p className="text-[11px] text-slate-400">Drag a metric into the dashboard</p>
+                <div className="relative shrink-0">
+                  <svg aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" strokeLinecap="round"/></svg>
+                  <input type="text" value={selectedMetricSearch} onChange={(e) => setSelectedMetricSearch(e.target.value)} placeholder="Search metrics..." aria-label={`Search ${selectedMetricPlatform?.name} metrics`} className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500" />
+                </div>
                 <div className="flex flex-col gap-2 overflow-y-auto pr-1 pb-4">
-                  {Object.keys(metricCatalog[selectedMetricPlatform?.name] || {}).map((name) => (
+                  {Object.keys(metricCatalog[getMetricCatalogPlatform(selectedMetricPlatform?.name)] || {}).filter((name) => name.toLowerCase().includes(selectedMetricSearch.toLowerCase())).map((name) => (
                     <div key={name} draggable onClick={() => addDashboardMetric(selectedMetricPlatform.name, name)} onDragStart={(e) => { const payload = { platform: selectedMetricPlatform.name, name }; draggedNewMetricRef.current = payload; e.dataTransfer.setData('application/getone-metric', JSON.stringify(payload)); e.dataTransfer.setData('text/plain', JSON.stringify(payload)); e.dataTransfer.effectAllowed = 'copy'; setMetricDragPreview(null); }} onDragEnd={() => { draggedNewMetricRef.current = null; setMetricDragPreview(null); }} className="flex items-center justify-start gap-3 border border-slate-200 rounded-xl px-3 py-3 bg-white hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-default active:cursor-default select-none">
                       <button type="button" aria-label={`Drag ${name} metric`} onClick={(e) => e.stopPropagation()} className="w-3.5 h-4 shrink-0 flex items-center justify-center cursor-default active:cursor-default touch-none" title="Drag metric to report">
                         <svg aria-hidden="true" className="w-3.5 h-4 text-slate-400" viewBox="0 0 12 16" fill="currentColor"><circle cx="2" cy="3" r="1.05"/><circle cx="6" cy="3" r="1.05"/><circle cx="10" cy="3" r="1.05"/><circle cx="2" cy="8" r="1.05"/><circle cx="6" cy="8" r="1.05"/><circle cx="10" cy="8" r="1.05"/><circle cx="2" cy="13" r="1.05"/><circle cx="6" cy="13" r="1.05"/><circle cx="10" cy="13" r="1.05"/></svg>
