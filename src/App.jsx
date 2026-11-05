@@ -4278,6 +4278,16 @@ export default function SinglePageDashboard() {
   };
   const metricTable = (metric) => {
     const n = metric.name.toLowerCase();
+    // Facebook Page Visits is a Page-level insight, not website landing-page traffic.
+    // Its table therefore uses a date/time series for the selected Page metric.
+    if (metric.platform === 'Facebook Pages (Organic)' && metric.name === 'Page Visits') return {
+      headers: ['Date', 'Page Visits'],
+      rows: [['5 Nov 2026', '8,420'], ['4 Nov 2026', '8,106'], ['3 Nov 2026', '7,984'], ['2 Nov 2026', '8,231'], ['1 Nov 2026', '7,862']]
+    };
+    if (metric.platform === 'Facebook Pages (Organic)' && metric.name === 'Page Views') return {
+      headers: ['Date', 'Page Views'],
+      rows: [['5 Nov 2026', '21,497'], ['4 Nov 2026', '20,864'], ['3 Nov 2026', '19,932'], ['2 Nov 2026', '20,418'], ['1 Nov 2026', '19,706']]
+    };
     if (n.includes('video')) return { headers: ['Video', 'Views', 'Reach', 'Likes', 'Comments'], rows: [['Video 1','12,480','8,420','842','64'],['Video 2','9,320','6,810','624','42'],['Video 3','7,840','5,620','518','38'],['Video 4','5,210','3,940','386','24']] };
     if (n.includes('campaign') || metric.platform.includes('Ads')) return { headers: ['Campaign', 'Reach', 'Impressions', 'Clicks', 'Cost'], rows: [['Brand Awareness','188,450','251,729','4,820','Rp158,420'],['Sales Campaign','146,210','216,687','3,640','Rp124,760'],['Retargeting','98,340','169,760','2,810','Rp87,060'],['Profile Visit','72,180','134,723','1,940','Rp64,940']] };
     if (n.includes('landing') || n.includes('page')) return { headers: ['Page', 'Views', 'Users', 'Engagement'], rows: [['/','7,120','4,820','2m 52s'],['/heritage-villas','3,420','2,120','1m 22s'],['/skylight-villas','2,810','1,940','1m 24s'],['/experiences','1,840','1,320','2m 06s']] };
