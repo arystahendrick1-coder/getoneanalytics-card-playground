@@ -1,0 +1,2409 @@
+// @ts-nocheck
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+
+export default function SinglePageDashboard() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  // Metric builder state for Master V4
+  const [selectedMetricPlatform, setSelectedMetricPlatform] = useState(null);
+  const [metricSearch, setMetricSearch] = useState('');
+  const [dashboardMetrics, setDashboardMetrics] = useState([
+    { id:'ga-sessions', platform:'Google Analytics', name:'Sessions', type:'Number', col:0,row:0,w:1,h:1,pageId:'p3' },
+    { id:'ga-bounce', platform:'Google Analytics', name:'Bounce Rate', type:'Number', col:1,row:0,w:1,h:1,pageId:'p3' },
+    { id:'ga-pageviews', platform:'Google Analytics', name:'Page Views', type:'Number', col:2,row:0,w:1,h:1,pageId:'p3' },
+    { id:'ga-duration', platform:'Google Analytics', name:'Avg Session Duration', type:'Number', col:3,row:0,w:1,h:1,pageId:'p3' },
+    { id:'ga-session-trend', platform:'Google Analytics', name:'Sessions Trend', type:'Chart', col:0,row:1,w:2,h:1,pageId:'p3' },
+    { id:'ga-users-trend', platform:'Google Analytics', name:'Total Users Trend', type:'Chart', col:2,row:1,w:2,h:1,pageId:'p3' },
+    { id:'ga-channel', platform:'Google Analytics', name:'Traffic Channel Breakdown', type:'Number & Chart', col:0,row:2,w:4,h:3,pageId:'p3' },
+    { id:'ga-top-pages', platform:'Google Analytics', name:'Top Pages & Screens', type:'Number & Chart', col:0,row:5,w:4,h:3,pageId:'p3' },
+    { id:'gbp-views', platform:'Google Business Profile', name:'Profile Views', type:'Number', col:0,row:0,w:1,h:1,pageId:'p4' },
+    { id:'gbp-searches', platform:'Google Business Profile', name:'Searches', type:'Number', col:1,row:0,w:1,h:1,pageId:'p4' },
+    { id:'gbp-clicks', platform:'Google Business Profile', name:'Website Clicks', type:'Number', col:2,row:0,w:1,h:1,pageId:'p4' },
+    { id:'gbp-calls', platform:'Google Business Profile', name:'Calls', type:'Number', col:3,row:0,w:1,h:1,pageId:'p4' },
+    { id:'gads-impressions', platform:'Google Ads', name:'Impressions', type:'Number', col:0,row:0,w:1,h:1,pageId:'p5' },
+    { id:'gads-clicks', platform:'Google Ads', name:'Clicks', type:'Number', col:1,row:0,w:1,h:1,pageId:'p5' },
+    { id:'gads-ctr', platform:'Google Ads', name:'CTR', type:'Number', col:2,row:0,w:1,h:1,pageId:'p5' },
+    { id:'gads-conversions', platform:'Google Ads', name:'Conversions', type:'Number', col:3,row:0,w:1,h:1,pageId:'p5' },
+    { id:'meta-reach', platform:'Meta Ads', name:'Reach', type:'Number', col:0,row:0,w:1,h:1,pageId:'p6' },
+    { id:'meta-impressions', platform:'Meta Ads', name:'Impressions', type:'Number', col:1,row:0,w:1,h:1,pageId:'p6' },
+    { id:'meta-clicks', platform:'Meta Ads', name:'Link Clicks', type:'Number', col:2,row:0,w:1,h:1,pageId:'p6' },
+    { id:'meta-roas', platform:'Meta Ads', name:'ROAS', type:'Number', col:3,row:0,w:1,h:1,pageId:'p6' },
+    { id:'ig-reach', platform:'Instagram', name:'Reach', type:'Number', col:0,row:0,w:1,h:1,pageId:'p7' },
+    { id:'ig-engaged', platform:'Instagram', name:'Accounts Engaged', type:'Number', col:1,row:0,w:1,h:1,pageId:'p7' },
+    { id:'ig-visits', platform:'Instagram', name:'Profile Visits', type:'Number', col:2,row:0,w:1,h:1,pageId:'p7' },
+    { id:'ig-followers', platform:'Instagram', name:'Followers', type:'Number', col:3,row:0,w:1,h:1,pageId:'p7' },
+    { id:'fb-reach', platform:'Facebook', name:'Page Reach', type:'Number', col:0,row:0,w:1,h:1,pageId:'p8' },
+    { id:'fb-visits', platform:'Facebook', name:'Page Visits', type:'Number', col:1,row:0,w:1,h:1,pageId:'p8' },
+    { id:'fb-views', platform:'Facebook', name:'Page Views', type:'Number', col:2,row:0,w:1,h:1,pageId:'p8' },
+    { id:'fb-followers', platform:'Facebook', name:'Followers', type:'Number', col:3,row:0,w:1,h:1,pageId:'p8' },
+  ]);
+  const [metricCellHeight, setMetricCellHeight] = useState(100);
+  const [openMetricMenuId, setOpenMetricMenuId] = useState(null);
+  const [metricDragPreview, setMetricDragPreview] = useState(null);
+  const draggedNewMetricRef = useRef(null);
+  const [metricPendingDelete, setMetricPendingDelete] = useState(null);
+  const metricCanvasRef = useRef(null);
+  const reportScrollRef = useRef(null);
+  const reportPaperRefs = useRef({});
+  const metricInteractionRef = useRef(null);
+  const metricSuppressClickRef = useRef(false);
+  const metricPreviousRectsRef = useRef(null);
+  const metricLayoutAnimationRef = useRef(null);
+  const getAllMetricNodes = () => Object.values(reportPaperRefs.current)
+    .filter(Boolean)
+    .flatMap((paper) => Array.from(paper.querySelectorAll('[data-metric-id]')));
+  const captureMetricRects = () => {
+    const nodes = getAllMetricNodes();
+    if (!nodes.length) return;
+    metricPreviousRectsRef.current = new Map(nodes.map((node) => [node.getAttribute('data-metric-id'), node.getBoundingClientRect()]));
+  };
+  useEffect(() => {
+    const previous = metricPreviousRectsRef.current;
+    const nodes = getAllMetricNodes();
+    if (!previous || !nodes.length) return;
+    metricPreviousRectsRef.current = null;
+    const animated = [];
+    nodes.forEach((node) => {
+      const id = node.getAttribute('data-metric-id');
+      const before = previous.get(id);
+      if (!before) return;
+      const after = node.getBoundingClientRect();
+      const dx = before.left - after.left;
+      const dy = before.top - after.top;
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+        node.style.transition = 'none';
+        node.style.transform = `translate(${dx}px, ${dy}px)`;
+        animated.push(node);
+      }
+    });
+    if (animated.length) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        animated.forEach((node) => {
+          node.style.transition = 'transform 320ms cubic-bezier(0.22, 1, 0.36, 1)';
+          node.style.transform = 'translate(0, 0)';
+        });
+      }));
+    }
+  }, [dashboardMetrics]);
+  useEffect(() => {
+    const canvas = metricCanvasRef.current;
+    if (!canvas || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect?.width || canvas.clientWidth;
+      setMetricCellHeight(Math.max(72, (width - 36) / 6));
+    });
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [activeTab]);
+  const [selectedClient, setSelectedClient] = useState('Prasana Villas Uluwatu');
+  const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
+  const clientDropdownRef = useRef(null);
+  const [activePropertyMenu, setActivePropertyMenu] = useState(null);
+  const [propertyAction, setPropertyAction] = useState(null);
+  const [propertyNameInput, setPropertyNameInput] = useState('');
+  const [propertyLogo, setPropertyLogo] = useState({});
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState('');
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [profileFirstName, setProfileFirstName] = useState('Arysta');
+  const [profileLastName, setProfileLastName] = useState('Hendrik');
+  const [profileEmail, setProfileEmail] = useState('ah@gmail.com');
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [appearance, setAppearance] = useState('Light Mode');
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [userRows, setUserRows] = useState([
+    { id: 'u1', property: 'Prasana Villas Uluwatu', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
+    { id: 'u2', property: 'Prasana Villas Uluwatu', email: 'marketing@example.com', type: 'User', status: 'Pending' },
+    { id: 'u3', property: 'Bumi Kinar Ubud', email: 'ah@gmail.com', type: 'User', status: 'Active', you: true },
+    { id: 'u4', property: 'Selong Selo Resort & Villas', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
+  ]);
+  const [billingPlan, setBillingPlan] = useState('Pro');
+  const [userSort, setUserSort] = useState({ key: 'property', direction: 'asc' });
+
+  // State untuk dropdown menu Add Page di panel kiri
+  const [isAddPageDropdownOpen, setIsAddPageDropdownOpen] = useState(false);
+  const addPageDropdownRef = useRef(null);
+
+  // State untuk modal Add Property kustom
+  const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+  const [newClientInputValue, setNewClientInputValue] = useState('');
+
+  // State untuk modal Delete Report kustom (tabel reports)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState(null);
+
+  // State untuk modal Delete Page kustom (panel kiri dashboard)
+  const [isDeletePageModalOpen, setIsDeletePageModalOpen] = useState(false);
+  const [pageToDelete, setPageToDelete] = useState(null);
+
+  // State untuk Inline Rename di Tabel Reports
+  const [editingReportId, setEditingReportId] = useState(null);
+  const [editingReportNameValue, setEditingReportNameValue] = useState('');
+
+  // State untuk modal Share Report kustom
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [reportToShare, setReportToShare] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
+
+  // List client
+  const [clientList, setClientList] = useState([
+    'Prasana Villas Uluwatu',
+    'Bumi Kinar Ubud',
+    'Selong Selo Resort & Villas'
+  ]);
+
+  // Property access and role are derived from the same User table rows.
+  const currentUserEmail = profileEmail.toLowerCase();
+  const accessibleProperties = [...new Set(userRows
+    .filter(row => row.email.toLowerCase() === currentUserEmail && row.status === 'Active')
+    .map(row => row.property))];
+  const activePropertyRole = userRows.find(row =>
+    row.email.toLowerCase() === currentUserEmail &&
+    row.property === selectedClient &&
+    row.status === 'Active'
+  )?.type || 'No Access';
+  const isActivePropertyUser = activePropertyRole === 'User';
+  
+  const getInitialDates = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 29);
+
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+    const formatDate = (d) => d.toLocaleDateString('en-US', options);
+
+    return {
+      range: `${formatDate(start)} – ${formatDate(end)}`,
+      start: formatDate(start),
+      end: formatDate(end)
+    };
+  };
+
+  const initialDates = getInitialDates();
+
+  const [dateRange, setDateRange] = useState(initialDates.range);
+  const [startDate, setStartDate] = useState(initialDates.start);
+  const [endDate, setEndDate] = useState(initialDates.end);
+  const [datePreset, setDatePreset] = useState('Last 30 Days');
+  
+  const dateKey = (date) => Math.floor(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 86400000);
+  const [rawStartIndex, setRawStartIndex] = useState(dateKey(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 29)));
+  const [rawEndIndex, setRawEndIndex] = useState(dateKey(new Date()));
+  
+  const [isCompareEnabled, setIsCompareEnabled] = useState(false);
+  const [compareMode, setCompareMode] = useState('Last Month');
+  const [compareStartDate, setCompareStartDate] = useState('');
+  const [compareEndDate, setCompareEndDate] = useState('');
+
+  const [activeCompareInput, setActiveCompareInput] = useState(null);
+
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [latestSavedReportName, setLatestSavedReportName] = useState('');
+
+  const [activeMenuReportId, setActiveMenuReportId] = useState(null);
+  const [activePageMenuId, setActivePageMenuId] = useState(null);
+  
+  // State untuk drag vertikal pada panel kiri. Fungsi menu halaman tetap mengikuti Master.
+  const [draggedPageId, setDraggedPageId] = useState(null);
+  const [dragOverPageId, setDragOverPageId] = useState(null);
+  const [dragY, setDragY] = useState(0);
+  const [dragInitialOffsetY, setDragInitialOffsetY] = useState(0);
+  const [dragBoxWidth, setDragBoxWidth] = useState(0);
+  const [dragBoxLeft, setDragBoxLeft] = useState(0);
+  const [editingPageId, setEditingPageId] = useState(null);
+  const [editingPageTitle, setEditingPageTitle] = useState('');
+  const pagesContainerRef = useRef(null);
+  const pageItemsRef = useRef({});
+  const reportPagesRef = useRef([]);
+  const didMovePageRef = useRef(false);
+
+  const [reportName, setReportName] = useState(`${selectedClient} ${dateRange}`);
+
+  useEffect(() => {
+    setReportName(`${selectedClient} ${dateRange}`);
+  }, [selectedClient, dateRange]);
+  
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef(null);
+
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const datePickerRef = useRef(null);
+
+  const today = new Date();
+  const calendarStartMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const calendarCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const formatCalendarDate = (date) => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formatMonthHeading = (date) => date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const buildMonthDays = (monthDate) => {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const count = new Date(year, month + 1, 0).getDate();
+    return Array.from({ length: count }, (_, i) => {
+      const date = new Date(year, month, i + 1);
+      return { day: i + 1, month: date.toLocaleDateString('en-US', { month: 'short' }), year, absoluteIndex: dateKey(date), date };
+    });
+  };
+  const firstMonthDays = buildMonthDays(calendarStartMonth);
+  const secondMonthDays = buildMonthDays(calendarCurrentMonth);
+  const allDays = [...firstMonthDays, ...secondMonthDays];
+
+  const parseDateToIndex = (dateStr) => {
+    if (!dateStr) return null;
+    const parsed = new Date(dateStr);
+    return Number.isNaN(parsed.getTime()) ? null : dateKey(parsed);
+  };
+
+  const compareStartIndex = parseDateToIndex(compareStartDate);
+  const compareEndIndex = parseDateToIndex(compareEndDate);
+
+  const renderCalendarMonth = (monthDate, days) => {
+    const leadingBlanks = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getDay();
+    return (
+      <div className="flex flex-col gap-2" key={`${monthDate.getFullYear()}-${monthDate.getMonth()}`}>
+        <div className="grid grid-cols-7 text-center text-xs text-slate-400 font-bold">
+          <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+        </div>
+        <div className="grid grid-cols-7 text-center gap-y-1 font-medium text-slate-700 text-xs">
+          {Array.from({ length: leadingBlanks }, (_, i) => <span key={`blank-${i}`} className="py-1" />)}
+          {days.map((item) => {
+            const isStart = rawStartIndex === item.absoluteIndex;
+            const isEnd = rawEndIndex === item.absoluteIndex;
+            const isInBetween = item.absoluteIndex > rawStartIndex && item.absoluteIndex < rawEndIndex;
+            const isCompStart = isCompareEnabled && compareStartIndex === item.absoluteIndex;
+            const isCompEnd = isCompareEnabled && compareEndIndex === item.absoluteIndex;
+            const isCompInBetween = isCompareEnabled && compareStartIndex !== null && compareEndIndex !== null && item.absoluteIndex > compareStartIndex && item.absoluteIndex < compareEndIndex;
+            let styleClass = "hover:bg-slate-100 rounded-lg";
+            if (isStart && isEnd) styleClass = "bg-blue-600 text-white font-bold rounded-lg shadow-sm";
+            else if (isStart) styleClass = "bg-blue-600 text-white font-bold rounded-l-lg";
+            else if (isEnd) styleClass = "bg-blue-600 text-white font-bold rounded-r-lg";
+            else if (isInBetween) styleClass = "bg-blue-100 text-blue-900 rounded-none font-semibold";
+            else if (isCompStart && isCompEnd) styleClass = "bg-rose-400 text-white font-bold rounded-lg shadow-sm";
+            else if (isCompStart) styleClass = "bg-rose-400 text-white font-bold rounded-l-lg";
+            else if (isCompEnd) styleClass = "bg-rose-400 text-white font-bold rounded-r-lg";
+            else if (isCompInBetween) styleClass = "bg-[#fff5f5] text-rose-500 rounded-none font-medium";
+            return <span key={item.absoluteIndex} onClick={() => handleDateClick(item)} className={`py-1 cursor-default select-none transition-colors ${styleClass}`}>{item.day}</span>;
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const calculateCompareDates = (startStr, endStr, mode) => {
+    const startObj = new Date(startStr);
+    const endObj = new Date(endStr);
+    if (Number.isNaN(startObj.getTime()) || Number.isNaN(endObj.getTime())) {
+      return { compStart: startStr, compEnd: endStr };
+    }
+    const format = (date) => formatCalendarDate(date);
+    const shiftMonthClamped = (date, amount) => {
+      const target = new Date(date.getFullYear(), date.getMonth() + amount, 1);
+      const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+      target.setDate(Math.min(date.getDate(), lastDay));
+      return target;
+    };
+    if (mode === 'Last Month') {
+      return { compStart: format(shiftMonthClamped(startObj, -1)), compEnd: format(shiftMonthClamped(endObj, -1)) };
+    }
+    if (mode === 'Last Year') {
+      const compStart = new Date(startObj); compStart.setFullYear(compStart.getFullYear() - 1);
+      const compEnd = new Date(endObj); compEnd.setFullYear(compEnd.getFullYear() - 1);
+      return { compStart: format(compStart), compEnd: format(compEnd) };
+    }
+    return { compStart: startStr, compEnd: endStr };
+  };
+
+  useEffect(() => {
+    if (isCompareEnabled) {
+      const comp = calculateCompareDates(startDate, endDate, compareMode);
+      setCompareStartDate(comp.compStart);
+      setCompareEndDate(comp.compEnd);
+    }
+  }, [isCompareEnabled]);
+
+  const handlePresetChange = (preset) => {
+    setDatePreset(preset);
+    const today = new Date();
+    let start;
+    let end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (preset === 'This Month') {
+      start = new Date(today.getFullYear(), today.getMonth(), 1);
+    } else if (preset === 'Last 7 Days') {
+      start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6);
+    } else if (preset === 'Last 30 Days') {
+      start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29);
+    } else if (preset === 'Custom') {
+      return;
+    } else {
+      return;
+    }
+    const newStart = formatCalendarDate(start);
+    const newEnd = formatCalendarDate(end);
+    setStartDate(newStart);
+    setEndDate(newEnd);
+    setRawStartIndex(dateKey(start));
+    setRawEndIndex(dateKey(end));
+    if (isCompareEnabled) {
+      const modeToUse = compareMode === 'Custom' ? 'Last Month' : compareMode;
+      if (compareMode === 'Custom') setCompareMode('Last Month');
+      const comp = calculateCompareDates(newStart, newEnd, modeToUse);
+      setCompareStartDate(comp.compStart);
+      setCompareEndDate(comp.compEnd);
+      setActiveCompareInput(null);
+    }
+  };
+
+  const handleCompareModeChange = (mode) => {
+    setCompareMode(mode);
+    setActiveCompareInput(null);
+    if (mode === 'Custom') {
+      setCompareStartDate(startDate);
+      setCompareEndDate(endDate);
+    } else {
+      const comp = calculateCompareDates(startDate, endDate, mode);
+      setCompareStartDate(comp.compStart);
+      setCompareEndDate(comp.compEnd);
+    }
+  };
+
+  const handleDateClick = (item) => {
+    if (isCompareEnabled && compareMode === 'Custom' && activeCompareInput) {
+      const clickedDateStr = `${item.month} ${item.day}, ${item.year}`;
+      if (activeCompareInput === 'start') {
+        setCompareStartDate(clickedDateStr);
+        setActiveCompareInput('end');
+      } else {
+        setCompareEndDate(clickedDateStr);
+        setActiveCompareInput(null);
+      }
+      return;
+    }
+
+    setDatePreset('Custom');
+    let newStart = startDate;
+    let newEnd = endDate;
+
+    if (!startDate || (startDate && endDate && startDate !== endDate && endDate !== '')) {
+      setRawStartIndex(item.absoluteIndex);
+      setRawEndIndex(item.absoluteIndex);
+      newStart = `${item.month} ${item.day}, ${item.year}`;
+      newEnd = '';
+      setStartDate(newStart);
+      setEndDate('');
+    } else {
+      if (item.absoluteIndex < rawStartIndex) {
+        setRawStartIndex(item.absoluteIndex);
+        newStart = `${item.month} ${item.day}, ${item.year}`;
+        setStartDate(newStart);
+      } else {
+        setRawEndIndex(item.absoluteIndex);
+        newEnd = `${item.month} ${item.day}, ${item.year}`;
+        setEndDate(newEnd);
+      }
+
+      if (newStart && newEnd && isCompareEnabled) {
+        const modeToUse = compareMode === 'Custom' ? 'Last Month' : compareMode;
+        if (compareMode === 'Custom') {
+          setCompareMode('Last Month');
+          setActiveCompareInput(null);
+        }
+        const comp = calculateCompareDates(newStart, newEnd, modeToUse);
+        setCompareStartDate(comp.compStart);
+        setCompareEndDate(comp.compEnd);
+      }
+    }
+  };
+
+  const handleApplyDate = () => {
+    if (startDate && endDate) {
+      setDateRange(`${startDate} – ${endDate}`);
+    } else if (startDate) {
+      setDateRange(`${startDate} – ${startDate}`);
+    }
+    setIsDatePickerOpen(false);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+        setIsAccountMenuOpen(false);
+      }
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setIsDatePickerOpen(false);
+      }
+      if (clientDropdownRef.current && !clientDropdownRef.current.contains(event.target)) {
+        setIsClientDropdownOpen(false);
+        setActivePropertyMenu(null);
+      }
+      if (addPageDropdownRef.current && !addPageDropdownRef.current.contains(event.target)) {
+        setIsAddPageDropdownOpen(false);
+      }
+      if (!event.target.closest('.report-menu-container')) {
+        setActiveMenuReportId(null);
+      }
+      if (!event.target.closest('.page-menu-container')) {
+        setActivePageMenuId(null);
+      }
+      if (!event.target.closest('[data-metric-menu-container]')) {
+        setOpenMetricMenuId(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const [reportPages, setReportPages] = useState([
+    { id: 'p1', title: 'Cover Page', active: false },
+    { id: 'p3', title: 'Google Analytics', active: true },
+    { id: 'p4', title: 'Google Business Profile', active: false },
+    { id: 'p5', title: 'Google Ads', active: false },
+    { id: 'p6', title: 'Meta Ads', active: false },
+    { id: 'p7', title: 'Instagram', active: false },
+    { id: 'p8', title: 'Facebook', active: false },
+  ]);
+
+  // Initial template and one-step history for Restore Default / Restore Last.
+  const defaultDashboardRef = useRef(null);
+  const currentDashboardRef = useRef(null);
+  const lastDashboardRef = useRef(null);
+  if (!defaultDashboardRef.current) {
+    defaultDashboardRef.current = {
+      dashboardMetrics: dashboardMetrics.map((m) => ({ ...m })),
+      reportPages: reportPages.map((pg) => ({ ...pg })),
+    };
+  }
+  if (!currentDashboardRef.current) {
+    currentDashboardRef.current = {
+      dashboardMetrics: dashboardMetrics.map((m) => ({ ...m })),
+      reportPages: reportPages.map((pg) => ({ ...pg })),
+    };
+  }
+  useEffect(() => {
+    const next = {
+      dashboardMetrics: dashboardMetrics.map((m) => ({ ...m })),
+      reportPages: reportPages.map((pg) => ({ ...pg })),
+    };
+    const current = currentDashboardRef.current;
+    if (current && (JSON.stringify(current.dashboardMetrics) !== JSON.stringify(next.dashboardMetrics) || JSON.stringify(current.reportPages) !== JSON.stringify(next.reportPages))) {
+      lastDashboardRef.current = current;
+      currentDashboardRef.current = next;
+    }
+  }, [dashboardMetrics, reportPages]);
+
+  // Keep dashboard pages and metric layouts isolated per property in this prototype.
+  // This is local UI state only; persistence will be moved to Supabase later.
+  const propertyDashboardStoreRef = useRef({});
+  const latestDashboardStateRef = useRef({
+    dashboardMetrics: dashboardMetrics.map((m) => ({ ...m })),
+    reportPages: reportPages.map((pg) => ({ ...pg })),
+  });
+  const lastDashboardPropertyRef = useRef(selectedClient);
+  useEffect(() => {
+    const cloneDashboard = (value) => ({
+      dashboardMetrics: (value?.dashboardMetrics || []).map((metric) => ({ ...metric })),
+      reportPages: (value?.reportPages || []).map((page) => ({ ...page })),
+    });
+
+    if (lastDashboardPropertyRef.current !== selectedClient) {
+      // Save the property being left before loading the newly selected property.
+      propertyDashboardStoreRef.current[lastDashboardPropertyRef.current] =
+        cloneDashboard(latestDashboardStateRef.current);
+
+      const savedDashboard = propertyDashboardStoreRef.current[selectedClient];
+      const nextDashboard = cloneDashboard(savedDashboard || defaultDashboardRef.current);
+
+      lastDashboardPropertyRef.current = selectedClient;
+      latestDashboardStateRef.current = cloneDashboard(nextDashboard);
+      currentDashboardRef.current = cloneDashboard(nextDashboard);
+      lastDashboardRef.current = null;
+
+      setDashboardMetrics(nextDashboard.dashboardMetrics);
+      setReportPages(nextDashboard.reportPages);
+      setOpenMetricMenuId(null);
+      setActivePageMenuId(null);
+      setActivePropertyMenu(null);
+    } else {
+      // Keep the latest edits ready to be saved when the user switches property.
+      latestDashboardStateRef.current = {
+        dashboardMetrics: dashboardMetrics.map((metric) => ({ ...metric })),
+        reportPages: reportPages.map((page) => ({ ...page })),
+      };
+    }
+  }, [selectedClient, dashboardMetrics, reportPages]);
+
+  const restorePageDefault = (page) => {
+    const defaults = defaultDashboardRef.current;
+    if (!defaults) return;
+    setReportPages((current) => {
+      const defaultPage = defaults.reportPages.find((item) => item.id === page.id);
+      if (!defaultPage) return current;
+      return current.map((item) => item.id === page.id ? { ...defaultPage, active: item.active } : item);
+    });
+    setDashboardMetrics((current) => [
+      ...current.filter((metric) => metric.pageId !== page.id),
+      ...defaults.dashboardMetrics.filter((metric) => metric.pageId === page.id).map((metric) => ({ ...metric })),
+    ]);
+    setActivePageMenuId(null);
+  };
+  const restorePageLast = (page) => {
+    const last = lastDashboardRef.current;
+    if (!last) { window.alert('No previous dashboard state is available yet.'); setActivePageMenuId(null); return; }
+    const lastPage = last.reportPages.find((item) => item.id === page.id);
+    if (lastPage) setReportPages((current) => current.map((item) => item.id === page.id ? { ...lastPage, active: item.active } : item));
+    setDashboardMetrics((current) => [
+      ...current.filter((metric) => metric.pageId !== page.id),
+      ...last.dashboardMetrics.filter((metric) => metric.pageId === page.id).map((metric) => ({ ...metric })),
+    ]);
+    setActivePageMenuId(null);
+  };
+
+  // Pointer-based vertical drag from Script B, applied only to the Master page list.
+  // Horizontal pointer movement is intentionally ignored; the floating item stays in the sidebar corridor.
+  const handlePagePointerDown = (e, page) => {
+    if (e.target.closest('.page-menu-container') || e.target.tagName === 'INPUT') return;
+    if (e.button !== undefined && e.button !== 0) return;
+
+    const itemEl = pageItemsRef.current[page.id];
+    if (!itemEl) return;
+
+    const rect = itemEl.getBoundingClientRect();
+    didMovePageRef.current = false;
+    setDragBoxWidth(rect.width);
+    setDragBoxLeft(rect.left);
+    setDragInitialOffsetY(e.clientY - rect.top);
+    setDragY(rect.top);
+    setDraggedPageId(page.id);
+    setDragOverPageId(page.id);
+    e.preventDefault();
+  };
+
+  useEffect(() => {
+    reportPagesRef.current = reportPages;
+  }, [reportPages]);
+
+  // Keep the sidebar's active page in sync with the paper currently being viewed.
+  useEffect(() => {
+    const scroller = reportScrollRef.current;
+    if (!scroller || activeTab !== 'dashboard') return;
+    let frame = 0;
+    const syncActivePage = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const scrollerTop = scroller.getBoundingClientRect().top;
+        const activationLine = scrollerTop + Math.min(120, scroller.clientHeight * 0.22);
+        let activeId = reportPagesRef.current[0]?.id;
+        for (const page of reportPagesRef.current) {
+          const paper = reportPaperRefs.current[page.id];
+          if (paper && paper.getBoundingClientRect().top <= activationLine) activeId = page.id;
+          else if (paper) break;
+        }
+        if (activeId && reportPagesRef.current.some((page) => page.id === activeId && !page.active)) {
+          setReportPages((current) => current.map((page) => ({ ...page, active: page.id === activeId })));
+        }
+      });
+    };
+    scroller.addEventListener('scroll', syncActivePage, { passive: true });
+    syncActivePage();
+    return () => {
+      scroller.removeEventListener('scroll', syncActivePage);
+      cancelAnimationFrame(frame);
+    };
+  }, [activeTab, reportPages.length]);
+
+  // Open the report on Google Analytics by default, while keeping every paper mounted.
+  const didSetInitialReportPositionRef = useRef(false);
+  useEffect(() => {
+    if (activeTab !== 'dashboard' || didSetInitialReportPositionRef.current) return;
+    const analyticsPage = reportPaperRefs.current['p3'];
+    const scroller = reportScrollRef.current;
+    if (!analyticsPage || !scroller) return;
+    didSetInitialReportPositionRef.current = true;
+    requestAnimationFrame(() => {
+      scroller.scrollTop = Math.max(0, scroller.scrollTop + analyticsPage.getBoundingClientRect().top - scroller.getBoundingClientRect().top);
+    });
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!draggedPageId) return;
+
+    const handlePointerMove = (e) => {
+      const nextY = e.clientY - dragInitialOffsetY;
+      setDragY(nextY);
+      if (Math.abs(nextY - (pageItemsRef.current[draggedPageId]?.getBoundingClientRect().top ?? nextY)) > 3) {
+        didMovePageRef.current = true;
+      }
+
+      const currentPages = reportPagesRef.current;
+      const currentIndex = currentPages.findIndex((p) => p.id === draggedPageId);
+      if (currentIndex < 0) return;
+
+      // Pick the insertion point using only vertical midpoints of the other page rows.
+      const otherPages = currentPages.filter((p) => p.id !== draggedPageId);
+      let insertIndex = otherPages.length;
+      for (let i = 0; i < otherPages.length; i += 1) {
+        const targetEl = pageItemsRef.current[otherPages[i].id];
+        if (!targetEl) continue;
+        const rect = targetEl.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) {
+          insertIndex = i;
+          break;
+        }
+      }
+
+      const nextPages = [...otherPages];
+      nextPages.splice(insertIndex, 0, currentPages[currentIndex]);
+      const orderChanged = nextPages.some((p, i) => p.id !== currentPages[i]?.id);
+      if (orderChanged) {
+        reportPagesRef.current = nextPages;
+        setReportPages(nextPages);
+        setDragOverPageId(nextPages[Math.min(insertIndex, nextPages.length - 1)]?.id ?? null);
+      }
+    };
+
+    const handlePointerUp = () => {
+      setDraggedPageId(null);
+      setDragOverPageId(null);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, [draggedPageId, dragInitialOffsetY]);
+
+  const integrationsList = [
+    { id: 'i1', name: 'Facebook', connected: true, svg: <svg className="w-5 h-5 fill-blue-600" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> },
+    { id: 'i2', name: 'Google Ads', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#FBBC05" d="M5.4 14.5l6.5-11.3c.6-1 1.9-1.3 2.9-.7 1 .6 1.3 1.9.7 2.9L9 16.7c-.6 1-1.9 1.3-2.9.7-1-.6-1.3-1.9-.7-2.9z"/><path fill="#4285F4" d="M12.5 17.5c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4z"/><path fill="#34A853" d="M2.5 13.5c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2z"/></svg> },
+    { id: 'i3', name: 'Google Analytics', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg> },
+    { id: 'i4', name: 'Google Business Profile', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> },
+    { id: 'i5', name: 'Instagram', connected: true, svg: <svg className="w-5 h-5 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> },
+    { id: 'i6', name: 'Meta Ads', connected: true, svg: <svg className="w-5 h-5 fill-blue-500" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.328 13.5c-1.127 0-2.128-.535-2.778-1.365-.65.83-1.651 1.365-2.778 1.365-2.015 0-3.65-1.635-3.65-3.65s1.635-3.65 3.65-3.65c1.127 0 2.128.535 2.778 1.365.65-.83 1.651-1.365 2.778-1.365 2.015 0 3.65 1.635 3.65 3.65s-1.635 3.65-3.65 3.65z"/></svg> },
+    { id: 'i7', name: 'AI Tracker', connected: false, svg: <svg className="w-5 h-5 fill-slate-400" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/></svg> },
+    { id: 'i8', name: 'ActiveCampaign', connected: false, svg: <svg className="w-5 h-5 fill-slate-400" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/></svg> },
+    { id: 'i9', name: 'AdRoll', connected: false, svg: <svg className="w-5 h-5 fill-slate-400" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/></svg> },
+    { id: 'i10', name: 'Adform', connected: false, svg: <svg className="w-5 h-5 fill-slate-400" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/></svg> },
+    { id: 'i11', name: 'Ahrefs', connected: false, svg: <svg className="w-5 h-5 fill-slate-400" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/></svg> },
+  ];
+
+  const metricCatalog = {
+    'Facebook': ['Page Reach', 'Page Visits', 'Page Views', 'Post Reach', 'Post Engagement', 'Followers', 'Link Clicks', 'Video Views'],
+    'Instagram': ['Reach', 'Accounts Engaged', 'Profile Visits', 'Followers', 'Content Interactions', 'Reel Plays', 'Website Taps'],
+    'Google Ads': ['Impressions', 'Clicks', 'CTR', 'Conversions', 'Conversion Rate', 'Cost', 'CPC', 'ROAS'],
+    'Google Analytics': ['Sessions', 'Total Users', 'New Users', 'Page Views', 'Engagement Rate', 'Bounce Rate', 'Average Engagement Time', 'Conversions'],
+    'Google Business Profile': ['Profile Views', 'Searches', 'Website Clicks', 'Calls', 'Direction Requests', 'Bookings'],
+    'Meta Ads': ['Reach', 'Impressions', 'Link Clicks', 'CTR', 'CPC', 'CPM', 'Conversions', 'Amount Spent', 'ROAS'],
+    'AI Tracker': ['AI Visibility', 'Brand Mentions', 'Citation Count', 'Share of Voice'],
+    'ActiveCampaign': ['Contacts', 'Campaign Opens', 'Click Rate', 'New Subscribers', 'Unsubscribes'],
+    'AdRoll': ['Impressions', 'Clicks', 'Conversions', 'CTR', 'Cost per Conversion'],
+    'Adform': ['Impressions', 'Clicks', 'Conversions', 'Media Spend', 'CTR'],
+    'Ahrefs': ['Domain Rating', 'Organic Traffic', 'Backlinks', 'Referring Domains', 'Organic Keywords']
+  };
+  const defaultMetricSizes = { 'Number': [1, 1], 'Chart': [2, 1], 'Number & Chart': [2, 2], 'Pie Chart': [2, 2] };
+  const makeMetricId = () => `metric-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const metricValueFor = (metricName) => {
+    const values = {
+      'Page Reach': '24.8K', 'Reach': '24.8K', 'Page Visits': '8,420', 'Profile Visits': '8,420',
+      'Sessions': '17,032', 'Total Users': '15,207', 'Impressions': '124.6K', 'Clicks': '8,432', 'Bounce Rate': '2.17%', 'Avg Session Duration': '00:00:39', 'Page Views': '21,497', 'Profile Views': '8,420', 'Searches': '12,840', 'Page Visits': '8,420', 'Accounts Engaged': '6,240',
+      'Page Views': '21,497', 'Followers': '12,840', 'Conversions': '684', 'Website Clicks': '1,284',
+      'Engagement Rate': '6.42%', 'CTR': '3.84%', 'ROAS': '4.8x', 'Amount Spent': 'IDR 4.8M',
+      'Organic Traffic': '32.4K', 'Backlinks': '8,216', 'Calls': '248', 'Direction Requests': '516'
+    };
+    return values[metricName] || (Math.floor(1200 + metricName.length * 431).toLocaleString('en-US'));
+  };
+  const addDashboardMetric = (platform, name, col = 0, row = 0, targetPageId = null) => {
+    const currentPage = targetPageId
+      ? reportPagesRef.current.find((p) => p.id === targetPageId)
+      : reportPagesRef.current.find((p) => p.active) || reportPagesRef.current.find((p) => p.id === 'p3');
+    const pageId = currentPage?.id || 'p3';
+    const id = makeMetricId();
+    const [w, h] = [1, 1];
+    const targetCol = Math.max(0, Math.min(4 - w, col));
+    const targetRow = Math.max(0, row);
+    // Treat a newly added metric as an insertion, not as a search for any
+    // nearby empty cell. Existing cards (including wide/tall cards) must flow
+    // around it in reading order, wrapping to the next row when needed.
+    setDashboardMetrics((current) => {
+      const newMetric = {
+        id, platform, name, type: 'Number & Chart',
+        col: targetCol, row: targetRow, w, h, pageId
+      };
+      return placeMetricWithFlow([...current, newMetric], id, pageId, targetCol, targetRow);
+    });
+  };
+  const getGridDropPosition = (grid, clientX, clientY, w = 1, h = 1) => {
+    const rect = grid.getBoundingClientRect();
+    const style = window.getComputedStyle(grid);
+    const gap = parseFloat(style.columnGap) || 12;
+    const paddingLeft = parseFloat(style.paddingLeft) || 4;
+    const paddingTop = parseFloat(style.paddingTop) || 4;
+    const cellW = (rect.width - paddingLeft - (parseFloat(style.paddingRight) || 4) - gap * 3) / 4;
+    const cellH = metricCellHeight;
+    const col = Math.max(0, Math.min(4 - w, Math.floor((clientX - rect.left - paddingLeft) / (cellW + gap))));
+    const row = Math.max(0, Math.floor((clientY - rect.top - paddingTop) / (cellH + gap)));
+    return { col, row, left: paddingLeft + col * (cellW + gap), top: paddingTop + row * (cellH + gap), width: w * cellW + (w - 1) * gap, height: h * cellH + (h - 1) * gap };
+  };
+  const placeMetricWithFlow = (metrics, metricId, targetPageId, targetCol, targetRow) => {
+    const moving = metrics.find((m) => m.id === metricId);
+    if (!moving) return metrics;
+    const otherPages = metrics.filter((m) => m.pageId !== targetPageId && m.id !== metricId);
+    const pageItems = metrics.filter((m) => m.pageId === targetPageId && m.id !== metricId).map((m) => ({ ...m }));
+    const w = Math.max(1, Math.min(4, moving.w || 1));
+    const h = Math.max(1, moving.h || 1);
+    const col = Math.max(0, Math.min(4 - w, targetCol));
+    const row = Math.max(0, targetRow);
+    const seed = { ...moving, pageId: targetPageId, col, row, w, h };
+    const ordered = pageItems.sort((a, b) => a.row - b.row || a.col - b.col);
+    // Determine insertion order from the pointer target. Repack the page in
+    // reading order so a moved card cannot leave a hole behind or jump past a
+    // wide/tall card. Each card keeps its own width and height.
+    // Prefer insertion before the card under the pointer (or the first card
+    // after the target slot). This prevents a tall/wide card from being skipped
+    // when the pointer crosses into its lower rows.
+    const hitIndex = ordered.findIndex((card) =>
+      col < card.col + card.w && col + w > card.col && row < card.row + card.h && row + h > card.row
+    );
+    const targetSlot = row * 4 + col;
+    let insertAt = hitIndex >= 0 ? hitIndex : ordered.findIndex((card) => (card.row * 4 + card.col) >= targetSlot);
+    if (insertAt < 0) insertAt = ordered.length;
+    const sequence = [...ordered];
+    sequence.splice(insertAt, 0, seed);
+    const placed = [];
+    const overlaps = (a, b) => a.col < b.col + b.w && a.col + a.w > b.col && a.row < b.row + b.h && a.row + a.h > b.row;
+    let cursor = 0;
+    for (const card of sequence) {
+      let found = false;
+      for (let tries = 0; tries < 10000 && !found; tries++) {
+        let r = Math.floor(cursor / 4);
+        let c = cursor % 4;
+        if (c + card.w > 4) { cursor = (r + 1) * 4; continue; }
+        const candidate = { ...card, pageId: targetPageId, col: c, row: r };
+        if (!placed.some((p) => overlaps(candidate, p))) {
+          placed.push(candidate);
+          cursor = r * 4 + c + card.w;
+          found = true;
+        } else cursor++;
+      }
+      if (!found) {
+        const lastRow = placed.reduce((max, item) => Math.max(max, item.row + item.h), 0);
+        placed.push({ ...card, pageId: targetPageId, col: 0, row: lastRow });
+        cursor = lastRow * 4 + card.w;
+      }
+    }
+    return [...otherPages, ...placed];
+  };
+  // Existing-card drag uses a spatial insertion strategy: keep unaffected cards
+  // in their current grid slots, place the dragged card at the exact target slot,
+  // and push only cards that collide with it (or with a card pushed below it).
+  // This avoids reading-order repacking that made a half-width chart jump past
+  // a full-width table when the pointer crossed the table's tall bounding box.
+  const placeDraggedMetricInGrid = (metrics, metricId, targetPageId, targetCol, targetRow) => {
+    const moving = metrics.find((m) => m.id === metricId);
+    if (!moving) return metrics;
+    const otherPages = metrics.filter((m) => m.pageId !== targetPageId && m.id !== metricId);
+    const pageItems = metrics
+      .filter((m) => m.pageId === targetPageId && m.id !== metricId)
+      .map((m) => ({ ...m }))
+      .sort((a, b) => a.row - b.row || a.col - b.col);
+    const w = Math.max(1, Math.min(4, moving.w || 1));
+    const h = Math.max(1, moving.h || 1);
+    const seed = {
+      ...moving,
+      pageId: targetPageId,
+      col: Math.max(0, Math.min(4 - w, targetCol)),
+      row: Math.max(0, targetRow),
+      w,
+      h,
+    };
+    const overlaps = (a, b) =>
+      a.col < b.col + b.w && a.col + a.w > b.col &&
+      a.row < b.row + b.h && a.row + a.h > b.row;
+    const placed = [seed];
+    for (const card of pageItems) {
+      let candidate = { ...card };
+      // Preserve its original grid location whenever possible. If the moved
+      // card or an earlier displaced card occupies that slot, shift downward
+      // by whole grid rows until it fits. Never move a card above its old row.
+      while (placed.some((p) => overlaps(candidate, p))) {
+        candidate.row += 1;
+      }
+      placed.push(candidate);
+    }
+    return [...otherPages, ...placed];
+  };
+
+  const getPreviewLayoutForPage = (pageId) => {
+    if (!metricDragPreview || metricDragPreview.pageId !== pageId) return null;
+    const base = dashboardMetrics.filter((m) => m.pageId === pageId);
+    let movingId = metricDragPreview.id;
+    let working = dashboardMetrics;
+    if (!movingId || !base.some((m) => m.id === movingId)) {
+      movingId = '__getone_drag_preview__';
+      working = [...dashboardMetrics, {
+        id: movingId,
+        pageId,
+        platform: metricDragPreview.platform || selectedMetricPlatform || 'Metric',
+        name: metricDragPreview.name || 'New metric',
+        type: 'Number & Chart',
+        col: metricDragPreview.col,
+        row: metricDragPreview.row,
+        w: metricDragPreview.w || 1,
+        h: metricDragPreview.h || 1,
+      }];
+    }
+    const flowed = base.some((m) => m.id === movingId)
+      ? placeDraggedMetricInGrid(working, movingId, pageId, metricDragPreview.col, metricDragPreview.row)
+      : placeMetricWithFlow(working, movingId, pageId, metricDragPreview.col, metricDragPreview.row);
+    return new Map(flowed.filter((m) => m.pageId === pageId && m.id !== movingId).map((m) => [m.id, m]));
+  };
+  const findFreeMetricPosition = (metrics, col, row, w, h, ignoreId, pageIdOverride) => {
+    const targetPageId = pageIdOverride ?? metrics.find((x) => x.id === ignoreId)?.pageId;
+    const overlaps = (c, r) => metrics.some((m) => m.pageId === targetPageId && m.id !== ignoreId && c < m.col + m.w && c + w > m.col && r < m.row + m.h && r + h > m.row);
+    let c0 = Math.max(0, Math.min(4 - w, col));
+    let r0 = Math.max(0, row);
+    if (!overlaps(c0, r0)) return { col: c0, row: r0 };
+    for (let radius = 1; radius < 100; radius++) {
+      for (let r = Math.max(0, r0 - radius); r <= r0 + radius; r++) {
+        for (let c = 0; c <= 4 - w; c++) if (!overlaps(c, r)) return { col: c, row: r };
+      }
+    }
+    return { col: c0, row: r0 + 1 };
+  };
+  const startMetricPointerInteraction = (e, metric, mode) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    // Do not prevent the pointer's default action here: doing so can suppress
+    // the subsequent click event used to open the metric options menu.
+    e.stopPropagation();
+    const originGrid = reportPaperRefs.current[metric.pageId]?.querySelector('[data-metric-grid]');
+    if (!originGrid) return;
+    const originRect = originGrid.getBoundingClientRect();
+    const originStyle = window.getComputedStyle(originGrid);
+    const gap = parseFloat(originStyle.columnGap) || 12;
+    const padL = parseFloat(originStyle.paddingLeft) || 4;
+    const cellW = (originRect.width - padL - (parseFloat(originStyle.paddingRight) || 4) - gap * 3) / 4;
+    const rowHeight = metricCellHeight;
+    metricInteractionRef.current = { id: metric.id, mode, startX: e.clientX, startY: e.clientY, startCol: metric.col, startRow: metric.row, startW: metric.w, startH: metric.h, colWidth: cellW, rowHeight, originPageId: metric.pageId, targetPageId: metric.pageId, targetCol: metric.col, targetRow: metric.row, moved: false };
+    const onMove = (ev) => {
+      const it = metricInteractionRef.current; if (!it) return;
+      const dx = ev.clientX - it.startX, dy = ev.clientY - it.startY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) { it.moved = true; metricSuppressClickRef.current = true; }
+      let targetGrid = null, targetPageId = null;
+      for (const page of reportPagesRef.current) {
+        const grid = reportPaperRefs.current[page.id]?.querySelector('[data-metric-grid]');
+        if (!grid) continue;
+        const rect = grid.getBoundingClientRect();
+        if (ev.clientX >= rect.left && ev.clientX <= rect.right && ev.clientY >= rect.top - 20 && ev.clientY <= rect.bottom + 24) { targetGrid = grid; targetPageId = page.id; break; }
+      }
+      if (it.mode === 'drag' && targetGrid && targetPageId) {
+        const pos = getGridDropPosition(targetGrid, ev.clientX, ev.clientY, it.startW, it.startH);
+        it.targetPageId = targetPageId; it.targetCol = pos.col; it.targetRow = pos.row;
+        const previous = metricDragPreview;
+        if (!previous || previous.pageId !== targetPageId || previous.col !== pos.col || previous.row !== pos.row) captureMetricRects();
+        setMetricDragPreview({ id: it.id, pageId: targetPageId, col: pos.col, row: pos.row, w: it.startW, h: it.startH });
+      } else if (it.mode === 'drag') {
+        setMetricDragPreview(null);
+      } else {
+        const nextW = Math.max(1, Math.min(4 - it.startCol, it.startW + Math.round(dx / (it.colWidth + 12))));
+        const nextH = Math.max(1, it.startH + Math.round(dy / (it.rowHeight + 12)));
+        if (nextW !== it.lastW || nextH !== it.lastH) {
+          if (it.lastW === undefined) { it.lastW = it.startW; it.lastH = it.startH; }
+          if (nextW !== it.lastW || nextH !== it.lastH) captureMetricRects();
+          it.lastW = nextW; it.lastH = nextH;
+          setDashboardMetrics((curr) => reflowAfterMetricChange(curr.map((m) => m.id === it.id ? { ...m, w: nextW, h: nextH } : m), it.id));
+        }
+      }
+    };
+    const onUp = () => {
+      const it = metricInteractionRef.current;
+      if (it?.mode === 'drag' && it.moved && it.targetPageId) {
+        captureMetricRects();
+        setDashboardMetrics((curr) => placeDraggedMetricInGrid(curr, it.id, it.targetPageId, it.targetCol, it.targetRow));
+        setReportPages((prev) => prev.map((p) => ({ ...p, active: p.id === it.targetPageId })));
+      }
+      setMetricDragPreview(null);
+      window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp);
+      metricInteractionRef.current = null;
+    };
+    window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp);
+  };
+  // Reflow cards after a size/type change. Keep the edited card anchored, then
+  // let the following cards flow left-to-right and wrap to the next row, Word-style.
+  const reflowAfterMetricChange = (metrics, metricId) => {
+    const changed = metrics.find((m) => m.id === metricId);
+    if (!changed) return metrics;
+    const pageItems = metrics.filter((m) => m.pageId === changed.pageId).map((m) => ({ ...m }));
+    const otherPages = metrics.filter((m) => m.pageId !== changed.pageId);
+    const anchor = pageItems.find((m) => m.id === metricId);
+    const ordered = pageItems.filter((m) => m.id !== metricId).sort((a, b) => a.row - b.row || a.col - b.col);
+    const overlaps = (a, b) => a.col < b.col + b.w && a.col + a.w > b.col && a.row < b.row + b.h && a.row + a.h > b.row;
+    const before = ordered.filter((m) => m.row < anchor.row || (m.row === anchor.row && m.col < anchor.col));
+    const after = ordered.filter((m) => !before.some((x) => x.id === m.id));
+    const placed = [];
+    const fits = (card, col, row) => col >= 0 && col + card.w <= 4 && !overlaps({ ...card, col, row }, anchor) && !placed.some((x) => overlaps({ ...card, col, row }, x));
+    // Preserve cards before the edited card wherever possible.
+    before.forEach((card) => {
+      if (!overlaps(card, anchor) && !placed.some((x) => overlaps(card, x))) placed.push(card);
+      else after.push(card);
+    });
+    // Place cards after the anchor in reading order, starting immediately after it.
+    let cursor = anchor.row * 4 + anchor.col + anchor.w;
+    for (const card of after) {
+      let found = false;
+      for (let tries = 0; tries < 2000 && !found; tries++) {
+        const row = Math.floor(cursor / 4);
+        let col = cursor % 4;
+        if (col + card.w > 4) { cursor = (row + 1) * 4; continue; }
+        if (fits(card, col, row)) {
+          placed.push({ ...card, col, row });
+          cursor = row * 4 + col + card.w;
+          found = true;
+        } else cursor++;
+      }
+      if (!found) placed.push({ ...card, col: 0, row: Math.max(anchor.row + anchor.h, ...placed.map((x) => x.row + x.h), 0) });
+    }
+    return [...otherPages, ...placed, anchor];
+  };
+  const changeMetricType = (id, type) => {
+    captureMetricRects();
+    const [w, h] = defaultMetricSizes[type] || [1, 1];
+    setDashboardMetrics((curr) => {
+      const updated = curr.map((m) => m.id === id ? { ...m, type, w: Math.min(w, 4 - m.col), h } : m);
+      return reflowAfterMetricChange(updated, id);
+    });
+    setOpenMetricMenuId(null);
+  };
+  const [dataSources, setDataSources] = useState([
+    { id: 'ds1', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
+    { id: 'ds2', name: 'Facebook', svg: <svg className="w-4 h-4 fill-blue-600" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
+    { id: 'ds3', name: 'Google Ads', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#FBBC05" d="M5.4 14.5l6.5-11.3c.6-1 1.9-1.3 2.9-.7 1 .6 1.3 1.9.7 2.9L9 16.7c-.6 1-1.9 1.3-2.9.7-1-.6-1.3-1.9-.7-2.9z"/><path fill="#4285F4" d="M12.5 17.5c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4z"/><path fill="#34A853" d="M2.5 13.5c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2z"/></svg>, label: 'Hospio', identifier: '106022758308270071350', clients: '2 clients', status: 'Connected' },
+    { id: 'ds4', name: 'Meta Ads', svg: <svg className="w-4 h-4 fill-blue-500" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.328 13.5c-1.127 0-2.128-.535-2.778-1.365-.65.83-1.651 1.365-2.778 1.365-2.015 0-3.65-1.635-3.65-3.65s1.635-3.65 3.65-3.65c1.127 0 2.128.535 2.778 1.365.65-.83 1.651-1.365 2.778-1.365 2.015 0 3.65 1.635 3.65 3.65s-1.635 3.65-3.65 3.65z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '2 clients', status: 'Connected' },
+    { id: 'ds5', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
+    { id: 'ds6', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
+    { id: 'ds7', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '0 clients', status: 'Connected' },
+    { id: 'ds8', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
+    { id: 'ds9', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
+  ]);
+
+  const [viewingSavedReport, setViewingSavedReport] = useState(null);
+  const dashboardBackupRef = useRef(null);
+  const [pendingPrintReportId, setPendingPrintReportId] = useState(null);
+  const pendingReportWindowRef = useRef(null);
+  const [pendingNewTabReportId, setPendingNewTabReportId] = useState(null);
+  const [saveTargetReportId, setSaveTargetReportId] = useState('');
+
+  const captureDashboardSnapshot = () => ({
+    dashboardMetrics: dashboardMetrics.map((metric) => ({ ...metric })),
+    reportPages: reportPages.map((page) => ({ ...page })),
+    selectedClient,
+    dateRange,
+    startDate,
+    endDate,
+    datePreset,
+    isCompareEnabled,
+    compareMode,
+    compareStartDate,
+    compareEndDate,
+  });
+
+  const restoreDashboardSnapshot = (snapshot) => {
+    if (!snapshot) return;
+    setDashboardMetrics((snapshot.dashboardMetrics || []).map((metric) => ({ ...metric })));
+    setReportPages((snapshot.reportPages || []).map((page) => ({ ...page })));
+    setSelectedClient(snapshot.selectedClient || 'Prasana Villas Uluwatu');
+    setDateRange(snapshot.dateRange || 'Reporting Period');
+    setStartDate(snapshot.startDate || '');
+    setEndDate(snapshot.endDate || '');
+    setDatePreset(snapshot.datePreset || 'Custom');
+    setIsCompareEnabled(!!snapshot.isCompareEnabled);
+    setCompareMode(snapshot.compareMode || 'Last Month');
+    setCompareStartDate(snapshot.compareStartDate || '');
+    setCompareEndDate(snapshot.compareEndDate || '');
+  };
+
+  const openSavedReport = (report, shouldPrint = false) => {
+    if (!report?.snapshot) {
+      window.alert('This demo report does not contain a saved dashboard snapshot yet. Save a new report from the dashboard to use View and PDF export.');
+      return;
+    }
+    // Always open the saved snapshot in a separate tab. Open synchronously
+    // during the click so browser popup blockers allow it.
+    const reportWindow = window.open('', '_blank');
+    if (!reportWindow) {
+      window.alert('Please allow pop-ups for GOA to open the saved report in a new tab.');
+      return;
+    }
+    pendingReportWindowRef.current = reportWindow;
+    pendingPrintInNewTabRef.current = !!shouldPrint;
+    dashboardBackupRef.current = captureDashboardSnapshot();
+    restoreDashboardSnapshot(report.snapshot);
+    setViewingSavedReport(report);
+    setSelectedMetricPlatform(null);
+    setActiveTab('dashboard');
+    setActiveMenuReportId(null);
+    setIsDatePickerOpen(false);
+    setPendingPrintReportId(null);
+    setPendingNewTabReportId(report.id);
+  };
+
+  const closeSavedReport = () => {
+    if (dashboardBackupRef.current) restoreDashboardSnapshot(dashboardBackupRef.current);
+    dashboardBackupRef.current = null;
+    setViewingSavedReport(null);
+    setPendingPrintReportId(null);
+    setActiveTab('reports');
+  };
+
+  useEffect(() => {
+    if (!viewingSavedReport || !pendingNewTabReportId || !pendingReportWindowRef.current) return;
+    const reportWindow = pendingReportWindowRef.current;
+    const root = reportScrollRef.current;
+    if (!root) return;
+    try {
+      const safeTitle = String(viewingSavedReport.name || 'Saved Report').replace(/[<>&"']/g, '');
+      reportWindow.document.open();
+      reportWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' + safeTitle + '</title></head><body style="margin:0;background:#f1f5f9;font-family:Arial,sans-serif;"></body></html>');
+      Array.from(document.querySelectorAll('link[rel="stylesheet"], style')).forEach((node) => {
+        reportWindow.document.head.appendChild(node.cloneNode(true));
+      });
+
+      const toolbar = reportWindow.document.createElement('div');
+      toolbar.style.cssText = 'position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(15,23,42,.06);font:13px Arial,sans-serif;';
+      const title = reportWindow.document.createElement('div');
+      title.textContent = safeTitle;
+      title.style.cssText = 'font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      const actions = reportWindow.document.createElement('div');
+      actions.style.cssText = 'display:flex;align-items:center;gap:8px;flex-shrink:0;';
+      const saveButton = reportWindow.document.createElement('button');
+      saveButton.type = 'button';
+      saveButton.textContent = 'Save PDF';
+      saveButton.style.cssText = 'border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;padding:9px 13px;font-weight:700;cursor:default;';
+      saveButton.addEventListener('click', () => reportWindow.print());
+      const closeButton = reportWindow.document.createElement('button');
+      closeButton.type = 'button';
+      closeButton.textContent = 'Close Tab';
+      closeButton.style.cssText = 'border:0;border-radius:8px;background:#2563eb;color:#fff;padding:9px 13px;font-weight:700;cursor:default;';
+      closeButton.addEventListener('click', () => reportWindow.close());
+      actions.appendChild(saveButton);
+      actions.appendChild(closeButton);
+      toolbar.appendChild(title);
+      toolbar.appendChild(actions);
+      reportWindow.document.body.appendChild(toolbar);
+
+      const frozenWrap = reportWindow.document.createElement('div');
+      frozenWrap.style.cssText = 'width:100%;box-sizing:border-box;padding:28px 16px;display:flex;flex-direction:column;align-items:center;gap:20px;';
+      const frozenRoot = root.cloneNode(true);
+      frozenRoot.removeAttribute('id');
+      frozenRoot.removeAttribute('class');
+      frozenRoot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;height:auto;overflow:visible;padding:0;margin:0;background:transparent;';
+      frozenRoot.querySelectorAll('[data-report-page]').forEach((page) => {
+        page.style.width = '1120px';
+        page.style.minWidth = '1120px';
+        page.style.maxWidth = '1120px';
+        page.style.boxSizing = 'border-box';
+        page.style.flex = '0 0 auto';
+        page.style.overflow = 'visible';
+        page.style.pointerEvents = 'none';
+        page.querySelectorAll('button').forEach((button) => button.remove());
+      });
+      frozenWrap.appendChild(frozenRoot);
+      reportWindow.document.body.appendChild(frozenWrap);
+      const printStyle = reportWindow.document.createElement('style');
+      printStyle.textContent = 'html,body{margin:0;min-height:100%;overflow:auto} @media print{@page{size:A4 landscape;margin:10mm}.goa-report-toolbar{display:none!important}body{background:#fff!important}.goa-frozen-page{width:100%!important;max-width:100%!important;box-shadow:none!important;break-after:page;page-break-after:always} [data-report-page]{width:100%!important;min-width:0!important;max-width:100%!important;overflow:visible!important}}';
+      toolbar.classList.add('goa-report-toolbar');
+      frozenRoot.classList.add('goa-frozen-page');
+      reportWindow.document.head.appendChild(printStyle);
+      reportWindow.document.title = safeTitle;
+
+      if (pendingPrintInNewTabRef.current) {
+        pendingPrintInNewTabRef.current = false;
+        reportWindow.setTimeout(() => reportWindow.print(), 500);
+      }
+    } catch (error) {
+      reportWindow.document.body.textContent = 'Unable to render this saved report in a new tab. Please return to GOA and try again.';
+    }
+    pendingReportWindowRef.current = null;
+    setPendingNewTabReportId(null);
+    if (dashboardBackupRef.current) restoreDashboardSnapshot(dashboardBackupRef.current);
+    dashboardBackupRef.current = null;
+    setViewingSavedReport(null);
+    setActiveTab('reports');
+  }, [viewingSavedReport, pendingNewTabReportId]);
+
+  const pendingPrintInNewTabRef = useRef(false);
+
+  const [reportList, setReportList] = useState([
+    { id: 'r0', name: 'Bumi Kinar Ubud · October 2026', client: 'Bumi Kinar Ubud', user: 'Arysta Hendrik', type: 'User', created: 'Oct 30, 2026' },
+    { id: 'r1', name: 'Demo report', client: 'Demo client', user: 'Arysta Hendrik', type: 'Admin', created: 'Aug 13, 2026' },
+    { id: 'r2', name: 'Prasana Villas Uluwatu - September 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 16, 2026' },
+    { id: 'r3', name: 'Prasana Villas Uluwatu - October 2026', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Oct 20, 2026' },
+    { id: 'r4', name: 'Prasana Villas Uluwatu - August 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 02, 2026' },
+    { id: 'r5', name: 'Prasana Villas Uluwatu - September 2025', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 15, 2025' },
+    { id: 'r6', name: 'Prasana Villas Uluwatu - August 2025', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Sep 05, 2025' },
+    { id: 'r7', name: 'Selong Selo Resort - October 2026', client: 'Selong Selo Resort', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 21, 2026' },
+    { id: 'r8', name: 'Selong Selo Resort - September 2026', client: 'Selong Selo Resort', user: 'Hospio Team', type: 'Member', created: 'Oct 01, 2026' },
+    { id: 'r9', name: 'Selong Selo Resort - August 2026', client: 'Selong Selo Resort', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 01, 2026' },
+  ]);
+
+  const handleSaveReport = (e) => {
+    e.preventDefault();
+    const snapshot = captureDashboardSnapshot();
+    const savedName = reportName.trim() || `${selectedClient} ${dateRange}`;
+    const created = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    let savedReport;
+    if (saveTargetReportId) {
+      const target = reportList.find((report) => report.id === saveTargetReportId);
+      if (!target) return;
+      savedReport = { ...target, name: savedName, client: selectedClient, user: `${profileFirstName} ${profileLastName}`.trim(), type: activePropertyRole, created, dateRange, snapshot };
+      setReportList((current) => current.map((report) => report.id === saveTargetReportId ? savedReport : report));
+    } else {
+      savedReport = { id: 'r_' + Date.now(), name: savedName, client: selectedClient, user: `${profileFirstName} ${profileLastName}`.trim(), type: activePropertyRole, created, dateRange, snapshot };
+      setReportList((current) => [savedReport, ...current]);
+    }
+    setSaveTargetReportId('');
+    setIsSavedModalOpen(false);
+    setLatestSavedReportName(savedReport.name);
+    setIsSuccessModalOpen(true);
+  };
+
+  const confirmDeleteReport = () => {
+    if (reportToDelete) {
+      setReportList(reportList.filter(rep => rep.id !== reportToDelete.id));
+      setIsDeleteModalOpen(false);
+      setReportToDelete(null);
+      setActiveMenuReportId(null);
+    }
+  };
+
+  const confirmDeletePage = () => {
+    if (pageToDelete) {
+      if (reportPages.length > 1) {
+        setReportPages(reportPages.filter(p => p.id !== pageToDelete.id));
+      } else {
+        alert('Cannot delete the last remaining page.');
+      }
+      setIsDeletePageModalOpen(false);
+      setPageToDelete(null);
+      setActivePageMenuId(null);
+    }
+  };
+
+  const handleConfirmAddClient = (e) => {
+    e.preventDefault();
+    if (newClientInputValue && newClientInputValue.trim() !== '') {
+      const trimmed = newClientInputValue.trim();
+      if (!clientList.includes(trimmed)) {
+        setClientList([...clientList, trimmed]);
+      }
+      setSelectedClient(trimmed);
+      setNewClientInputValue('');
+      setIsAddClientModalOpen(false);
+    }
+  };
+
+  const getPageGridHeight = (pageId) => {
+    const pageMetrics = dashboardMetrics.filter((metric) => metric.pageId === pageId);
+    const bottomRow = pageMetrics.reduce((maxRow, metric) => Math.max(maxRow, metric.row + metric.h), 0);
+    const rows = Math.max(1, bottomRow);
+    // Keep only a small bottom drop zone; expand naturally when a card is placed below.
+    return rows * metricCellHeight + Math.max(0, rows - 1) * 12 + 24;
+  };
+
+  return (
+    <div className={`h-screen w-screen bg-slate-50 text-slate-800 flex font-sans overflow-hidden ${viewingSavedReport ? 'saved-report-mode' : ''}`}>
+      <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } .saved-report-mode { height: auto !important; width: 100% !important; overflow: visible !important; display: block !important; position: static !important; } body * { visibility: hidden !important; } #report-print-root, #report-print-root * { visibility: visible !important; } #report-print-root { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: white !important; display: block !important; } #report-print-root [data-report-page] { break-after: page; page-break-after: always; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; margin: 0 0 8mm 0 !important; width: 100% !important; min-height: 250mm; overflow: visible !important; } #report-print-root [data-metric-grid] { overflow: visible !important; } #report-print-root [data-metric-id] { break-inside: avoid; page-break-inside: avoid; } .print\:hidden { display: none !important; } } .saved-report-mode [data-metric-grid] { pointer-events: none !important; } .saved-report-mode [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-grid] { pointer-events: none !important; } @keyframes goaDropPulse { 0%,100% { box-shadow: 0 4px 14px rgba(37,99,235,.10); background-color: rgba(239,246,255,.78); } 50% { box-shadow: 0 6px 20px rgba(37,99,235,.20); background-color: rgba(219,234,254,.88); } }`}</style>
+      
+      {/* 1. SIDEBAR KIRI UTAMA */}
+      {!viewingSavedReport && <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-30 h-full">
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-3 px-2 py-1">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-base tracking-wider shadow-md shadow-blue-500/20">
+              GOA
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-slate-900 text-sm tracking-tight">Get One Analytics</span>
+              <span className="text-xs text-slate-400 font-medium">Performance Dashboard</span>
+            </div>
+          </div>
+
+          <nav className="flex flex-col gap-1.5 text-sm font-medium">
+            <button 
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-default ${activeTab === 'dashboard' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              <svg className={`w-4 h-4 ${activeTab === 'dashboard' ? 'fill-blue-600' : 'fill-blue-500'}`} viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3H3z"/></svg> 
+              Dashboards
+            </button>
+            <button 
+              onClick={() => setActiveTab('reports')}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-default ${activeTab === 'reports' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              <svg className={`w-4 h-4 ${activeTab === 'reports' ? 'fill-blue-600' : 'fill-blue-500'}`} viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> 
+              Reports
+            </button>
+            <button 
+              onClick={() => setActiveTab('datasource')}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-default ${activeTab === 'datasource' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}
+            >
+              <svg className={`w-4 h-4 ${activeTab === 'datasource' ? 'fill-blue-600' : 'fill-blue-500'}`} viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> 
+              Data Source
+            </button>
+          </nav>
+        </div>
+
+        <div className="border-t border-slate-200 pt-3 relative" ref={accountMenuRef}>
+          <div 
+            onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+            className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-100 cursor-default select-none"
+          >
+            <div className="w-9 h-9 bg-slate-900 rounded-full text-white flex items-center justify-center text-xs font-bold shadow-sm overflow-hidden">{profilePhoto ? <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" /> : 'AH'}</div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-900 leading-tight">{profileFirstName} {profileLastName}</span>
+              <span className="text-xs text-slate-500 font-medium">Account</span>
+            </div>
+          </div>
+
+          {isAccountMenuOpen && (
+            <div className="absolute bottom-16 left-2 w-56 bg-white border border-slate-200 rounded-xl shadow-2xl p-2.5 z-50 flex flex-col text-sm">
+              <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
+                <p className="text-xs text-slate-400">{profileEmail}</p>
+              </div>
+              {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
+              <div className="border-t border-slate-100 my-1"></div>
+              <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
+            </div>
+          )}
+        </div>
+      </aside>}
+
+      {/* AREA KANAN UTAMA */}
+      <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden text-[13px]">
+        
+        {/* TOP BAR */}
+        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 shadow-sm">
+          <div className="flex items-center gap-3">
+            {/* CUSTOM CLIENT DROPDOWN */}
+            <div className={`relative inline-block ${viewingSavedReport ? 'hidden' : ''}`} ref={clientDropdownRef}>
+              <div 
+                onClick={() => {
+                  setIsClientDropdownOpen((open) => {
+                    if (open) setActivePropertyMenu(null);
+                    return !open;
+                  });
+                }}
+                className="bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-800 text-sm font-bold rounded-lg px-3 py-1.5 pr-8 flex items-center justify-between gap-3 cursor-default shadow-sm select-none min-w-[220px]"
+              >
+                <span className="truncate">{selectedClient}</span>
+                <span className="text-slate-400 text-xs absolute right-3 pointer-events-none">▼</span>
+              </div>
+
+              {isClientDropdownOpen && (
+                <div className="absolute left-0 top-11 w-64 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50 flex flex-col text-sm">
+                  <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Select Property</div>
+                  <div className="max-h-48 overflow-y-auto flex flex-col py-1">
+                    {accessibleProperties.map((client, idx) => (
+                      <div key={idx} className={`px-2 py-1 hover:bg-blue-50 ${selectedClient === client ? 'bg-blue-50/60' : ''}`}>
+                        <div className="flex items-center gap-1">
+                          {selectedClient === client && activePropertyRole === 'Admin' && <button onClick={(e) => { e.stopPropagation(); setActivePropertyMenu(activePropertyMenu === client ? null : client); }} className="w-7 h-7 shrink-0 rounded-md hover:bg-slate-200 text-slate-500 font-bold" aria-label={`Options for ${client}`}>⋮</button>}
+                          <button onClick={() => { setSelectedClient(client); setIsClientDropdownOpen(false); setActivePropertyMenu(null); }} className={`flex-1 min-w-0 text-left px-2 py-1.5 font-medium truncate ${selectedClient === client ? 'text-blue-600 font-bold' : 'text-slate-700'}`}>{client}</button>
+                        </div>
+                        {selectedClient === client && activePropertyRole === 'Admin' && activePropertyMenu === client && <div className="ml-2 mr-1 mb-1 rounded-lg border border-slate-200 bg-white shadow-sm p-1 flex flex-col">
+                          <button onClick={() => { setPropertyAction({type:'rename',name:client}); setPropertyNameInput(client); setActivePropertyMenu(null); }} className="text-left px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 transition-colors duration-150">Rename</button>
+                          <label className="px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 cursor-default transition-colors duration-150">Upload Logo<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file=e.target.files?.[0]; if(file) setPropertyLogo(prev=>({...prev,[client]:URL.createObjectURL(file)})); setActivePropertyMenu(null); }} /></label>
+                          <button onClick={() => { setPropertyAction({type:'delete',name:client}); setActivePropertyMenu(null); }} className="text-left px-3 py-2 rounded-md hover:bg-rose-50 text-xs text-rose-600">Delete Property</button>
+                        </div>}
+                      </div>
+                    ))}
+                  </div>
+
+                  {!isActivePropertyUser && <div className="border-t border-slate-100 pt-1.5 px-2 mt-1">
+                    <button 
+                      onClick={() => {
+                        setIsClientDropdownOpen(false);
+                        setNewClientInputValue('');
+                        setIsAddClientModalOpen(true);
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-default"
+                    >
+                      <span>+</span> Add Property
+                    </button>
+                  </div>}
+                </div>
+              )}
+            </div>
+
+            <span className="text-xs text-slate-500 font-medium hidden md:inline bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">{activePropertyRole}</span>
+          </div>
+
+          {activeTab === 'dashboard' ? (
+            viewingSavedReport ? (
+              <div className="flex items-center gap-2 print:hidden">
+                <span className="text-sm text-slate-500 mr-2">Read only snapshot</span>
+                <button onClick={() => window.print()} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50">Download PDF</button>
+                <button onClick={closeSavedReport} className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">Back to Reports</button>
+              </div>
+            ) : (
+            <div className="flex items-center gap-3 relative" ref={datePickerRef}>
+              <div 
+                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 shadow-sm cursor-default hover:bg-slate-100 select-none"
+              >
+                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>{dateRange}</span>
+                <span className="text-slate-400 text-xs">▼</span>
+              </div>
+
+              {/* POP-UP DATE PICKER INTERAKTIF */}
+              {isDatePickerOpen && (
+                <div className="absolute right-0 top-12 bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 z-50 flex gap-8 text-sm w-[720px]">
+                  <div className="flex flex-col gap-4 flex-1 border-r border-slate-100 pr-6">
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-2 text-slate-400 font-bold"><span>«</span><span>‹</span></div>
+                      <span className="font-bold text-slate-900">{formatMonthHeading(calendarStartMonth)}</span>
+                      <span className="font-bold text-slate-900">{formatMonthHeading(calendarCurrentMonth)}</span>
+                      <div className="flex gap-2 text-slate-400 font-bold"><span>›</span><span>»</span></div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {renderCalendarMonth(calendarStartMonth, firstMonthDays)}
+                      {renderCalendarMonth(calendarCurrentMonth, secondMonthDays)}
+                    </div>
+
+                    <p className="text-xs text-slate-400 mt-2">
+                      {activeCompareInput ? (
+                        <span className="text-rose-400 font-bold animate-pulse">
+                          Click a date on the calendar to select the {activeCompareInput === 'start' ? 'Start' : 'End'} compare date
+                        </span>
+                      ) : (
+                        <>Dates are shown in <strong>Asia/Makassar</strong> timezone <span className="text-blue-600 underline cursor-default">Change</span></>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-4 w-72 justify-between">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-slate-800">Date Range</label>
+                        <select 
+                          value={datePreset}
+                          onChange={(e) => handlePresetChange(e.target.value)}
+                          className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold text-slate-800 focus:outline-none focus:border-blue-500 cursor-default"
+                        >
+                          <option value="Custom">Custom</option>
+                          <option value="Last 7 Days">Last 7 Days</option>
+                          <option value="Last 30 Days">Last 30 Days</option>
+                          <option value="This Month">This Month</option>
+                        </select>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <input type="text" value={startDate} readOnly className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-center text-slate-700 font-medium" />
+                          <input type="text" value={endDate} readOnly className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-center text-slate-700 font-medium" />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2 cursor-default select-none" onClick={() => setIsCompareEnabled(!isCompareEnabled)}>
+                          <input 
+                            type="checkbox" 
+                            checked={isCompareEnabled} 
+                            onChange={(e) => setIsCompareEnabled(e.target.checked)} 
+                            className="accent-blue-600 w-4 h-4 cursor-default" 
+                          />
+                          <label className="font-bold text-slate-800 cursor-default">Compare To</label>
+                        </div>
+                        
+                        {isCompareEnabled && (
+                          <div className="flex flex-col gap-2">
+                            <select 
+                              value={compareMode}
+                              onChange={(e) => handleCompareModeChange(e.target.value)}
+                              className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold text-slate-800 focus:outline-none focus:border-blue-500 cursor-default"
+                            >
+                              <option value="Last Month">Last Month</option>
+                              <option value="Last Year">Last Year</option>
+                              <option value="Custom">Custom</option>
+                            </select>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <input 
+                                type="text" 
+                                value={compareStartDate} 
+                                readOnly={compareMode !== 'Custom'}
+                                onClick={() => compareMode === 'Custom' && setActiveCompareInput('start')}
+                                className={`border rounded-lg px-3 py-1.5 text-center font-medium transition-all ${
+                                  compareMode === 'Custom' 
+                                    ? `cursor-default ${activeCompareInput === 'start' ? 'border-rose-300 ring-2 ring-rose-50 bg-[#fff5f5]' : 'bg-slate-50 border-slate-200 hover:border-rose-200'}` 
+                                    : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
+                                }`} 
+                              />
+                              <input 
+                                type="text" 
+                                value={compareEndDate} 
+                                readOnly={compareMode !== 'Custom'}
+                                onClick={() => compareMode === 'Custom' && setActiveCompareInput('end')}
+                                className={`border rounded-lg px-3 py-1.5 text-center font-medium transition-all ${
+                                  compareMode === 'Custom' 
+                                    ? `cursor-default ${activeCompareInput === 'end' ? 'border-rose-300 ring-2 ring-rose-50 bg-[#fff5f5]' : 'bg-slate-50 border-slate-200 hover:border-rose-200'}` 
+                                    : 'bg-slate-100 border-slate-200 text-slate-400 cursor-default'
+                                }`} 
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2 border-t border-slate-100">
+                      <button onClick={handleApplyDate} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-sm transition-all cursor-default">Apply</button>
+                      <button onClick={() => setIsDatePickerOpen(false)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 rounded-lg transition-all cursor-default">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={() => setIsSavedModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition-all flex items-center gap-2 cursor-default"
+              >
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                <span>Save Report</span>
+              </button>
+            </div>
+            )
+          ) : (
+            <div></div>
+          )}
+        </header>
+
+        {/* CONTAINER UTAMA BAWAH */}
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          
+          {/* SUB-SIDEBAR HALAMAN (HANYA DI DASHBOARD) DENGAN ANIMASI LEBIH PELAN & ELEGAN */}
+          {activeTab === 'dashboard' && !viewingSavedReport && !isActivePropertyUser && (
+            <aside className="w-64 bg-white border-r border-slate-200 p-4 flex flex-col gap-4 shrink-0 shadow-sm h-full overflow-y-auto">
+              
+              {/* TOMBOL & DROPDOWN ADD PAGE */}
+              <div className="relative" ref={addPageDropdownRef}>
+                <button 
+                  onClick={() => setIsAddPageDropdownOpen(!isAddPageDropdownOpen)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all cursor-default select-none"
+                >
+                  <span>+</span> Add page
+                </button>
+
+                {isAddPageDropdownOpen && (
+                  <div className="absolute left-0 top-12 w-full bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50 flex flex-col text-sm">
+                    <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">SELECT PAGE TEMPLATE</div>
+                    <div className="flex flex-col py-1">
+                      <button 
+                        onClick={() => {
+                          const newPageId = 'p_' + Date.now();
+                          const newPage = { id: newPageId, title: 'Blank Page', active: false };
+                          setReportPages([...reportPages, newPage]);
+                          setIsAddPageDropdownOpen(false);
+                        }}
+                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
+                      >
+                        Blank Page
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const newPageId = 'p_' + Date.now();
+                          const newPage = { id: newPageId, title: 'Google Analytics', active: false };
+                          setReportPages([...reportPages, newPage]);
+                          setIsAddPageDropdownOpen(false);
+                        }}
+                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
+                      >
+                        Google Analytics
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const newPageId = 'p_' + Date.now();
+                          const newPage = { id: newPageId, title: 'Google Business Profile', active: false };
+                          setReportPages([...reportPages, newPage]);
+                          setIsAddPageDropdownOpen(false);
+                        }}
+                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
+                      >
+                        Google Business Profile
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const newPageId = 'p_' + Date.now();
+                          const newPage = { id: newPageId, title: 'Meta Ads', active: false };
+                          setReportPages([...reportPages, newPage]);
+                          setIsAddPageDropdownOpen(false);
+                        }}
+                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
+                      >
+                        Meta Ads
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const newPageId = 'p_' + Date.now();
+                          const newPage = { id: newPageId, title: 'Instagram', active: false };
+                          setReportPages([...reportPages, newPage]);
+                          setIsAddPageDropdownOpen(false);
+                        }}
+                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
+                      >
+                        Instagram
+                      </button>
+                    </div>
+
+                    {/* SEE MORE POSISI TENGAH BLOK */}
+                    <div className="border-t border-slate-100 pt-2.5 pb-1 px-3 mt-1 flex items-center justify-center text-xs text-slate-400 font-semibold cursor-default hover:text-slate-600">
+                      <span className="flex items-center gap-1">
+                        See More <span className="text-[10px]">▼</span>
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div ref={pagesContainerRef} className="flex flex-col gap-2.5 mt-2 overflow-y-auto flex-1 pr-0.5 relative">
+                {reportPages.map((page) => {
+                  const isDragging = draggedPageId === page.id;
+
+                  return (
+                    <div
+                      key={page.id}
+                      ref={(el) => { pageItemsRef.current[page.id] = el; }}
+                      onPointerDown={(e) => handlePagePointerDown(e, page)}
+                      onClick={() => {
+                        if (!didMovePageRef.current && editingPageId !== page.id) {
+                          setReportPages((prev) => prev.map(p => ({ ...p, active: p.id === page.id })));
+                          reportPaperRefs.current[page.id]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        didMovePageRef.current = false;
+                      }}
+                      style={{ transitionDuration: '150ms', touchAction: 'pan-y' }}
+                      className={`flex items-center justify-between p-3 rounded-xl cursor-default transition-all ease-out border select-none group relative ${
+                        isDragging ? 'opacity-30 border-2 border-dashed border-blue-400 bg-blue-50/40 shadow-inner' :
+                        page.active ? 'bg-blue-50 border-blue-200 text-blue-700 font-medium shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 font-medium'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 truncate flex-1 mr-2">
+                        <span className="text-slate-300 group-hover:text-slate-500 font-bold tracking-tighter text-xs cursor-default">
+                          ⋮⋮
+                        </span>
+                        
+                        {editingPageId === page.id ? (
+                          <input 
+                            type="text" 
+                            autoFocus
+                            value={editingPageTitle}
+                            onChange={(e) => setEditingPageTitle(e.target.value)}
+                            onBlur={() => {
+                              if (editingPageTitle.trim() !== '') {
+                                setReportPages(reportPages.map(p => p.id === page.id ? { ...p, title: editingPageTitle.trim() } : p));
+                              }
+                              setEditingPageId(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                if (editingPageTitle.trim() !== '') {
+                                  setReportPages(reportPages.map(p => p.id === page.id ? { ...p, title: editingPageTitle.trim() } : p));
+                                }
+                                setEditingPageId(null);
+                              } else if (e.key === 'Escape') {
+                                setEditingPageId(null);
+                              }
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white border border-blue-500 rounded px-2 py-0.5 text-xs font-medium text-slate-900 focus:outline-none w-full shadow-sm"
+                          />
+                        ) : (
+                          <span className="truncate">{page.title}</span>
+                        )}
+                      </div>
+
+                      <div className="relative page-menu-container" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActivePageMenuId(activePageMenuId === page.id ? null : page.id);
+                          }}
+                          className="text-slate-400 hover:text-slate-700 px-1 font-bold cursor-default"
+                        >
+                          ···
+                        </button>
+
+                        {activePageMenuId === page.id && (
+                          <div className="absolute right-0 top-7 w-44 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-left text-xs flex flex-col">
+                            <button 
+                              onClick={() => {
+                                setReportPages(reportPages.map(p => ({ ...p, active: p.id === page.id })));
+                                reportPaperRefs.current[page.id]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                setActivePageMenuId(null);
+                              }}
+                              className="px-4 py-2 hover:bg-slate-50 text-slate-700 font-medium text-left cursor-default"
+                            >
+                              View
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setEditingPageId(page.id);
+                                setEditingPageTitle(page.title);
+                                setActivePageMenuId(null);
+                              }}
+                              className="px-4 py-2 hover:bg-slate-50 text-slate-700 font-medium text-left cursor-default"
+                            >
+                              Rename
+                            </button>
+                            <button 
+                              onClick={() => {
+                                const duplicatedId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+                                const duplicated = { ...page, id: duplicatedId, title: `${page.title} (Copy)`, active: false, isCover: page.title === 'Cover Page' || page.isCover === true };
+                                const idx = reportPages.findIndex(p => p.id === page.id);
+                                const updated = [...reportPages];
+                                updated.splice(idx + 1, 0, duplicated);
+                                setReportPages(updated);
+                                setDashboardMetrics((current) => [
+                                  ...current,
+                                  ...current.filter((metric) => metric.pageId === page.id).map((metric) => ({
+                                    ...metric,
+                                    id: makeMetricId(),
+                                    pageId: duplicatedId,
+                                  })),
+                                ]);
+                                setActivePageMenuId(null);
+                              }}
+                              className="px-4 py-2 hover:bg-slate-50 text-slate-700 font-medium text-left cursor-default"
+                            >
+                              Duplicate
+                            </button>
+                            <button 
+                              onClick={() => restorePageDefault(page)}
+                              className="px-4 py-2 hover:bg-slate-50 text-slate-700 font-medium text-left cursor-default"
+                            >
+                              Restore Default
+                            </button>
+                            <button 
+                              onClick={() => restorePageLast(page)}
+                              className="px-4 py-2 hover:bg-slate-50 text-slate-700 font-medium text-left cursor-default"
+                            >
+                              Restore Last
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setPageToDelete(page);
+                                setIsDeletePageModalOpen(true);
+                                setActivePageMenuId(null);
+                              }}
+                              className="px-4 py-2 hover:bg-rose-50 text-rose-600 font-semibold border-t border-slate-100 text-left mt-1 cursor-default"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Floating drag preview locked to the original sidebar X position and width. */}
+                {draggedPageId && (() => {
+                  const draggedPage = reportPages.find((p) => p.id === draggedPageId);
+                  if (!draggedPage) return null;
+                  return (
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: 'fixed',
+                        top: `${dragY}px`,
+                        left: `${dragBoxLeft}px`,
+                        width: `${dragBoxWidth}px`,
+                        pointerEvents: 'none',
+                        zIndex: 9999,
+                      }}
+                      className="flex items-center justify-between p-3 rounded-xl bg-white border-2 border-blue-500 text-blue-700 font-bold shadow-2xl scale-[1.02] opacity-95"
+                    >
+                      <div className="flex items-center gap-2.5 truncate flex-1 mr-2">
+                        <span className="text-blue-500 font-bold tracking-tighter text-xs">⋮⋮</span>
+                        <span className="truncate">{draggedPage.title}</span>
+                      </div>
+                      <span className="text-slate-400 px-1 font-bold">···</span>
+                    </div>
+                  );
+                })()}
+              </div>
+            </aside>
+          )}
+
+          {/* REPORT CANVAS: continuous vertical stack of paper pages */}
+          {activeTab === 'dashboard' && (
+            <main id="report-print-root" ref={reportScrollRef} className={`flex-1 min-w-0 px-6 md:px-8 pt-5 pb-10 flex flex-col items-center gap-5 overflow-y-auto h-full bg-slate-100/70 scroll-smooth ${isActivePropertyUser && !viewingSavedReport ? 'max-w-7xl w-full mx-auto' : ''} ${viewingSavedReport ? 'saved-report-readonly' : ''}`}>
+              {reportPages.map((page) => (
+                <section
+                  key={page.id}
+                  ref={(el) => { reportPaperRefs.current[page.id] = el; if (page.active && el) { const grid = el.querySelector('[data-metric-grid]'); if (grid) metricCanvasRef.current = grid; } }}
+                  data-report-page={page.id}
+                  className={`relative shrink-0 w-full ${viewingSavedReport ? 'max-w-[1120px]' : ''} ${isActivePropertyUser && !viewingSavedReport ? 'goa-user-dashboard-page' : ''} rounded-xl border border-slate-200 bg-white shadow-[0_5px_18px_rgba(15,23,42,0.08)] p-4 md:p-5`}
+                >
+                  {page.title === 'Cover Page' || page.isCover ? (
+                    <div className="min-h-[620px] flex flex-col items-center justify-center text-center px-8 py-16">
+                      <div className="w-20 h-20 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center mb-8 text-slate-400 overflow-hidden">
+                        {propertyLogo[selectedClient] ? <img src={propertyLogo[selectedClient]} alt={`${selectedClient} logo`} className="w-full h-full object-contain" /> : <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M4 20V5l8-3 8 3v15M8 20v-5h8v5M8 8h.01M16 8h.01" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      </div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400 mb-4">{selectedClient}</div>
+                      <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">Digital Marketing Report</h1>
+                      <div className="w-16 h-1 bg-blue-600 rounded-full my-7"></div>
+                      <p className="text-base text-slate-500">{dateRange || 'Reporting Period'}</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between gap-4 mb-4 px-1">
+                        <div>
+                          <h1 className="text-base font-bold text-slate-900">{page.title === 'Google Analytics' ? 'Google Analytics Performance' : page.title + ' Performance'}</h1>
+                          <p className="text-[10px] text-slate-400 mt-1">Reporting period · {dateRange || 'Selected date range'}</p>
+                        </div>
+                        <span className="text-[10px] text-slate-400">Demo data</span>
+                      </div>
+                      <div
+                        data-metric-grid
+                        ref={(el) => { if (page.active) metricCanvasRef.current = el; }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          const dragTypes = Array.from(e.dataTransfer.types || []);
+                          if (!dragTypes.includes('application/getone-metric') && !dragTypes.includes('text/plain') && !draggedNewMetricRef.current) return;
+                          const pos = getGridDropPosition(e.currentTarget, e.clientX, e.clientY, 1, 1);
+                          // Browsers may hide DataTransfer payload during dragover, so use the drag-start ref first.
+                          let dragged = draggedNewMetricRef.current || {};
+                          if (!dragged.platform || !dragged.name) {
+                            const raw = e.dataTransfer.getData('application/getone-metric') || e.dataTransfer.getData('text/plain');
+                            try { dragged = raw ? JSON.parse(raw) : dragged; } catch (_) {}
+                          }
+                          if (!metricDragPreview || metricDragPreview.pageId !== page.id || metricDragPreview.col !== pos.col || metricDragPreview.row !== pos.row) captureMetricRects();
+                          setMetricDragPreview({ pageId: page.id, col: pos.col, row: pos.row, w: 1, h: 1, platform: dragged.platform, name: dragged.name });
+                        }}
+                        onDragLeave={(e) => {
+                          if (!e.currentTarget.contains(e.relatedTarget)) {
+                            setMetricDragPreview((prev) => prev?.pageId === page.id ? null : prev);
+                          }
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const payload = e.dataTransfer.getData('application/getone-metric') || e.dataTransfer.getData('text/plain');
+                          let dragged = draggedNewMetricRef.current;
+                          try { if (payload) dragged = JSON.parse(payload); } catch (_) {}
+                          if (!dragged?.platform || !dragged?.name) { setMetricDragPreview(null); draggedNewMetricRef.current = null; return; }
+                          const { platform, name } = dragged;
+                          const pos = getGridDropPosition(e.currentTarget, e.clientX, e.clientY, 1, 1);
+                          captureMetricRects();
+                          setReportPages((prev) => prev.map((p) => ({ ...p, active: p.id === page.id })));
+                          addDashboardMetric(platform, name, pos.col, pos.row, page.id);
+                          setMetricDragPreview(null);
+                          draggedNewMetricRef.current = null;
+                        }}
+                        className="relative grid grid-cols-4 gap-3 content-start rounded-lg border border-slate-100 bg-white p-1"
+                        style={{ gridAutoRows: `${metricCellHeight}px`, minHeight: `${getPageGridHeight(page.id)}px` }}
+                      >
+                        {metricDragPreview?.pageId === page.id && (
+                          <div aria-hidden="true" className="pointer-events-none rounded-xl border-2 border-dashed border-blue-500 bg-blue-50/80 shadow-[0_4px_14px_rgba(37,99,235,0.12)] z-10 transition-all duration-200 ease-out" style={{ gridColumn: `${metricDragPreview.col + 1} / span ${metricDragPreview.w}`, gridRow: `${metricDragPreview.row + 1} / span ${metricDragPreview.h}`, minHeight: `${metricDragPreview.h * metricCellHeight + (metricDragPreview.h - 1) * 12}px`, alignSelf: 'stretch', animation: 'goaDropPulse 1s ease-in-out infinite' }} />
+                        )}
+                        {dashboardMetrics.filter((m) => m.pageId === page.id).length === 0 && (
+                          <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-slate-400">Choose a metric from the panel to customise this page.</div>
+                        )}
+                {(() => {
+                  const previewLayout = getPreviewLayoutForPage(page.id);
+                  return dashboardMetrics.filter((metric) => metric.pageId === page.id).map((originalMetric) => {
+                  const metric = previewLayout?.get(originalMetric.id) || originalMetric;
+                  const isCompact = metric.w === 1 && metric.h === 1;
+                  const isLarge = metric.w >= 2 || metric.h >= 2;
+                  const val = metricValueFor(metric.name);
+                  const points = [24, 20, 25, 13, 17, 8, 12, 4, 9];
+                  return (
+                    <div key={metric.id} data-metric-id={metric.id} className={`relative min-w-0 min-h-0 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col ${openMetricMenuId === metric.id ? "z-40" : "z-0"}`} style={{ gridColumn: `${metric.col + 1} / span ${metric.w}`, gridRow: `${metric.row + 1} / span ${metric.h}`, transition: 'grid-column 220ms cubic-bezier(0.22, 1, 0.36, 1), grid-row 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1)', willChange: 'transform' }}>
+                      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-slate-100">
+                        <span className="text-xs font-semibold text-slate-700 truncate">{metric.name}</span>
+                        <div data-metric-menu-container className="relative shrink-0">
+                          <button type="button" aria-label="Move metric or open menu" onPointerDown={(e) => startMetricPointerInteraction(e, metric, 'drag')} onClick={() => { if (metricSuppressClickRef.current) { metricSuppressClickRef.current = false; return; } setOpenMetricMenuId(openMetricMenuId === metric.id ? null : metric.id); }} className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md hover:bg-slate-100 text-slate-500 cursor-default active:cursor-default select-none touch-none" title="Drag to move · click for options">
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+                          </button>
+                          {openMetricMenuId === metric.id && (
+                            <div className="absolute right-0 top-8 z-[60] w-44 rounded-xl border border-slate-200 bg-white shadow-xl p-1.5">
+                              {['Number', 'Chart', 'Number & Chart', 'Pie Chart'].map((type) => <button key={type} type="button" onClick={() => changeMetricType(metric.id, type)} className={`w-full text-left text-xs px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-700 ${metric.type === type ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-slate-700'}`}>{type}</button>)}
+                              <div className="h-px bg-slate-100 my-1" />
+                              <button type="button" onClick={() => { setMetricPendingDelete(metric); setOpenMetricMenuId(null); }} className="w-full text-left text-xs px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 font-semibold">Delete</button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
+                        {metric.name === 'Traffic Channel Breakdown' && (
+                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-contain">
+                            <table className="w-full min-w-[620px] border-collapse">
+                              <thead className="sticky top-0 z-[1] bg-white"><tr className="text-slate-500 border-b border-slate-200">{['Channel','Sessions','Views','User Engagement','Active Users','New Users'].map((h)=><th key={h} className="text-left font-semibold py-1 pr-2 whitespace-nowrap">{h}</th>)}</tr></thead>
+                              <tbody>{[['Paid Search','4,820','7,932','2m 14s','3,247','2,188'],['Display','1,846','3,208','1m 42s','1,764','1,018'],['Referral','1,271','1,188','2m 07s','995','694'],['Organic Search','6,325','12,030','3m 06s','5,883','3,880'],['Direct','2,920','4,820','2m 31s','2,100','1,760'],['Email','620','1,420','1m 12s','490','320'],['Affiliates','820','840','0m 48s','680','480'],['Video','2,220','2,600','2m 20s','1,920','1,360'],['Cross-network','340','460','0m 50s','310','220'],['Unassigned','120','210','0m 32s','90','60']].map((row,i)=><tr key={i} className="border-b border-slate-100"><td className="py-1 pr-2 whitespace-nowrap">{row[0]}</td>{row.slice(1).map((v,j)=><td key={j} className="py-1 pr-2 whitespace-nowrap">{v}</td>)}</tr>)}</tbody>
+                            </table>
+                          </div>
+                        )}
+                        {metric.name === 'Top Pages & Screens' && (
+                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-contain">
+                            <table className="w-full min-w-[440px] border-collapse">
+                              <thead className="sticky top-0 z-[1] bg-white"><tr className="text-slate-500 border-b border-slate-200">{['Page path and screen class','Views','Users','Avg. engagement time'].map((h)=><th key={h} className="text-left font-semibold py-1 pr-2 whitespace-nowrap">{h}</th>)}</tr></thead>
+                              <tbody>{[['/','71','21','2m 52s'],['/pages/heritage-villas-ubud','34','20','1m 22s'],['/pages/skylight-villas-ubud','18','20','1m 24s'],['/pages/buki-spa','10','18','0m 47s'],['/pages/jingga-restaurant','7','24','1m 31s'],['/pages/lokal-kafe','25','30','4m 18s'],['/offers','11','22','1m 08s'],['/gallery','48','80','2m 06s'],['/experiences','38','42','2m 40s'],['/about-us','30','33','1m 12s']].map((row,i)=><tr key={i} className="border-b border-slate-100"><td className="py-1 pr-2 whitespace-nowrap text-blue-600">{row[0]}</td>{row.slice(1).map((v,j)=><td key={j} className="py-1 pr-2 whitespace-nowrap">{v}</td>)}</tr>)}</tbody>
+                            </table>
+                          </div>
+                        )}
+                        {(metric.type === 'Number' || metric.type === 'Number & Chart') && !['Traffic Channel Breakdown', 'Top Pages & Screens'].includes(metric.name) && <div className="flex items-end justify-between gap-2"><span className={`${isCompact ? 'text-xl' : 'text-2xl'} font-black tracking-tight text-slate-900`}>{val}</span>{isLarge && <span className="text-[10px] font-semibold text-emerald-600 whitespace-nowrap">↗ 12.6%</span>}</div>}
+                        {(metric.type === 'Chart' || metric.type === 'Number & Chart') && !['Traffic Channel Breakdown', 'Top Pages & Screens'].includes(metric.name) && (
+                          <div className={`${isCompact ? 'h-7 mt-1' : 'flex-1 min-h-[40px] mt-2'} w-full`}>
+                            <svg viewBox="0 0 200 55" preserveAspectRatio="none" className="w-full h-full"><path d={points.map((y,i)=>`${i===0?'M':'L'} ${i*25} ${y*1.8}`).join(' ')} fill="none" stroke="#2563eb" strokeWidth="2.25" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          </div>
+                        )}
+                        {metric.type === 'Pie Chart' && <div className="flex-1 flex items-center justify-center gap-3 min-h-0"><svg viewBox="0 0 100 100" className={`${isCompact ? 'w-16 h-16' : 'w-28 h-28'} shrink-0`}><circle cx="50" cy="50" r="34" fill="none" stroke="#dbeafe" strokeWidth="18"/><circle cx="50" cy="50" r="34" fill="none" stroke="#2563eb" strokeWidth="18" strokeDasharray="125 214" transform="rotate(-90 50 50)"/><circle cx="50" cy="50" r="34" fill="none" stroke="#10b981" strokeWidth="18" strokeDasharray="54 214" strokeDashoffset="-125" transform="rotate(-90 50 50)"/></svg>{isLarge && <div className="text-[10px] text-slate-500 space-y-1"><div><span className="inline-block w-2 h-2 rounded-full bg-blue-600 mr-1"/>Organic 58%</div><div><span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"/>Paid 25%</div><div><span className="inline-block w-2 h-2 rounded-full bg-blue-100 mr-1"/>Other 17%</div></div>}</div>}
+                        {isLarge && <div className="flex justify-between text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100"><span>1 Oct</span><span>7 Oct</span><span>14 Oct</span><span>Today</span></div>}
+                      </div>
+                      <button type="button" aria-label="Resize metric" onPointerDown={(e) => startMetricPointerInteraction(e, metric, 'resize')} className="absolute bottom-0 right-0 w-5 h-5 cursor-default touch-none flex items-end justify-end p-1 text-slate-400 hover:text-blue-600" title="Drag to resize"><svg className="w-3 h-3" viewBox="0 0 12 12" fill="currentColor"><path d="M11 1v10H1z"/></svg></button>
+                    </div>
+                  );
+                });
+                })()}
+                      </div>
+                    </>
+                  )}
+                </section>
+              ))}
+            </main>
+          )}
+
+          {/* HALAMAN REPORTS (DENGAN INLINE RENAME) */}
+          {activeTab === 'reports' && (
+            <main className="flex-1 p-6 md:p-8 flex flex-col gap-6 max-w-7xl w-full mx-auto overflow-y-auto h-full pb-24">
+              <h1 className="text-xl font-bold text-slate-900">Report</h1>
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm">
+                <table className="w-full text-left text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/30">
+                      <th className="py-3 px-4">Name</th>
+                      <th className="py-3 px-4">Download</th>
+                      <th className="py-3 px-4">Client</th>
+                      <th className="py-3 px-4">User</th>
+                      <th className="py-3 px-4">Type</th>
+                      <th className="py-3 px-4">Created</th>
+                      <th className="py-3 px-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                    {reportList.map((rep, index) => {
+                      const isNearBottom = index >= reportList.length - 2;
+                      const isEditingThisReport = editingReportId === rep.id;
+
+                      return (
+                        <tr key={rep.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="py-3.5 px-4">
+                            {isEditingThisReport ? (
+                              <input 
+                                type="text"
+                                autoFocus
+                                value={editingReportNameValue}
+                                onChange={(e) => setEditingReportNameValue(e.target.value)}
+                                onBlur={() => {
+                                  if (editingReportNameValue.trim() !== '') {
+                                    setReportList(reportList.map(r => r.id === rep.id ? { ...r, name: editingReportNameValue.trim() } : r));
+                                  }
+                                  setEditingReportId(null);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    if (editingReportNameValue.trim() !== '') {
+                                      setReportList(reportList.map(r => r.id === rep.id ? { ...r, name: editingReportNameValue.trim() } : r));
+                                    }
+                                    setEditingReportId(null);
+                                  } else if (e.key === 'Escape') {
+                                    setEditingReportId(null);
+                                  }
+                                }}
+                                className="bg-white border border-blue-500 rounded px-2.5 py-1 text-sm font-bold text-slate-900 focus:outline-none w-full shadow-sm max-w-md"
+                              />
+                            ) : (
+                              <button type="button" onClick={() => openSavedReport(rep)} className="text-blue-600 font-bold underline cursor-default truncate max-w-md block text-left">
+                                {rep.name}
+                              </button>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <button 
+                              onClick={() => openSavedReport(rep, true)}
+                              className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 hover:text-slate-800 transition-colors inline-flex items-center justify-center cursor-default"
+                              title="Download Report"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                              </svg>
+                            </button>
+                          </td>
+                          <td className="py-3.5 px-4">{rep.client}</td>
+                          <td className="py-3.5 px-4 font-semibold text-slate-800">{rep.user}</td>
+                          <td className="py-3.5 px-4">
+                            <span className={`px-2.5 py-1 rounded font-semibold text-xs ${rep.type === 'Admin' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                              {rep.type}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-slate-400">{rep.created}</td>
+                          <td className="py-3.5 px-4 text-right relative report-menu-container">
+                            <button 
+                              onClick={() => setActiveMenuReportId(activeMenuReportId === rep.id ? null : rep.id)}
+                              className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-500 hover:text-slate-800 transition-colors inline-flex items-center justify-center font-bold cursor-default"
+                              title="Actions"
+                            >
+                              ···
+                            </button>
+
+                            {activeMenuReportId === rep.id && (
+                              <div className={`absolute right-4 w-40 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-left text-xs flex flex-col ${isNearBottom ? 'bottom-12' : 'top-12'}`}>
+                                <button 
+                                  onClick={() => {
+                                    openSavedReport(rep);
+                                  }}
+                                  className="px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 font-medium cursor-default"
+                                >
+                                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                  </svg>
+                                  View
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    setEditingReportId(rep.id);
+                                    setEditingReportNameValue(rep.name);
+                                    setActiveMenuReportId(null);
+                                  }}
+                                  className="px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 font-medium cursor-default"
+                                >
+                                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                  </svg>
+                                  Rename
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    setReportToShare(rep);
+                                    setIsCopied(false);
+                                    setIsShareModalOpen(true);
+                                    setActiveMenuReportId(null);
+                                  }}
+                                  className="px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 font-medium cursor-default"
+                                >
+                                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                                  </svg>
+                                  Share
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setActiveMenuReportId(null);
+                                    openSavedReport(rep, true);
+                                  }}
+                                  className="px-4 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 font-medium cursor-default"
+                                >
+                                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                  Download
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    setReportToDelete(rep);
+                                    setIsDeleteModalOpen(true);
+                                    setActiveMenuReportId(null);
+                                  }}
+                                  className="px-4 py-2 hover:bg-rose-50 text-rose-600 flex items-center gap-2 font-semibold border-t border-slate-100 cursor-default"
+                                >
+                                  <svg className="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                  </svg>
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </main>
+          )}
+
+          {/* HALAMAN DATA SOURCE */}
+          {activeTab === 'datasource' && (
+            isActivePropertyUser ? (
+              <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto overflow-y-auto h-full pb-24 flex items-start justify-center">
+                <div className="w-full bg-white border border-slate-200 rounded-2xl p-8 mt-8 text-center shadow-sm flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center"><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3" strokeLinecap="round"/></svg></div>
+                  <h1 className="text-lg font-bold text-slate-900">Admin Access Required</h1>
+                  <p className="text-sm text-slate-500 max-w-xl">Only property Admins can connect and manage data sources. Please contact your property Admin for access.</p>
+                </div>
+              </main>
+            ) : (
+            <main className="flex-1 p-6 md:p-8 flex flex-col gap-6 max-w-7xl w-full mx-auto overflow-y-auto h-full pb-24">
+              <div className="flex justify-between items-center">
+                <h1 className="text-xl font-bold text-slate-900">Data sources</h1>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg shadow-sm flex items-center gap-1.5 transition-all cursor-default">
+                  <span>+</span> Connect Data Source
+                </button>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                  <span className="text-sm font-bold text-slate-600">Showing {dataSources.length} Rows</span>
+                  <input type="text" placeholder="Search" className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 w-64" />
+                </div>
+                <table className="w-full text-left text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/30">
+                      <th className="py-3.5 px-4">Integration</th>
+                      <th className="py-3.5 px-4">Label</th>
+                      <th className="py-3.5 px-4">Identifier</th>
+                      <th className="py-3.5 px-4">Connected clients</th>
+                      <th className="py-3.5 px-4">Status ▼</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                    {dataSources.map((ds) => (
+                      <tr key={ds.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-2.5">
+                          {ds.svg}
+                          <span className="text-blue-600 underline cursor-default">{ds.name}</span>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700">{ds.label}</td>
+                        <td className="py-3.5 px-4 font-mono text-slate-600">{ds.identifier}</td>
+                        <td className="py-3.5 px-4 text-slate-700">{ds.clients}</td>
+                        <td className="py-3.5 px-4">
+                          <span className={`px-3 py-1 rounded-full font-semibold text-xs ${ds.status === 'Connected' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                            {ds.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </main>
+            )
+          )}
+
+          {/* ACCOUNT: PROFILE */}
+          {activeTab === 'profile' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-5xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Profile</h1><p className="text-sm text-slate-500 mt-1">Manage your personal account information.</p></div><div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6">
+            <div className="flex items-center gap-4"><div className="w-20 h-20 rounded-full bg-slate-900 text-white flex items-center justify-center text-xl font-bold overflow-hidden">{profilePhoto?<img src={profilePhoto} alt="Profile photo" className="w-full h-full object-cover"/>:'AH'}</div><div className="flex flex-col gap-1"><label className="text-sm font-semibold text-blue-600 cursor-default hover:text-blue-700 hover:font-bold">Upload photo<input type="file" accept="image/*" className="hidden" onChange={e=>{const f=e.target.files?.[0];if(f){setProfilePhoto(URL.createObjectURL(f));setProfileSaved(false);}e.target.value='';}}/></label><span className="text-xs text-slate-400">Image preview is temporary and resets when the page is refreshed.</span></div></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><label className="text-xs font-semibold text-slate-600">First Name<input value={profileFirstName} onChange={e=>{setProfileFirstName(e.target.value);setProfileSaved(false);}} className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 text-sm"/></label><label className="text-xs font-semibold text-slate-600">Last Name<input value={profileLastName} onChange={e=>{setProfileLastName(e.target.value);setProfileSaved(false);}} className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 text-sm"/></label><label className="text-xs font-semibold text-slate-600 md:col-span-2">Primary Email <span className="text-emerald-600">· Verified</span><input value={profileEmail} readOnly disabled aria-readonly="true" className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-500 cursor-default select-none"/></label><label className="text-xs font-semibold text-slate-600 md:col-span-2">Recovery Email<input value={recoveryEmail} onChange={e=>{setRecoveryEmail(e.target.value);setProfileSaved(false);}} placeholder="Optional recovery email" className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 text-sm"/></label></div>
+            <div className="border-t border-slate-100 pt-5"><h2 className="font-bold text-slate-900 mb-3">Change Password</h2><div className="grid md:grid-cols-3 gap-3">{['Current Password','New Password','Confirm New Password'].map(x=><input key={x} type="password" placeholder={x} className="border border-slate-200 rounded-lg p-2.5 text-sm"/>)}</div></div><div className="border-t border-slate-100 pt-4 flex justify-between items-center"><div><span className="text-xs text-slate-500">Account Created · 12 March 2026</span>{profileSaved&&<p className="text-xs text-emerald-600 font-semibold mt-1">Profile changes saved for this session.</p>}</div><button onClick={()=>setProfileSaved(true)} className={`px-5 py-2.5 rounded-lg font-semibold ${profileSaved?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-700'}`}>{profileSaved?'Saved':'Save Profile'}</button></div></div></main>}
+
+          {/* ACCOUNT: USERS */}
+          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{userRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...userRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=><tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><select aria-label="User actions" className="border border-slate-200 rounded-md p-1 text-xs" defaultValue=""><option value="" disabled>⋮</option>{(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']).map(action=><option key={action}>{action}</option>)}</select></td></tr>)}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
+
+          {/* ACCOUNT: BILLING */}
+          {activeTab === 'billing' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Billing</h1><p className="text-sm text-slate-500 mt-1">Manage your subscription and payments.</p></div><div className="grid md:grid-cols-3 gap-4">{[{name:'Free',price:'Rp0',desc:'For getting started',features:['Limited platforms','Basic dashboard']},{name:'Pro',price:'Rp200.000',desc:'Per property / month',features:['All core platforms','Saved reports','Multiple properties']},{name:'Agency',price:'Rp300.000',desc:'Per property / month',features:['Everything in Pro','White label branding','Custom domain']}].map(plan=><div key={plan.name} className={`bg-white border rounded-2xl p-5 ${billingPlan===plan.name?'border-blue-500 ring-2 ring-blue-100':''}`}><div className="flex justify-between"><h2 className="font-bold text-lg">{plan.name}</h2>{billingPlan===plan.name&&<span className="text-xs text-blue-600 font-bold">Current Plan</span>}</div><p className="text-2xl font-bold mt-4">{plan.price}</p><p className="text-xs text-slate-500">{plan.desc}</p><ul className="text-sm text-slate-600 my-5 space-y-2">{plan.features.map(f=><li key={f}>✓ {f}</li>)}</ul><button onClick={()=>setBillingPlan(plan.name)} className="w-full border border-slate-200 rounded-lg py-2 text-sm font-semibold hover:bg-slate-50">{billingPlan===plan.name?'Current Plan':'Select Plan'}</button></div>)}</div><div className="grid md:grid-cols-3 gap-4 mt-6">{['Property Usage','Payment Method','Billing History'].map(title=><div key={title} className="bg-white border border-slate-200 rounded-xl p-5"><h3 className="font-bold text-slate-900">{title}</h3><p className="text-sm text-slate-500 mt-3">{title==='Property Usage'?`${clientList.length} properties`:title==='Payment Method'?'No payment method added':'No billing history yet'}</p></div>)}</div></main>}
+
+          {/* ACCOUNT: SETTINGS */}
+          {activeTab === 'settings' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-4xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Settings</h1><p className="text-sm text-slate-500 mt-1">Manage account and workspace preferences.</p></div><div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100"> <div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Appearance</h3><p className="text-xs text-slate-500 mt-1">Choose your dashboard theme.</p></div><select value={appearance} onChange={e=>setAppearance(e.target.value)} className="border border-slate-200 rounded-lg p-2 text-sm"><option>Light Mode</option><option>Dark Mode</option></select></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">White Label Branding</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Branding</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Custom Domain</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Domain</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Delete Account</h3><p className="text-xs text-slate-500 mt-1">Permanently delete your account.</p></div><button onClick={()=>setShowDeleteAccountConfirm(true)} className="px-4 py-2 rounded-lg border border-rose-200 text-rose-600 text-sm font-semibold">Delete Account</button></div></div></main>}
+
+          {showAddUserModal && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-md"><h3 className="font-bold text-lg mb-4">Add User</h3><label className="block text-xs font-semibold mb-3">Property<select id="invite-property" className="mt-1 w-full border rounded-lg p-2.5">{clientList.map(c=><option key={c}>{c}</option>)}</select></label><label className="block text-xs font-semibold mb-3">Email<input id="invite-email" type="email" placeholder="name@example.com" className="mt-1 w-full border rounded-lg p-2.5"/></label><label className="block text-xs font-semibold mb-4">Type<select id="invite-type" className="mt-1 w-full border rounded-lg p-2.5"><option>User</option><option>Admin</option></select></label><div className="flex justify-end gap-2"><button onClick={()=>setShowAddUserModal(false)} className="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{const email=document.getElementById('invite-email')?.value;const prop=document.getElementById('invite-property')?.value;const type=document.getElementById('invite-type')?.value;if(email&&prop){setUserRows(rows=>[...rows,{id:'u'+Date.now(),property:prop,email,type,status:'Pending'}]);setShowAddUserModal(false);}}} className="px-4 py-2 rounded-lg bg-blue-600 text-white">Send Invitation</button></div></div></div>}
+          {showLogoutConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Log out?</h3><p className="text-sm text-slate-500 my-3">Are you sure you want to log out?</p><div className="flex gap-2"><button onClick={()=>setShowLogoutConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{setShowLogoutConfirm(false);setActiveTab('dashboard');}} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Logout</button></div></div></div>}
+          {showDeleteAccountConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Delete Account?</h3><p className="text-sm text-slate-500 my-3">This is a prototype confirmation. Property data and saved reports are not deleted here.</p><div className="flex gap-2"><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Confirm Delete</button></div></div></div>}
+
+          {/* CUSTOMIZE METRIC */}
+          {activeTab === 'dashboard' && !viewingSavedReport && !isActivePropertyUser && (
+            <aside className="relative w-80 bg-white border-l border-slate-200 p-4 flex flex-col gap-3 shrink-0 shadow-sm h-full overflow-hidden">
+              <div className={`absolute inset-0 p-4 flex flex-col gap-3 transition-transform duration-300 ease-out ${selectedMetricPlatform ? '-translate-x-full' : 'translate-x-0'}`}>
+                <span className="font-bold text-slate-900 uppercase tracking-wide mb-1 text-xs">CUSTOMIZE METRIC</span>
+                <input type="text" value={metricSearch} onChange={(e) => setMetricSearch(e.target.value)} placeholder="Search platform..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500" />
+                <div className="flex flex-col gap-0.5 overflow-y-auto pr-1">
+                  {integrationsList.filter((item) => item.name.toLowerCase().includes(metricSearch.toLowerCase())).map((item) => (
+                    <button key={item.id} type="button" onClick={() => { setSelectedMetricPlatform(item); setMetricSearch(''); }} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 cursor-default transition-all border border-transparent hover:border-slate-200 group text-left">
+                      <span className="flex items-center gap-3 min-w-0"><span className="w-5 h-5 flex items-center justify-center shrink-0">{item.svg}</span><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{item.name}</span></span>
+                      <span className="text-slate-400 group-hover:text-slate-600 font-bold text-base">›</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className={`absolute inset-0 p-4 flex flex-col gap-3 transition-transform duration-300 ease-out ${selectedMetricPlatform ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <button type="button" onClick={() => setSelectedMetricPlatform(null)} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600" aria-label="Back to platforms"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 12h12" strokeLinecap="round"/></svg></button>
+                  <span className="font-bold text-sm text-slate-900 truncate">{selectedMetricPlatform?.name} Metrics</span>
+                </div>
+                <p className="text-[11px] text-slate-400">Drag a metric into the dashboard</p>
+                <div className="flex flex-col gap-2 overflow-y-auto pr-1 pb-4">
+                  {(metricCatalog[selectedMetricPlatform?.name] || []).map((name) => (
+                    <div key={name} draggable onClick={() => addDashboardMetric(selectedMetricPlatform.name, name)} onDragStart={(e) => { const payload = { platform: selectedMetricPlatform.name, name }; draggedNewMetricRef.current = payload; e.dataTransfer.setData('application/getone-metric', JSON.stringify(payload)); e.dataTransfer.setData('text/plain', JSON.stringify(payload)); e.dataTransfer.effectAllowed = 'copy'; setMetricDragPreview(null); }} onDragEnd={() => { draggedNewMetricRef.current = null; setMetricDragPreview(null); }} className="flex items-center justify-start gap-3 border border-slate-200 rounded-xl px-3 py-3 bg-white hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-default active:cursor-default select-none">
+                      <button type="button" aria-label={`Drag ${name} metric`} onClick={(e) => e.stopPropagation()} className="w-3.5 h-4 shrink-0 flex items-center justify-center cursor-default active:cursor-default touch-none" title="Drag metric to report">
+                        <svg aria-hidden="true" className="w-3.5 h-4 text-slate-400" viewBox="0 0 12 16" fill="currentColor"><circle cx="2" cy="3" r="1.05"/><circle cx="6" cy="3" r="1.05"/><circle cx="10" cy="3" r="1.05"/><circle cx="2" cy="8" r="1.05"/><circle cx="6" cy="8" r="1.05"/><circle cx="10" cy="8" r="1.05"/><circle cx="2" cy="13" r="1.05"/><circle cx="6" cy="13" r="1.05"/><circle cx="10" cy="13" r="1.05"/></svg>
+                      </button><span className="text-sm font-medium text-slate-700">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
+          )}
+
+          {metricPendingDelete && (
+            <div className="fixed inset-0 z-[70] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 p-5 flex flex-col gap-4">
+                <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
+                <div><h3 className="font-bold text-slate-900">Delete metric?</h3><p className="text-sm text-slate-500 mt-1">Are you sure you want to delete “{metricPendingDelete.name}” from this dashboard?</p></div>
+                <div className="flex justify-end gap-2"><button type="button" onClick={() => setMetricPendingDelete(null)} className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100">Cancel</button><button type="button" onClick={() => { setDashboardMetrics((curr) => curr.filter((m) => m.id !== metricPendingDelete.id)); setMetricPendingDelete(null); }} className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700">Delete</button></div>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+      </div>
+
+      {/* MODAL SAVE REPORT */}
+      {isSavedModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border border-slate-200 flex flex-col gap-4 text-sm">
+            <h3 className="text-base font-bold text-slate-900">Save Current Dashboard as Report</h3>
+            
+            <p className="text-xs text-slate-500 leading-relaxed">
+              This will capture the current widget layout and active date range into your Reports list:<br />
+              <strong className="text-slate-800 font-bold">{dateRange}</strong>
+            </p>
+            
+            <div className="flex flex-col gap-1.5 mt-2">
+              <label className="text-xs font-bold text-slate-700">Report Title</label>
+              <input 
+                type="text" 
+                value={reportName} 
+                onChange={(e) => setReportName(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 font-medium"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5 mt-1">
+              <label className="text-xs font-bold text-slate-700">Save option</label>
+              <select value={saveTargetReportId} onChange={(e) => { setSaveTargetReportId(e.target.value); if (e.target.value) { const target = reportList.find((report) => report.id === e.target.value); if (target) setReportName(target.name); } }} className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 font-medium">
+                <option value="">Save as a new report</option>
+                {reportList.map((report) => <option key={report.id} value={report.id}>Overwrite: {report.name}</option>)}
+              </select>
+              <p className="text-[11px] text-slate-400">Choose an existing report to replace its saved snapshot, or save a separate copy.</p>
+            </div>
+
+            <div className="flex justify-end gap-2.5 mt-4 pt-3 border-t border-slate-100">
+              <button onClick={() => setIsSavedModalOpen(false)} className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-default">Cancel</button>
+              <button onClick={handleSaveReport} className="px-4 py-2 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm cursor-default">Confirm & Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL ADD PROPERTY KUSTOM */}
+      {isAddClientModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 flex flex-col gap-4 text-sm animate-in fade-in zoom-in duration-200">
+            <h3 className="text-base font-bold text-slate-900">Add New Property</h3>
+            <p className="text-xs text-slate-500">Enter the name of the new property to add to your list.</p>
+            
+            <form onSubmit={handleConfirmAddClient} className="flex flex-col gap-4">
+              <input 
+                type="text" 
+                autoFocus
+                placeholder="e.g. Wonderland Bali" 
+                value={newClientInputValue}
+                onChange={(e) => setNewClientInputValue(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-blue-500 font-medium"
+              />
+
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
+                <button 
+                  type="button"
+                  onClick={() => setIsAddClientModalOpen(false)} 
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-all cursor-default"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all cursor-default"
+                >
+                  Add Property
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {propertyAction && <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 flex flex-col gap-4 text-sm">
+        <h3 className="text-base font-bold text-slate-900">{propertyAction.type === 'rename' ? 'Rename Property' : 'Delete Property?'}</h3>
+        {propertyAction.type === 'rename' ? <input value={propertyNameInput} onChange={e=>setPropertyNameInput(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5" autoFocus /> : <p className="text-xs text-slate-500">Are you sure you want to delete <strong>{propertyAction.name}</strong>? This demo action only removes it from this local prototype.</p>}
+        <div className="flex justify-end gap-2"><button onClick={()=>setPropertyAction(null)} className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700">Cancel</button><button onClick={()=>{ if(propertyAction.type==='rename' && propertyNameInput.trim()){const old=propertyAction.name, next=propertyNameInput.trim();if(next!==old){setClientList(list=>list.map(x=>x===old?next:x));setUserRows(rows=>rows.map(row=>row.property===old?{...row,property:next}:row));if(selectedClient===old)setSelectedClient(next);setActivePropertyMenu(null);setPropertyLogo(prev=>{const copy={...prev};if(copy[old]){copy[next]=copy[old];delete copy[old];}return copy;});}} else if(propertyAction.type==='delete'){if(clientList.length>1){setClientList(list=>list.filter(x=>x!==propertyAction.name));if(selectedClient===propertyAction.name)setSelectedClient(clientList.find(x=>x!==propertyAction.name));} } setPropertyAction(null);}} className={`px-4 py-2 rounded-lg text-white ${propertyAction.type==='delete'?'bg-rose-600':'bg-blue-600'}`}>{propertyAction.type==='rename'?'Save':'Delete Property'}</button></div>
+      </div></div>}
+
+      {/* MODAL SHARE REPORT KUSTOM */}
+      {isShareModalOpen && reportToShare && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 flex flex-col gap-4 text-sm animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-center">
+              <h3 className="text-base font-bold text-slate-900">Share Report Link</h3>
+              <button 
+                onClick={() => setIsShareModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 text-base font-bold px-2 py-1 cursor-default"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Anyone with this link can view the analytics report for <strong className="text-slate-800">"{reportToShare.name}"</strong>.
+            </p>
+
+            <div className="flex items-center gap-2 mt-1">
+              <input 
+                type="text" 
+                readOnly 
+                value={`https://goa.com/reports/${reportToShare.id}`} 
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-600 font-mono flex-1 select-all"
+              />
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://goa.com/reports/${reportToShare.id}`);
+                  setIsCopied(true);
+                  setTimeout(() => setIsCopied(false), 2000);
+                }}
+                className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm cursor-default ${isCopied ? 'bg-emerald-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                title="Copy Link"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                </svg>
+                {isCopied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <button 
+                onClick={() => setIsShareModalOpen(false)} 
+                className="px-5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-default"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DELETE REPORT KUSTOM */}
+      {isDeleteModalOpen && reportToDelete && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 flex flex-col items-center text-center gap-4 text-sm animate-in fade-in zoom-in duration-200">
+            <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-xl shadow-inner font-bold">
+              !
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-bold text-slate-900">Delete Report?</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to delete report <strong className="text-slate-800">"{reportToDelete.name}"</strong>? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 w-full mt-2">
+              <button 
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setReportToDelete(null);
+                }} 
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition-all cursor-default"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDeleteReport} 
+                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-xl text-xs shadow-sm transition-all cursor-default"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DELETE PAGE KUSTOM (PANEL KIRI DASHBOARD) */}
+      {isDeletePageModalOpen && pageToDelete && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 flex flex-col items-center text-center gap-4 text-sm animate-in fade-in zoom-in duration-200">
+            <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-xl shadow-inner font-bold">
+              !
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-bold text-slate-900">Delete Page?</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to delete page <strong className="text-slate-800">"{pageToDelete.title}"</strong>? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 w-full mt-2">
+              <button 
+                onClick={() => {
+                  setIsDeletePageModalOpen(false);
+                  setPageToDelete(null);
+                }} 
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition-all cursor-default"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDeletePage} 
+                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-xl text-xs shadow-sm transition-all cursor-default"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SUKSES CUSTOM */}
+      {isSuccessModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 flex flex-col items-center text-center gap-4 text-sm animate-in fade-in zoom-in duration-200">
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl shadow-inner">
+              ✓
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-bold text-slate-900">Report Saved Successfully!</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Report <strong className="text-slate-800">"{latestSavedReportName}"</strong> has been successfully saved to your Reports list.
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 w-full mt-2">
+              <button 
+                onClick={() => setIsSuccessModalOpen(false)} 
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition-all cursor-default"
+              >
+                Close
+              </button>
+              <button 
+                onClick={() => {
+                  setIsSuccessModalOpen(false);
+                  setActiveTab('reports');
+                }} 
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-xs shadow-sm transition-all cursor-default"
+              >
+                Go to Reports
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
