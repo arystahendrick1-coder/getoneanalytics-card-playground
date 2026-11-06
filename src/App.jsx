@@ -1273,6 +1273,8 @@ export default function SinglePageDashboard() {
 ]);
   const [metricCellHeight, setMetricCellHeight] = useState(100);
   const [openMetricMenuId, setOpenMetricMenuId] = useState(null);
+  const [openTableMetricMenuId, setOpenTableMetricMenuId] = useState(null);
+  const [tableMetricSearch, setTableMetricSearch] = useState('');
   const [metricDragPreview, setMetricDragPreview] = useState(null);
   const draggedNewMetricRef = useRef(null);
   const [metricPendingDelete, setMetricPendingDelete] = useState(null);
@@ -4336,8 +4338,93 @@ export default function SinglePageDashboard() {
       { label: 'Organic', value: 84 }, { label: 'Paid', value: 58 }, { label: 'Other', value: 32 }
     ];
   };
+  // Related columns are curated per table card. Only metrics that make sense
+  // for that table's platform and reporting dimension are offered.
+  const relatedTableMetrics = (metric) => {
+    const key = `${metric.platform}|${metric.name}`;
+    const map = {
+      'Google Analytics|Traffic Acquisition': ['Engaged Sessions', 'Engagement Rate', 'Event Count', 'Key Events', 'Average Engagement Time'],
+      'Google Analytics|Top Landing Pages': ['Views per User', 'Engagement Rate', 'Entrances', 'Exits', 'Key Events'],
+      'Google Ads|Landing Page': ['Clicks', 'Impressions', 'CTR', 'Average CPC', 'Conversions', 'Cost'],
+      'Google Ads|Sitelink Performance': ['Conversions', 'Conversion Rate', 'Average CPC', 'Cost per Conversion'],
+      'Google Ads|Keyword Performance': ['Average CPC', 'Cost', 'Conversions', 'Conversion Rate', 'Quality Score', 'Cost per Conversion'],
+      'Google Ads|Campaign Performance': ['CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost per Conversion', 'Search Impression Share'],
+      'Google Business Profile|Search Keywords': ['Searches', 'Search Views', 'Website Clicks', 'Calls', 'Direction Requests'],
+      'YouTube Analytics|Each Video Insight': ['Watch Time', 'Average View Duration', 'Likes', 'Comments', 'Subscribers Gained', 'Impressions'],
+      'Facebook Pages (Organic)|Post Performance': ['Impressions', 'Engagement', 'Reactions', 'Comments', 'Shares', 'Link Clicks'],
+      'Instagram Professional|Post Performance': ['Impressions', 'Likes', 'Comments', 'Saves', 'Shares', 'Engagement Rate'],
+      'TikTok Organic|Video Performance': ['Reach', 'Likes', 'Comments', 'Shares', 'Average Watch Time', 'Completion Rate'],
+      'TikTok Ads|Campaign Performance': ['CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost per Conversion'],
+    };
+    if (map[key]) return map[key];
+    // Fallback remains platform-aware for table metrics added from the library.
+    if (metric.platform === 'Google Ads' || metric.platform === 'TikTok Ads') return ['Impressions', 'Clicks', 'CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost'];
+    if (metric.platform === 'Google Analytics') return ['Sessions', 'Views', 'Active Users', 'New Users', 'Engagement Rate', 'Key Events'];
+    if (metric.platform.includes('Instagram')) return ['Reach', 'Impressions', 'Likes', 'Comments', 'Shares', 'Saves'];
+    if (metric.platform.includes('Facebook')) return ['Reach', 'Impressions', 'Reactions', 'Comments', 'Shares', 'Link Clicks'];
+    if (metric.platform.includes('YouTube')) return ['Views', 'Watch Time', 'Average View Duration', 'Likes', 'Comments', 'Subscribers Gained'];
+    if (metric.platform.includes('TikTok')) return ['Views', 'Reach', 'Likes', 'Comments', 'Shares', 'Average Watch Time'];
+    return ['Views', 'Clicks', 'Engagement', 'Conversions'];
+  };
+  const relatedMetricSampleValues = (metric, metricName, rowIndex) => {
+    const values = {
+      'CTR': ['2.84%', '2.61%', '2.37%', '1.98%', '1.76%'],
+      'Average CPC': ['Rp1,240', 'Rp1,380', 'Rp1,510', 'Rp1,620', 'Rp1,740'],
+      'Cost': ['Rp158,420', 'Rp124,760', 'Rp87,060', 'Rp64,940', 'Rp52,310'],
+      'Conversions': ['284', '216', '174', '128', '96'],
+      'Conversion Rate': ['5.88%', '5.93%', '6.19%', '6.60%', '4.95%'],
+      'Cost per Conversion': ['Rp18,420', 'Rp19,760', 'Rp21,060', 'Rp24,940', 'Rp22,310'],
+      'Impressions': ['251,729', '216,687', '169,760', '134,723', '98,560'],
+      'Clicks': ['4,820', '3,640', '2,810', '1,940', '1,520'],
+      'Reach': ['188,450', '146,210', '98,340', '72,180', '64,702'],
+      'Engagement Rate': ['6.42%', '5.81%', '5.24%', '4.96%', '4.38%'],
+      'Engaged Sessions': ['3,247', '1,764', '995', '5,883', '2,100'],
+      'Event Count': ['12,480', '9,320', '7,840', '5,210', '3,940'],
+      'Key Events': ['842', '624', '518', '386', '240'],
+      'Average Engagement Time': ['2m 14s', '1m 42s', '2m 07s', '3m 06s', '2m 31s'],
+      'Views per User': ['3.38', '2.94', '2.61', '2.42', '2.18'],
+      'Entrances': ['2,840', '1,920', '1,410', '1,120', '860'],
+      'Exits': ['1,420', '980', '740', '620', '510'],
+      'Searches': ['1,248', '842', '624', '428', '312'],
+      'Search Views': ['8,420', '6,810', '5,620', '3,940', '2,860'],
+      'Website Clicks': ['842', '624', '518', '386', '240'],
+      'Calls': ['128', '96', '82', '64', '42'],
+      'Direction Requests': ['284', '216', '174', '128', '96'],
+      'Watch Time': ['1,248 hrs', '984 hrs', '842 hrs', '624 hrs', '518 hrs'],
+      'Average View Duration': ['2:14', '1:42', '2:07', '3:06', '2:31'],
+      'Likes': ['842', '624', '518', '386', '240'],
+      'Comments': ['64', '42', '38', '24', '18'],
+      'Subscribers Gained': ['128', '96', '82', '64', '42'],
+      'Engagement': ['1,248', '984', '842', '624', '518'],
+      'Reactions': ['842', '624', '518', '386', '240'],
+      'Shares': ['128', '96', '82', '64', '42'],
+      'Link Clicks': ['284', '216', '174', '128', '96'],
+      'Saves': ['312', '248', '196', '142', '108'],
+      'Average Watch Time': ['8.4s', '7.8s', '7.2s', '6.9s', '6.2s'],
+      'Completion Rate': ['42.8%', '38.6%', '34.2%', '29.8%', '26.4%'],
+      'Quality Score': ['8/10', '7/10', '9/10', '6/10', '8/10'],
+      'Views': ['12,480', '9,320', '7,840', '5,210', '3,940'],
+      'Active Users': ['3,247', '1,764', '995', '5,883', '2,100'],
+      'New Users': ['2,188', '1,018', '694', '3,880', '1,760'],
+    };
+    return (values[metricName] || ['1,248', '984', '842', '624', '518'])[rowIndex % 5];
+  };
+  const addRelatedTableMetric = (metric, metricName) => {
+    setDashboardMetrics((current) => current.map((item) => {
+      if (item.id !== metric.id) return item;
+      const base = metricTable(item);
+      const headers = [...base.headers, metricName];
+      const rows = base.rows.map((row, index) => [...row, relatedMetricSampleValues(item, metricName, index)]);
+      return { ...item, relatedTableMetrics: [...(item.relatedTableMetrics || []), metricName], tableDataOverride: { headers, rows } };
+    }));
+    setTableMetricSearch('');
+    setOpenTableMetricMenuId(null);
+  };
   const metricTable = (metric) => {
+    if (metric.tableDataOverride) return metric.tableDataOverride;
     const n = metric.name.toLowerCase();
+    if (metric.platform === 'Google Analytics' && metric.name === 'Traffic Acquisition') return { headers: ['Channel', 'Sessions', 'Views', 'User Engagement', 'Active Users', 'New Users'], rows: [['Paid Search','4,820','7,932','2m 14s','3,247','2,188'],['Display','1,846','3,208','1m 42s','1,764','1,018'],['Referral','1,271','1,188','2m 07s','995','694'],['Organic Search','6,325','12,030','3m 06s','5,883','3,880'],['Direct','2,920','4,820','2m 31s','2,100','1,760'],['Email','620','1,420','1m 12s','490','320'],['Affiliates','820','840','0m 48s','680','480'],['Video','2,220','2,600','2m 20s','1,920','1,360'],['Cross-network','340','460','0m 50s','310','220'],['Unassigned','120','210','0m 32s','90','60']] };
+    if (metric.platform === 'Google Analytics' && metric.name === 'Top Landing Pages') return { headers: ['Page path and screen class', 'Views', 'Users', 'Avg. engagement time'], rows: [['/','71','21','2m 52s'],['/pages/heritage-villas-ubud','34','20','1m 22s'],['/pages/skylight-villas-ubud','18','20','1m 24s'],['/pages/buki-spa','10','18','0m 47s'],['/pages/jingga-restaurant','7','24','1m 31s'],['/pages/lokal-kafe','25','30','4m 18s'],['/offers','11','22','1m 08s'],['/gallery','48','80','2m 06s'],['/experiences','38','42','2m 40s'],['/about-us','30','33','1m 12s']] };
     // Facebook Page Visits is a Page-level insight, not website landing-page traffic.
     // Its table therefore uses a date/time series for the selected Page metric.
     if (metric.platform === 'Facebook Pages (Organic)' && metric.name === 'Page Visits') return {
@@ -4350,6 +4437,8 @@ export default function SinglePageDashboard() {
     };
     // Google Ads sitelinks are individual assets, not campaigns. Keep the
     // table dimension and metrics specific to the sitelink asset itself.
+    if (metric.platform === 'Google Ads' && metric.name === 'Landing Page') return { headers: ['Landing Page', 'Clicks', 'Impressions', 'CTR', 'Cost'], rows: [['/','1,820','84,210','2.16%','Rp7,284,000'],['/heritage-villas','1,420','62,840','2.26%','Rp5,680,000'],['/skylight-villas','1,180','54,620','2.16%','Rp4,720,000'],['/offers','842','38,420','2.19%','Rp3,368,000']] };
+    if (metric.platform === 'Google Ads' && metric.name === 'Keyword Performance') return { headers: ['Keyword', 'Clicks', 'Impressions', 'CTR'], rows: [['ubud villa','1,248','18,420','6.78%'],['private villa ubud','842','12,640','6.66%'],['bali jungle villa','624','9,820','6.35%'],['luxury villa ubud','518','8,240','6.29%']] };
     if (metric.platform === 'Google Ads' && metric.name === 'Sitelink Performance') return {
       headers: ['Sitelink', 'Clicks', 'Impressions', 'CTR', 'Cost'],
       rows: [['Heritage Villas', '3,120', '152,440', '2.05%', 'IDR 12,480,800'], ['Skylight Villas', '2,680', '130,221', '2.06%', 'IDR 10,764,200'], ['Special Offers', '1,940', '98,560', '1.97%', 'IDR 7,428,600'], ['Jingga Restaurant', '1,520', '76,430', '1.99%', 'IDR 6,452,800'], ['BuKi Spa', '1,310', '64,702', '2.02%', 'IDR 5,673,400']]
@@ -5528,22 +5617,33 @@ export default function SinglePageDashboard() {
                         </div>
                       </div>
                       <div data-metric-content className="flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
-                        {metric.type === 'Table' && metric.name === 'Traffic Acquisition' && (
-                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-y-auto">
-                            <table className="w-full min-w-[620px] border-collapse">
-                              <thead className="sticky top-0 z-[1] bg-white"><tr className="text-slate-500 border-b border-slate-200">{['Channel','Sessions','Views','User Engagement','Active Users','New Users'].map((h)=><th key={h} className="text-left font-semibold py-1 pr-2 whitespace-nowrap">{h}</th>)}</tr></thead>
-                              <tbody>{[['Paid Search','4,820','7,932','2m 14s','3,247','2,188'],['Display','1,846','3,208','1m 42s','1,764','1,018'],['Referral','1,271','1,188','2m 07s','995','694'],['Organic Search','6,325','12,030','3m 06s','5,883','3,880'],['Direct','2,920','4,820','2m 31s','2,100','1,760'],['Email','620','1,420','1m 12s','490','320'],['Affiliates','820','840','0m 48s','680','480'],['Video','2,220','2,600','2m 20s','1,920','1,360'],['Cross-network','340','460','0m 50s','310','220'],['Unassigned','120','210','0m 32s','90','60']].map((row,i)=><tr key={i} className="border-b border-slate-100"><td className="py-1 pr-2 whitespace-nowrap">{row[0]}</td>{row.slice(1).map((v,j)=><td key={j} className="py-1 pr-2 whitespace-nowrap">{v}</td>)}</tr>)}</tbody>
+                        {metric.type === 'Table' && (() => {
+                          const table = metricTable(metric);
+                          const available = relatedTableMetrics(metric).filter((name) => !table.headers.includes(name) && !(metric.relatedTableMetrics || []).includes(name));
+                          const filtered = available.filter((name) => name.toLowerCase().includes(tableMetricSearch.toLowerCase()));
+                          return <div className="w-full flex-1 min-h-0 overflow-auto text-[12px] text-slate-600 overscroll-y-auto">
+                            <table className="w-full min-w-max border-collapse text-left">
+                              <thead className="sticky top-0 z-[2] bg-white"><tr className="text-slate-500 border-b border-slate-200">
+                                {table.headers.map((h) => <th key={h} className="font-semibold py-2 pr-3 whitespace-nowrap">{h}</th>)}
+                                <th className="sticky right-0 z-[3] bg-white w-9 min-w-9 px-1 py-1 text-center">
+                                  <div className="relative flex justify-center">
+                                    <button type="button" aria-label="Add related metric column" title="Add related metric" onClick={() => { setOpenTableMetricMenuId(openTableMetricMenuId === metric.id ? null : metric.id); setTableMetricSearch(''); }} className="w-7 h-7 rounded-md border border-transparent hover:border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-blue-600 text-lg leading-none font-medium">+</button>
+                                    {openTableMetricMenuId === metric.id && <div className="absolute right-0 top-8 z-[80] w-52 rounded-xl border border-slate-200 bg-white shadow-xl p-1.5 text-left" onClick={(e) => e.stopPropagation()}>
+                                      <div className="flex items-center gap-2 px-2 py-1.5 mb-1 rounded-lg border border-slate-200 bg-white">
+                                        <svg className="w-3.5 h-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                                        <input autoFocus value={tableMetricSearch} onChange={(e) => setTableMetricSearch(e.target.value)} placeholder="Search metrics..." className="w-full min-w-0 outline-none text-xs text-slate-700 placeholder:text-slate-400" />
+                                      </div>
+                                      <div className="max-h-48 overflow-y-auto">
+                                        {filtered.length ? filtered.map((name) => <button key={name} type="button" onClick={() => addRelatedTableMetric(metric, name)} className="w-full text-left text-xs px-2.5 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700">{name}</button>) : <div className="px-2.5 py-2 text-xs text-slate-400">No related metrics found</div>}
+                                      </div>
+                                    </div>}
+                                  </div>
+                                </th>
+                              </tr></thead>
+                              <tbody>{table.rows.map((row, i) => <tr key={i} className="border-b border-slate-100">{row.map((value, j) => <td key={j} className="py-2 pr-3 whitespace-nowrap">{value}</td>)}<td className="sticky right-0 bg-white" /></tr>)}</tbody>
                             </table>
-                          </div>
-                        )}
-                        {metric.type === 'Table' && metric.name === 'Top Landing Pages' && (
-                          <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-y-auto">
-                            <table className="w-full min-w-[440px] border-collapse">
-                              <thead className="sticky top-0 z-[1] bg-white"><tr className="text-slate-500 border-b border-slate-200">{['Page path and screen class','Views','Users','Avg. engagement time'].map((h)=><th key={h} className="text-left font-semibold py-1 pr-2 whitespace-nowrap">{h}</th>)}</tr></thead>
-                              <tbody>{[['/','71','21','2m 52s'],['/pages/heritage-villas-ubud','34','20','1m 22s'],['/pages/skylight-villas-ubud','18','20','1m 24s'],['/pages/buki-spa','10','18','0m 47s'],['/pages/jingga-restaurant','7','24','1m 31s'],['/pages/lokal-kafe','25','30','4m 18s'],['/offers','11','22','1m 08s'],['/gallery','48','80','2m 06s'],['/experiences','38','42','2m 40s'],['/about-us','30','33','1m 12s']].map((row,i)=><tr key={i} className="border-b border-slate-100"><td className="py-1 pr-2 whitespace-nowrap text-blue-600">{row[0]}</td>{row.slice(1).map((v,j)=><td key={j} className="py-1 pr-2 whitespace-nowrap">{v}</td>)}</tr>)}</tbody>
-                            </table>
-                          </div>
-                        )}
+                          </div>;
+                        })()}
                         {(metric.type === 'Number' || metric.type === 'Number and Chart') && !['Traffic Acquisition', 'Top Landing Pages'].includes(metric.name) && <div className="flex items-end justify-between gap-2"><div><span className={`${isCompact ? 'text-xl' : 'text-2xl'} font-black tracking-tight text-slate-900`}>{val}</span>{isCompareEnabled && <div className="text-[9px] text-slate-500 mt-0.5">vs <b className="text-slate-700">{metricValueFor(metric.name).replace(/[0-9]/g, (d) => String(Math.max(0, Number(d)-1)))}</b></div>}</div><span className="text-[10px] font-semibold text-emerald-600 whitespace-nowrap rounded-full bg-emerald-50 px-2 py-1">↗ 12.6%</span></div>}
                         {(metric.type === 'Line Chart' || metric.type === 'Number and Chart') && !['Traffic Acquisition', 'Top Landing Pages'].includes(metric.name) && (
                           <div className={`${isCompact ? 'h-7 mt-1' : 'flex-1 min-h-[40px] mt-2'} w-full`}>
