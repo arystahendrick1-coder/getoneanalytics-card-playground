@@ -1286,6 +1286,7 @@ export default function SinglePageDashboard() {
   const metricSuppressClickRef = useRef(false);
   const metricPreviousRectsRef = useRef(null);
   const metricLayoutAnimationRef = useRef(null);
+  const tableColumnRectsRef = useRef(null);
   const getAllMetricNodes = () => Object.values(reportPaperRefs.current)
     .filter(Boolean)
     .flatMap((paper) => Array.from(paper.querySelectorAll('[data-metric-id]')));
@@ -1297,10 +1298,11 @@ export default function SinglePageDashboard() {
   useEffect(() => {
     const previous = metricPreviousRectsRef.current;
     const nodes = getAllMetricNodes();
-    if (!previous || !nodes.length) return;
-    metricPreviousRectsRef.current = null;
+    if (previous && nodes.length) {
+      metricPreviousRectsRef.current = null;
+    }
     const animated = [];
-    nodes.forEach((node) => {
+    if (previous && nodes.length) nodes.forEach((node) => {
       const id = node.getAttribute('data-metric-id');
       const before = previous.get(id);
       if (!before) return;
@@ -1317,6 +1319,31 @@ export default function SinglePageDashboard() {
       requestAnimationFrame(() => requestAnimationFrame(() => {
         animated.forEach((node) => {
           node.style.transition = 'transform 320ms cubic-bezier(0.22, 1, 0.36, 1)';
+          node.style.transform = 'translate(0, 0)';
+        });
+      }));
+    }
+
+    const previousColumns = tableColumnRectsRef.current;
+    if (previousColumns) {
+      tableColumnRectsRef.current = null;
+      const movedCells = [];
+      document.querySelectorAll('[data-table-column-grid] [data-table-col-key]').forEach((node) => {
+        const key = `${node.getAttribute('data-table-col-key')}::${node.tagName}::${node.parentElement?.rowIndex ?? -1}`;
+        const before = previousColumns.get(key);
+        if (!before) return;
+        const after = node.getBoundingClientRect();
+        const dx = before.left - after.left;
+        const dy = before.top - after.top;
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+          node.style.transition = 'none';
+          node.style.transform = `translate(${dx}px, ${dy}px)`;
+          movedCells.push(node);
+        }
+      });
+      if (movedCells.length) requestAnimationFrame(() => requestAnimationFrame(() => {
+        movedCells.forEach((node) => {
+          node.style.transition = 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)';
           node.style.transform = 'translate(0, 0)';
         });
       }));
@@ -4718,6 +4745,15 @@ export default function SinglePageDashboard() {
   };
   const moveTableColumn = (metric, fromIndex, toIndex) => {
     if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
+    const tableNode = document.querySelector(`[data-metric-id="${metric.id}"] [data-table-column-grid]`);
+    if (tableNode) {
+      tableColumnRectsRef.current = new Map(
+        Array.from(tableNode.querySelectorAll('[data-table-col-key]')).map((node) => [
+          `${node.getAttribute('data-table-col-key')}::${node.tagName}::${node.parentElement?.rowIndex ?? -1}`,
+          node.getBoundingClientRect(),
+        ])
+      );
+    }
     setDashboardMetrics((current) => current.map((item) => {
       if (item.id !== metric.id) return item;
       const base = metricTable(item);
@@ -5968,10 +6004,11 @@ export default function SinglePageDashboard() {
                           const table = sortedMetricTable(metric);
                           const available = relatedTableMetrics(metric);
                           const filtered = available.filter((name) => name.toLowerCase().includes(tableMetricSearch.toLowerCase()));
+                          const tableColumnKeys = table.headers.map((header, index) => `${header}__${table.headers.slice(0, index + 1).filter((item) => item === header).length - 1}`);
                           return <div className="w-full flex-1 min-h-0 overflow-auto text-[14px] text-slate-600 overscroll-y-auto">
-                            <table className="w-full min-w-max border-collapse text-left">
+                            <table data-table-column-grid className="w-full min-w-max border-collapse text-left">
                               <thead className="sticky top-0 z-[2] bg-white"><tr className="text-slate-500 border-b border-slate-200">
-                                {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} data-table-menu-container onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }} onDrop={(e) => { e.preventDefault(); const fromIndex = Number(e.dataTransfer.getData('application/getone-table-column')); if (Number.isInteger(fromIndex)) moveTableColumn(metric, fromIndex, columnIndex); }} className="relative font-semibold py-2 pr-3 whitespace-nowrap">
+                                {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} data-table-col-key={tableColumnKeys[columnIndex]} data-table-menu-container onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }} onDrop={(e) => { e.preventDefault(); const fromIndex = Number(e.dataTransfer.getData('application/getone-table-column')); if (Number.isInteger(fromIndex)) moveTableColumn(metric, fromIndex, columnIndex); }} className="relative font-semibold py-2 pr-3 whitespace-nowrap">
                                   <button type="button" draggable onDragStart={(e) => { e.dataTransfer.setData('application/getone-table-column', String(columnIndex)); e.dataTransfer.effectAllowed = 'move'; }} onDragEnd={() => {}} className="rounded px-1 py-1 -ml-1 cursor-grab active:cursor-grabbing hover:bg-slate-100 hover:text-slate-800" title="Drag to reorder column" onClick={() => { setOpenTableMetricMenuId(null); setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex }); }}>{h}</button>
                                   {openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex && <div className="absolute left-0 top-full z-[90] w-40 flex flex-col rounded-lg border border-slate-200 bg-white shadow-lg p-1 text-left font-normal">
                                     {tableSortOptions(table, columnIndex).map((option) => <button key={option.label} type="button" onClick={() => sortTableColumn(metric, columnIndex, option.direction)} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-slate-700 hover:bg-blue-50">{option.label}</button>)}
@@ -5993,7 +6030,7 @@ export default function SinglePageDashboard() {
                                   </div>
                                 </th>
                               </tr></thead>
-                              <tbody>{table.rows.map((row, i) => <tr key={i} className="border-b border-slate-100">{row.map((value, j) => <td key={j} className="py-2 pr-3 whitespace-nowrap">{value}</td>)}<td className="sticky right-0 bg-white" /></tr>)}</tbody>
+                              <tbody>{table.rows.map((row, i) => <tr key={i} className="border-b border-slate-100">{row.map((value, j) => <td key={j} data-table-col-key={tableColumnKeys[j]} className="py-2 pr-3 whitespace-nowrap">{value}</td>)}<td className="sticky right-0 bg-white" /></tr>)}</tbody>
                             </table>
                           </div>;
                         })()}
