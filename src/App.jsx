@@ -4347,30 +4347,283 @@ export default function SinglePageDashboard() {
   // for that table's platform and reporting dimension are offered.
   const relatedTableMetrics = (metric) => {
     const key = `${metric.platform}|${metric.name}`;
-    const map = {
+    // Master Metrics workbook is the source of truth for table-specific metric compatibility.
+    const masterCardMetrics = {
+      "Google Analytics|Traffic Acquisition": [
+            "Sessions",
+            "Active Users",
+            "New Users",
+            "Engaged Sessions",
+            "Engagement Rate",
+            "Key Events",
+            "Total Revenue"
+      ],
+      "Google Analytics|Sessions by Source": [
+            "Sessions",
+            "Active Users",
+            "New Users",
+            "Key Events",
+            "Total Revenue"
+      ],
+      "Google Analytics|Top Landing Pages": [
+            "Sessions",
+            "Active Users",
+            "New Users",
+            "Key Events",
+            "Total Revenue"
+      ],
+      "Google Analytics|Views by Page": [
+            "Views",
+            "Event Count",
+            "Active Users"
+      ],
+      "Google Analytics|Total Users by Country": [
+            "Total Users",
+            "Active Users"
+      ],
+      "Google Analytics|Total Users by Location": [
+            "Total Users",
+            "Active Users"
+      ],
+      "Google Analytics|Users by Device Category": [
+            "Total Users",
+            "Active Users",
+            "Sessions"
+      ],
+      "Google Analytics|Sessions by Campaign": [
+            "Sessions",
+            "Active Users",
+            "New Users",
+            "Engaged Sessions",
+            "Key Events",
+            "Total Revenue"
+      ],
+      "Google Ads|Landing Page": [
+            "Clicks",
+            "Impressions",
+            "CTR",
+            "Average CPC",
+            "Cost",
+            "Conversions",
+            "Conversion Rate",
+            "Conversion Value",
+            "All Conversions",
+            "Cost per Conversion",
+            "View-through Conversions"
+      ],
+      "Google Ads|Sitelink": [
+            "Clicks",
+            "Impressions",
+            "CTR",
+            "Average CPC",
+            "Cost",
+            "Conversions",
+            "Conversion Value",
+            "All Conversions"
+      ],
+      "Google Ads|Keyword": [
+            "Clicks",
+            "Impressions",
+            "CTR",
+            "Average CPC",
+            "Cost",
+            "Conversions",
+            "Conversion Rate",
+            "Conversion Value",
+            "All Conversions",
+            "Cost per Conversion",
+            "Search Impression Share",
+            "Search Lost IS (Budget)",
+            "Search Lost IS (Rank)",
+            "Search Top Impression Share",
+            "Search Absolute Top Impression Share"
+      ],
+      "Google Ads|Campaign by Country": [
+            "Clicks",
+            "Impressions",
+            "CTR",
+            "Cost",
+            "Conversions",
+            "Conversion Value"
+      ],
+      "Google Ads|Campaign Performance": [
+            "Clicks",
+            "Impressions",
+            "CTR",
+            "Average CPC",
+            "Cost",
+            "Conversions",
+            "Conversion Rate",
+            "Conversion Value",
+            "Conversion Value per Cost (ROAS)",
+            "All Conversions",
+            "Cost per Conversion",
+            "Search Impression Share",
+            "Search Lost IS (Budget)",
+            "Search Lost IS (Rank)",
+            "Search Top Impression Share",
+            "Search Absolute Top Impression Share",
+            "Interactions",
+            "Interaction Rate",
+            "Engagements",
+            "Engagement Rate",
+            "Video Views",
+            "Video View Rate",
+            "Average CPV",
+            "View-through Conversions"
+      ],
+      "Google Ads|Video Completion": [
+            "Video Played to 25%",
+            "Video Played to 50%",
+            "Video Played to 75%",
+            "Video Played to 100%"
+      ],
+      "YouTube Analytics|Net Subscribers": [
+            "Subscribers Gained",
+            "Subscribers Lost"
+      ],
+      "YouTube Analytics|Interaction": [
+            "Likes",
+            "Comments",
+            "Shares"
+      ],
+      "YouTube Analytics|Video Engagement": [
+            "Likes",
+            "Comments",
+            "Shares"
+      ],
+      "YouTube Analytics|Each Video Insight": [
+            "Views",
+            "Likes",
+            "Shares",
+            "Comments",
+            "Estimated Revenue"
+      ],
+      "Facebook Pages (Organic)|Interaction Breakdown": [
+            "Likes",
+            "Comments",
+            "Shares"
+      ],
+      "Instagram Professional|Interaction Breakdown": [
+            "Likes",
+            "Comments",
+            "Shares"
+      ],
+      "TikTok Organic|Interaction": [
+            "Likes",
+            "Comments",
+            "Shares"
+      ],
+      "TikTok Organic|Followers by Location": [
+            "Followers by Country",
+            "Followers by City"
+      ],
+      "TikTok Organic|Video Performance": [
+            "Video",
+            "Video Views",
+            "Reach",
+            "Likes",
+            "Comments",
+            "Shares"
+      ],
+      "TikTok Ads|Cost per 1,000 People Reached": [
+            "Cost per 1",
+            "000 People Reached"
+      ],
+      "TikTok Ads|Conversion Rate": [
+            "Conversion Rate (CVR",
+            "Clicks)"
+      ],
+      "TikTok Ads|Real-time Conversion Rate": [
+            "Real-time Conversion Rate (CVR",
+            "Clicks)"
+      ],
+      "TikTok Ads|Real-time Conversion Rate (Impressions)": [
+            "Real-time Conversion Rate (CVR",
+            "Impressions)"
+      ],
+      "TikTok Ads|Cost per 1,000 Video Views": [
+            "Cost per 1",
+            "000 Video Views"
+      ],
+      "TikTok Organic|Top Videos by Likes": [
+            "Video",
+            "Likes"
+      ],
+      "TikTok Organic|Top Videos by Comments": [
+            "Video",
+            "Comments"
+      ],
+      "TikTok Organic|Top Videos by Shares": [
+            "Video",
+            "Shares"
+      ],
+      "TikTok Organic|Top Videos by Reach": [
+            "Video",
+            "Reach"
+      ],
+      "TikTok Organic|Top Videos by Engagement Rate": [
+            "Video",
+            "Likes",
+            "Comments",
+            "Shares",
+            "Video Views"
+      ],
+      "TikTok Organic|Video Engagement Overview": [
+            "Video",
+            "Video Views",
+            "Likes",
+            "Comments",
+            "Shares",
+            "Reach"
+      ],
+      "Google Ads|Sitelink Performance": [
+            "Clicks",
+            "Impressions",
+            "CTR",
+            "Average CPC",
+            "Cost",
+            "Conversions",
+            "Conversion Value",
+            "All Conversions"
+      ],
+      "Google Ads|Keyword Performance": [
+            "Clicks",
+            "Impressions",
+            "CTR",
+            "Average CPC",
+            "Cost",
+            "Conversions",
+            "Conversion Rate",
+            "Conversion Value",
+            "All Conversions",
+            "Cost per Conversion",
+            "Search Impression Share",
+            "Search Lost IS (Budget)",
+            "Search Lost IS (Rank)",
+            "Search Top Impression Share",
+            "Search Absolute Top Impression Share"
+      ]
+};
+    const legacyMap = {
       'Google Analytics|Traffic Acquisition': ['Engaged Sessions', 'Engagement Rate', 'Event Count', 'Key Events', 'Average Engagement Time'],
       'Google Analytics|Top Landing Pages': ['Views per User', 'Engagement Rate', 'Entrances', 'Exits', 'Key Events'],
       'Google Ads|Landing Page': ['Clicks', 'Impressions', 'CTR', 'Average CPC', 'Conversions', 'Cost'],
       'Google Ads|Sitelink Performance': ['Conversions', 'Conversion Rate', 'Average CPC', 'Cost per Conversion'],
       'Google Ads|Keyword Performance': ['Average CPC', 'Cost', 'Conversions', 'Conversion Rate', 'Quality Score', 'Cost per Conversion'],
       'Google Ads|Campaign Performance': ['Clicks', 'Impressions', 'CTR', 'Average CPC', 'Cost', 'Conversions', 'Conversion Rate', 'Conversion Value', 'Conversion Value per Cost (ROAS)', 'All Conversions', 'Cost per Conversion', 'Search Impression Share', 'Search Lost IS (Budget)', 'Search Lost IS (Rank)', 'Search Top Impression Share', 'Search Absolute Top Impression Share', 'Interactions', 'Interaction Rate', 'Engagements', 'Engagement Rate', 'Video Views', 'Video View Rate', 'Average CPV', 'View-through Conversions'],
-      'Google Business Profile|Search Keywords': ['Search Impressions (Desktop)', 'Search Impressions (Mobile)', 'Maps Impressions (Desktop)', 'Maps Impressions (Mobile)', 'Overview', 'Website Clicks', 'Direction Requests', 'Call Clicks', 'Messaging Clicks', 'Bookings', 'Food Menu Clicks', 'Reviews'],
+      'Google Business Profile|Search Keywords': ['Monthly search keyword impressions'],
       'YouTube Analytics|Each Video Insight': ['Watch Time', 'Average View Duration', 'Likes', 'Comments', 'Subscribers Gained', 'Impressions'],
       'Facebook Pages (Organic)|Post Performance': ['Impressions', 'Engagement', 'Reactions', 'Comments', 'Shares', 'Link Clicks'],
       'Instagram Professional|Post Performance': ['Impressions', 'Likes', 'Comments', 'Saves', 'Shares', 'Engagement Rate'],
       'TikTok Organic|Video Performance': ['Reach', 'Likes', 'Comments', 'Shares', 'Average Watch Time', 'Completion Rate'],
       'TikTok Ads|Campaign Performance': ['CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost per Conversion'],
     };
-    if (map[key]) return map[key];
-    // Fallback remains platform-aware for table metrics added from the library.
-    if (metric.platform === 'Google Business Profile') return ['Search Impressions (Desktop)', 'Search Impressions (Mobile)', 'Maps Impressions (Desktop)', 'Maps Impressions (Mobile)', 'Overview', 'Website Clicks', 'Direction Requests', 'Call Clicks', 'Messaging Clicks', 'Bookings', 'Food Menu Clicks', 'Reviews'];
-    if (metric.platform === 'Google Ads' || metric.platform === 'TikTok Ads') return ['Impressions', 'Clicks', 'CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost'];
-    if (metric.platform === 'Google Analytics') return ['Sessions', 'Views', 'Active Users', 'New Users', 'Engagement Rate', 'Key Events'];
-    if (metric.platform.includes('Instagram')) return ['Reach', 'Impressions', 'Likes', 'Comments', 'Shares', 'Saves'];
-    if (metric.platform.includes('Facebook')) return ['Reach', 'Impressions', 'Reactions', 'Comments', 'Shares', 'Link Clicks'];
-    if (metric.platform.includes('YouTube')) return ['Views', 'Watch Time', 'Average View Duration', 'Likes', 'Comments', 'Subscribers Gained'];
-    if (metric.platform.includes('TikTok')) return ['Views', 'Reach', 'Likes', 'Comments', 'Shares', 'Average Watch Time'];
-    return ['Views', 'Clicks', 'Engagement', 'Conversions'];
+    const sourceList = masterCardMetrics[key] || legacyMap[key] || [];
+    // Existing metric columns intentionally remain selectable, so clients can add duplicates.
+    const currentTable = metricTable(metric);
+    const currentColumns = (currentTable.headers || []).slice(1).filter((name) => name && name !== '+');
+    return [...new Set([...sourceList, ...currentColumns])];
   };
   const relatedMetricSampleValues = (metric, metricName, rowIndex) => {
     const values = {
