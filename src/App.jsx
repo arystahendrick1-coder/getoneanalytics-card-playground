@@ -4623,7 +4623,7 @@ export default function SinglePageDashboard() {
     // Existing metric columns intentionally remain selectable, so clients can add duplicates.
     const currentTable = metricTable(metric);
     const currentColumns = (currentTable.headers || []).slice(1).filter((name) => name && name !== '+');
-    return [...new Set([...sourceList, ...currentColumns])];
+    return [...new Set([...sourceList, ...currentColumns])].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }));
   };
   const relatedMetricSampleValues = (metric, metricName, rowIndex) => {
     const values = {
@@ -4679,8 +4679,64 @@ export default function SinglePageDashboard() {
     setTableMetricSearch('');
     setOpenTableMetricMenuId(null);
   };
+  const parseTableSortValue = (raw) => {
+    const value = String(raw ?? '').trim();
+    if (!value) return { kind: 'empty', value: '' };
+    const dateLike = /^(?:\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4})$/i.test(value);
+    if (dateLike) {
+      const timestamp = Date.parse(value);
+      if (Number.isFinite(timestamp)) return { kind: 'date', value: timestamp };
+    }
+    const duration = value.match(/^(?:(\d+)m\s*)?(?:(\d+(?:\.\d+)?)s)?$/i);
+    if (duration && (duration[1] || duration[2])) return { kind: 'number', value: Number(duration[1] || 0) * 60 + Number(duration[2] || 0) };
+    const clockDuration = value.match(/^(\d+):(\d{1,2})$/);
+    if (clockDuration) return { kind: 'number', value: Number(clockDuration[1]) * 60 + Number(clockDuration[2]) };
+    const ratio = value.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+    if (ratio) return { kind: 'number', value: Number(ratio[1]) / Number(ratio[2] || 1) };
+    const normalized = value.replace(/[^0-9,.-]/g, '').replace(/,(?=\d{3}(?:\D|$))/g, '');
+    const number = Number(normalized);
+    if (normalized !== '' && Number.isFinite(number)) return { kind: 'number', value: number };
+    return { kind: 'text', value };
+  };
+  const tableColumnSortMode = (table, columnIndex) => {
+    const header = String(table.headers?.[columnIndex] || '').toLowerCase();
+    if (/date|day|week|month|year|published|created|updated/.test(header)) return 'date';
+    const samples = (table.rows || []).map((row) => parseTableSortValue(row[columnIndex])).filter((item) => item.kind !== 'empty');
+    if (samples.length && samples.every((item) => item.kind === 'date')) return 'date';
+    if (samples.length && samples.every((item) => item.kind === 'number')) return 'number';
+    return 'text';
+  };
+  const tableSortOptions = (table, columnIndex) => {
+    const mode = tableColumnSortMode(table, columnIndex);
+    if (mode === 'date') return [{ label: 'Newest to Oldest', direction: 'desc' }, { label: 'Oldest to Newest', direction: 'asc' }];
+    if (mode === 'number') return [{ label: 'Highest to Lowest', direction: 'desc' }, { label: 'Lowest to Highest', direction: 'asc' }];
+    return [{ label: 'A–Z', direction: 'asc' }, { label: 'Z–A', direction: 'desc' }];
+  };
   const sortTableColumn = (metric, columnIndex, direction) => {
     setDashboardMetrics((current) => current.map((item) => item.id === metric.id ? { ...item, tableSort: { columnIndex, direction } } : item));
+    setOpenTableColumnMenu(null);
+  };
+  const moveTableColumn = (metric, fromIndex, toIndex) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
+    setDashboardMetrics((current) => current.map((item) => {
+      if (item.id !== metric.id) return item;
+      const base = metricTable(item);
+      if (fromIndex >= base.headers.length || toIndex >= base.headers.length) return item;
+      const move = (values) => {
+        const next = [...values];
+        const [picked] = next.splice(fromIndex, 1);
+        next.splice(toIndex, 0, picked);
+        return next;
+      };
+      return {
+        ...item,
+        tableDataOverride: {
+          headers: move(base.headers),
+          rows: base.rows.map((row) => move(row)),
+        },
+        tableSort: null,
+      };
+    }));
     setOpenTableColumnMenu(null);
   };
   const deleteTableColumn = (metric, columnIndex) => {
@@ -4701,23 +4757,12 @@ export default function SinglePageDashboard() {
     if (!metric.tableSort) return base;
     const { columnIndex, direction } = metric.tableSort;
     const rows = [...base.rows].sort((a, b) => {
-      const av = String(a[columnIndex] ?? '').trim();
-      const bv = String(b[columnIndex] ?? '').trim();
-      const parseNumeric = (value) => {
-        const duration = value.match(/^(?:(\d+)m\s*)?(?:(\d+(?:\.\d+)?)s)?$/i);
-        if (duration && (duration[1] || duration[2])) return Number(duration[1] || 0) * 60 + Number(duration[2] || 0);
-        const clockDuration = value.match(/^(\d+):(\d{1,2})$/);
-        if (clockDuration) return Number(clockDuration[1]) * 60 + Number(clockDuration[2]);
-        const ratio = value.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
-        if (ratio) return Number(ratio[1]) / Number(ratio[2] || 1);
-        const normalized = value.replace(/[^0-9,.-]/g, '').replace(/,(?=\d{3}(?:\D|$))/g, '');
-        const number = Number(normalized);
-        return Number.isFinite(number) && normalized !== '' ? number : null;
-      };
-      const an = parseNumeric(av); const bn = parseNumeric(bv);
-      let result;
-      if (an !== null && bn !== null) result = an - bn;
-      else result = av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
+      const av = parseTableSortValue(a[columnIndex]);
+      const bv = parseTableSortValue(b[columnIndex]);
+      let result = 0;
+      if (av.kind === 'empty' || bv.kind === 'empty') return av.kind === bv.kind ? 0 : (av.kind === 'empty' ? 1 : -1);
+      if (av.kind === bv.kind && (av.kind === 'number' || av.kind === 'date')) result = av.value - bv.value;
+      else result = String(av.value).localeCompare(String(bv.value), undefined, { numeric: true, sensitivity: 'base' });
       return direction === 'desc' ? -result : result;
     });
     return { ...base, rows };
@@ -5926,11 +5971,10 @@ export default function SinglePageDashboard() {
                           return <div className="w-full flex-1 min-h-0 overflow-auto text-[14px] text-slate-600 overscroll-y-auto">
                             <table className="w-full min-w-max border-collapse text-left">
                               <thead className="sticky top-0 z-[2] bg-white"><tr className="text-slate-500 border-b border-slate-200">
-                                {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} data-table-menu-container className="relative font-semibold py-2 pr-3 whitespace-nowrap">
-                                  <button type="button" className="rounded px-1 py-1 -ml-1 hover:bg-slate-100 hover:text-slate-800" onClick={() => { setOpenTableMetricMenuId(null); setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex }); }}>{h}</button>
-                                  {openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex && <div className="absolute left-0 top-full z-[90] w-32 flex flex-col rounded-lg border border-slate-200 bg-white shadow-lg p-1 text-left font-normal">
-                                    <button type="button" onClick={() => sortTableColumn(metric, columnIndex, 'asc')} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-slate-700 hover:bg-blue-50">Sort A–Z</button>
-                                    <button type="button" onClick={() => sortTableColumn(metric, columnIndex, 'desc')} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-slate-700 hover:bg-blue-50">Sort Z–A</button>
+                                {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} data-table-menu-container onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }} onDrop={(e) => { e.preventDefault(); const fromIndex = Number(e.dataTransfer.getData('application/getone-table-column')); if (Number.isInteger(fromIndex)) moveTableColumn(metric, fromIndex, columnIndex); }} className="relative font-semibold py-2 pr-3 whitespace-nowrap">
+                                  <button type="button" draggable onDragStart={(e) => { e.dataTransfer.setData('application/getone-table-column', String(columnIndex)); e.dataTransfer.effectAllowed = 'move'; }} onDragEnd={() => {}} className="rounded px-1 py-1 -ml-1 cursor-grab active:cursor-grabbing hover:bg-slate-100 hover:text-slate-800" title="Drag to reorder column" onClick={() => { setOpenTableMetricMenuId(null); setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex }); }}>{h}</button>
+                                  {openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex && <div className="absolute left-0 top-full z-[90] w-40 flex flex-col rounded-lg border border-slate-200 bg-white shadow-lg p-1 text-left font-normal">
+                                    {tableSortOptions(table, columnIndex).map((option) => <button key={option.label} type="button" onClick={() => sortTableColumn(metric, columnIndex, option.direction)} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-slate-700 hover:bg-blue-50">{option.label}</button>)}
                                     {columnIndex > 0 && <><div className="h-px bg-slate-100 my-1"/><button type="button" onClick={() => deleteTableColumn(metric, columnIndex)} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-red-600 hover:bg-red-50">Delete</button></>}
                                   </div>}
                                 </th>)}
