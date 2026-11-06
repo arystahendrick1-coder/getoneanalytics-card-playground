@@ -1329,20 +1329,24 @@ export default function SinglePageDashboard() {
     const previousColumns = tableColumnRectsRef.current;
     if (previousColumns) {
       tableColumnRectsRef.current = null;
+      const { tableElement, rects } = previousColumns;
       const movedCells = [];
-      document.querySelectorAll('[data-table-column-grid] [data-table-col-key]').forEach((node) => {
-        const key = `${node.getAttribute('data-table-col-key')}::${node.tagName}::${node.parentElement?.rowIndex ?? -1}`;
-        const before = previousColumns.get(key);
-        if (!before) return;
-        const after = node.getBoundingClientRect();
-        const dx = before.left - after.left;
-        const dy = before.top - after.top;
-        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-          node.style.transition = 'none';
-          node.style.transform = `translate(${dx}px, ${dy}px)`;
-          movedCells.push(node);
-        }
-      });
+      // Animate only cells belonging to the exact originating table instance.
+      if (tableElement?.isConnected) {
+        tableElement.querySelectorAll('[data-table-col-key]').forEach((node) => {
+          const key = `${node.getAttribute('data-table-col-key')}::${node.tagName}::${node.parentElement?.rowIndex ?? -1}`;
+          const before = rects.get(key);
+          if (!before) return;
+          const after = node.getBoundingClientRect();
+          const dx = before.left - after.left;
+          const dy = before.top - after.top;
+          if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+            node.style.transition = 'none';
+            node.style.transform = `translate(${dx}px, ${dy}px)`;
+            movedCells.push(node);
+          }
+        });
+      }
       if (movedCells.length) requestAnimationFrame(() => requestAnimationFrame(() => {
         movedCells.forEach((node) => {
           node.style.transition = 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)';
@@ -4745,19 +4749,22 @@ export default function SinglePageDashboard() {
     setDashboardMetrics((current) => current.map((item) => item.id === metric.id ? { ...item, tableSort: { columnIndex, direction } } : item));
     setOpenTableColumnMenu(null);
   };
-  const moveTableColumn = (metric, fromIndex, toIndex) => {
-    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
-    const tableNode = document.querySelector(`[data-metric-id="${metric.id}"] [data-table-column-grid]`);
+  const moveTableColumn = (metric, fromIndex, toIndex, tableNode) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || !tableNode?.isConnected) return;
+    // Capture layout only from the exact table instance where this drag began.
     if (tableNode) {
-      tableColumnRectsRef.current = new Map(
-        Array.from(tableNode.querySelectorAll('[data-table-col-key]')).map((node) => [
-          `${node.getAttribute('data-table-col-key')}::${node.tagName}::${node.parentElement?.rowIndex ?? -1}`,
-          node.getBoundingClientRect(),
-        ])
-      );
+      tableColumnRectsRef.current = {
+        tableElement: tableNode,
+        rects: new Map(
+          Array.from(tableNode.querySelectorAll('[data-table-col-key]')).map((node) => [
+            `${node.getAttribute('data-table-col-key')}::${node.tagName}::${node.parentElement?.rowIndex ?? -1}`,
+            node.getBoundingClientRect(),
+          ])
+        ),
+      };
     }
     setDashboardMetrics((current) => current.map((item) => {
-      if (item.id !== metric.id) return item;
+      if (item.id !== metric.id || item.pageId !== metric.pageId) return item;
       const base = metricTable(item);
       if (fromIndex >= base.headers.length || toIndex >= base.headers.length) return item;
       const move = (values) => {
@@ -4780,22 +4787,28 @@ export default function SinglePageDashboard() {
   const startTableColumnPointerDrag = (e, metric, columnIndex, label) => {
     if (e.button !== undefined && e.button !== 0) return;
     const header = e.currentTarget.closest('th');
-    if (!header) return;
+    const card = e.currentTarget.closest('[data-metric-id]');
+    // Bind this drag to the precise card/table DOM instance, never a global selector.
+    const table = card?.querySelector('[data-table-column-grid]');
+    if (!header || !table || !card) return;
     const rect = header.getBoundingClientRect();
     tableColumnSuppressClickRef.current = false;
     setOpenTableColumnMenu(null);
     setOpenTableMetricMenuId(null);
-    setTableColumnDrag({ metricId: metric.id, currentIndex: columnIndex, label, pointerX: e.clientX, pointerY: e.clientY, offsetX: Math.min(Math.max(12, e.clientX - rect.left), Math.max(12, rect.width - 12)), width: rect.width, top: rect.top, moved: false });
+    setTableColumnDrag({ metricId: metric.id, pageId: metric.pageId, tableElement: table, currentIndex: columnIndex, label, pointerX: e.clientX, pointerY: e.clientY, offsetX: Math.min(Math.max(12, e.clientX - rect.left), Math.max(12, rect.width - 12)), width: rect.width, top: rect.top, moved: false });
     e.preventDefault();
   };
 
-  // Match the page-list pointer interaction: the label follows the pointer,
-  // while only the horizontal coordinate selects a new column position.
+  // Keep the pointer interaction scoped to the originating Table Card.
+  // Only X determines the target column; vertical pointer drift is ignored.
   useEffect(() => {
     if (!tableColumnDrag) return;
     const handlePointerMove = (event) => {
-      const table = document.querySelector(`[data-metric-id=\"${tableColumnDrag.metricId}\"] [data-table-column-grid]`);
-      if (!table) return;
+      const table = tableColumnDrag.tableElement;
+      if (!table?.isConnected) return;
+      const tableRect = table.getBoundingClientRect();
+      // Do not let a drag crossing another card reorder anything outside its origin.
+      if (event.clientX < tableRect.left || event.clientX > tableRect.right) return;
       const headers = Array.from(table.querySelectorAll('thead th[data-table-column-index]'));
       if (!headers.length) return;
       let targetIndex = headers.length - 1;
@@ -4805,16 +4818,16 @@ export default function SinglePageDashboard() {
       }
       const moved = tableColumnDrag.moved || Math.abs(event.clientX - tableColumnDrag.pointerX) > 4;
       if (targetIndex !== tableColumnDrag.currentIndex) {
-        const metric = dashboardMetrics.find((item) => item.id === tableColumnDrag.metricId);
-        if (metric) moveTableColumn(metric, tableColumnDrag.currentIndex, targetIndex);
+        const metric = dashboardMetrics.find((item) => item.id === tableColumnDrag.metricId && item.pageId === tableColumnDrag.pageId);
+        if (metric) moveTableColumn(metric, tableColumnDrag.currentIndex, targetIndex, table);
         tableColumnSuppressClickRef.current = true;
-        setTableColumnDrag((current) => current ? { ...current, currentIndex: targetIndex, pointerX: event.clientX, pointerY: event.clientY, moved: true } : current);
+        setTableColumnDrag((current) => current && current.tableElement === table ? { ...current, currentIndex: targetIndex, pointerX: event.clientX, pointerY: event.clientY, moved: true } : current);
       } else {
         if (moved) tableColumnSuppressClickRef.current = true;
-        setTableColumnDrag((current) => current ? { ...current, pointerX: event.clientX, pointerY: event.clientY, moved } : current);
+        setTableColumnDrag((current) => current && current.tableElement === table ? { ...current, pointerX: event.clientX, pointerY: event.clientY, moved } : current);
       }
     };
-    const finishPointerDrag = () => setTableColumnDrag(null);
+    const finishPointerDrag = () => setTableColumnDrag((current) => current?.tableElement === tableColumnDrag.tableElement ? null : current);
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', finishPointerDrag);
     window.addEventListener('pointercancel', finishPointerDrag);
@@ -6059,7 +6072,7 @@ export default function SinglePageDashboard() {
                             <table data-table-column-grid className="w-full min-w-max border-collapse text-left">
                               <thead className="sticky top-0 z-[2] bg-white"><tr className="text-slate-500 border-b border-slate-200">
                                 {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} data-table-col-key={tableColumnKeys[columnIndex]} data-table-column-index={columnIndex} data-table-menu-container className="relative font-semibold py-2 pr-3 whitespace-nowrap">
-                                  <button type="button" onPointerDown={(e) => startTableColumnPointerDrag(e, metric, columnIndex, h)} onClick={() => { if (tableColumnSuppressClickRef.current) { tableColumnSuppressClickRef.current = false; return; } setOpenTableMetricMenuId(null); setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex }); }} className={`rounded px-1 py-1 -ml-1 cursor-default select-none touch-none hover:bg-slate-100 hover:text-slate-800 ${tableColumnDrag?.metricId === metric.id && tableColumnDrag?.currentIndex === columnIndex ? 'bg-slate-100 text-slate-700' : ''}`} title="Click for options · hold and move to reorder">{h}</button>
+                                  <button type="button" onPointerDown={(e) => startTableColumnPointerDrag(e, metric, columnIndex, h)} onClick={() => { if (tableColumnSuppressClickRef.current) { tableColumnSuppressClickRef.current = false; return; } setOpenTableMetricMenuId(null); setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex }); }} className={`rounded px-1 py-1 -ml-1 cursor-default select-none touch-none hover:bg-slate-100 hover:text-slate-800 ${tableColumnDrag?.metricId === metric.id && tableColumnDrag?.pageId === metric.pageId && tableColumnDrag?.currentIndex === columnIndex ? 'bg-slate-100 text-slate-700' : ''}`} title="Click for options · hold and move to reorder">{h}</button>
                                   {openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex && <div className="absolute left-0 top-full z-[90] w-40 flex flex-col rounded-lg border border-slate-200 bg-white shadow-lg p-1 text-left font-normal">
                                     {tableSortOptions(table, columnIndex).map((option) => <button key={option.label} type="button" onClick={() => sortTableColumn(metric, columnIndex, option.direction)} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-slate-700 hover:bg-blue-50">{option.label}</button>)}
                                     {columnIndex > 0 && <><div className="h-px bg-slate-100 my-1"/><button type="button" onClick={() => deleteTableColumn(metric, columnIndex)} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-red-600 hover:bg-red-50">Delete</button></>}
@@ -6082,7 +6095,7 @@ export default function SinglePageDashboard() {
                               </tr></thead>
                               <tbody>{table.rows.map((row, i) => <tr key={i} className="border-b border-slate-100">{row.map((value, j) => <td key={j} data-table-col-key={tableColumnKeys[j]} className="py-2 pr-3 whitespace-nowrap">{value}</td>)}<td className="sticky right-0 bg-white" /></tr>)}</tbody>
                             </table>
-                            {tableColumnDrag?.metricId === metric.id && <div aria-hidden="true" className="pointer-events-none fixed z-[9999] rounded-md bg-slate-100 px-2 py-1 text-[14px] font-medium text-slate-700 shadow-sm" style={{ left: tableColumnDrag.pointerX - tableColumnDrag.offsetX, top: tableColumnDrag.top + 2, minWidth: `${Math.max(48, tableColumnDrag.width)}px`, opacity: 0.96 }}>{tableColumnDrag.label}</div>}
+                            {tableColumnDrag?.metricId === metric.id && tableColumnDrag?.pageId === metric.pageId && <div aria-hidden="true" className="pointer-events-none fixed z-[9999] rounded-md bg-slate-100 px-2 py-1 text-[14px] font-medium text-slate-700 shadow-sm" style={{ left: tableColumnDrag.pointerX - tableColumnDrag.offsetX, top: tableColumnDrag.top + 2, minWidth: `${Math.max(48, tableColumnDrag.width)}px`, opacity: 0.96 }}>{tableColumnDrag.label}</div>}
                           </div>;
                         })()}
                         {(metric.type === 'Number' || metric.type === 'Number and Chart') && !['Traffic Acquisition', 'Top Landing Pages'].includes(metric.name) && <div className="flex items-end justify-between gap-2"><div><span className={`${isCompact ? 'text-xl' : 'text-2xl'} font-black tracking-tight text-slate-900`}>{val}</span>{isCompareEnabled && <div className="text-[9px] text-slate-500 mt-0.5">vs <b className="text-slate-700">{metricValueFor(metric.name).replace(/[0-9]/g, (d) => String(Math.max(0, Number(d)-1)))}</b></div>}</div><span className="text-[10px] font-semibold text-emerald-600 whitespace-nowrap rounded-full bg-emerald-50 px-2 py-1">↗ 12.6%</span></div>}
