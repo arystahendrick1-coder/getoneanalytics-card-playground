@@ -1276,6 +1276,8 @@ export default function SinglePageDashboard() {
   const [openTableMetricMenuId, setOpenTableMetricMenuId] = useState(null);
   const [tableMetricSearch, setTableMetricSearch] = useState('');
   const [openTableColumnMenu, setOpenTableColumnMenu] = useState(null);
+  const [tableColumnDrag, setTableColumnDrag] = useState(null);
+  const tableColumnSuppressClickRef = useRef(false);
   const [metricDragPreview, setMetricDragPreview] = useState(null);
   const draggedNewMetricRef = useRef(null);
   const [metricPendingDelete, setMetricPendingDelete] = useState(null);
@@ -4775,6 +4777,54 @@ export default function SinglePageDashboard() {
     }));
     setOpenTableColumnMenu(null);
   };
+  const startTableColumnPointerDrag = (e, metric, columnIndex, label) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    const header = e.currentTarget.closest('th');
+    if (!header) return;
+    const rect = header.getBoundingClientRect();
+    tableColumnSuppressClickRef.current = false;
+    setOpenTableColumnMenu(null);
+    setOpenTableMetricMenuId(null);
+    setTableColumnDrag({ metricId: metric.id, currentIndex: columnIndex, label, pointerX: e.clientX, pointerY: e.clientY, offsetX: Math.min(Math.max(12, e.clientX - rect.left), Math.max(12, rect.width - 12)), width: rect.width, top: rect.top, moved: false });
+    e.preventDefault();
+  };
+
+  // Match the page-list pointer interaction: the label follows the pointer,
+  // while only the horizontal coordinate selects a new column position.
+  useEffect(() => {
+    if (!tableColumnDrag) return;
+    const handlePointerMove = (event) => {
+      const table = document.querySelector(`[data-metric-id=\"${tableColumnDrag.metricId}\"] [data-table-column-grid]`);
+      if (!table) return;
+      const headers = Array.from(table.querySelectorAll('thead th[data-table-column-index]'));
+      if (!headers.length) return;
+      let targetIndex = headers.length - 1;
+      for (let index = 0; index < headers.length; index += 1) {
+        const rect = headers[index].getBoundingClientRect();
+        if (event.clientX < rect.left + rect.width / 2) { targetIndex = index; break; }
+      }
+      const moved = tableColumnDrag.moved || Math.abs(event.clientX - tableColumnDrag.pointerX) > 4;
+      if (targetIndex !== tableColumnDrag.currentIndex) {
+        const metric = dashboardMetrics.find((item) => item.id === tableColumnDrag.metricId);
+        if (metric) moveTableColumn(metric, tableColumnDrag.currentIndex, targetIndex);
+        tableColumnSuppressClickRef.current = true;
+        setTableColumnDrag((current) => current ? { ...current, currentIndex: targetIndex, pointerX: event.clientX, pointerY: event.clientY, moved: true } : current);
+      } else {
+        if (moved) tableColumnSuppressClickRef.current = true;
+        setTableColumnDrag((current) => current ? { ...current, pointerX: event.clientX, pointerY: event.clientY, moved } : current);
+      }
+    };
+    const finishPointerDrag = () => setTableColumnDrag(null);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', finishPointerDrag);
+    window.addEventListener('pointercancel', finishPointerDrag);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', finishPointerDrag);
+      window.removeEventListener('pointercancel', finishPointerDrag);
+    };
+  }, [tableColumnDrag, dashboardMetrics]);
+
   const deleteTableColumn = (metric, columnIndex) => {
     // Keep the first column as the row identity (Campaign, Channel, Page, etc.).
     if (columnIndex === 0) return;
@@ -6008,8 +6058,8 @@ export default function SinglePageDashboard() {
                           return <div className="w-full flex-1 min-h-0 overflow-auto text-[14px] text-slate-600 overscroll-y-auto">
                             <table data-table-column-grid className="w-full min-w-max border-collapse text-left">
                               <thead className="sticky top-0 z-[2] bg-white"><tr className="text-slate-500 border-b border-slate-200">
-                                {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} data-table-col-key={tableColumnKeys[columnIndex]} data-table-menu-container onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }} onDrop={(e) => { e.preventDefault(); const fromIndex = Number(e.dataTransfer.getData('application/getone-table-column')); if (Number.isInteger(fromIndex)) moveTableColumn(metric, fromIndex, columnIndex); }} className="relative font-semibold py-2 pr-3 whitespace-nowrap">
-                                  <button type="button" draggable onDragStart={(e) => { e.dataTransfer.setData('application/getone-table-column', String(columnIndex)); e.dataTransfer.effectAllowed = 'move'; }} onDragEnd={() => {}} className="rounded px-1 py-1 -ml-1 cursor-grab active:cursor-grabbing hover:bg-slate-100 hover:text-slate-800" title="Drag to reorder column" onClick={() => { setOpenTableMetricMenuId(null); setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex }); }}>{h}</button>
+                                {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} data-table-col-key={tableColumnKeys[columnIndex]} data-table-column-index={columnIndex} data-table-menu-container className="relative font-semibold py-2 pr-3 whitespace-nowrap">
+                                  <button type="button" onPointerDown={(e) => startTableColumnPointerDrag(e, metric, columnIndex, h)} onClick={() => { if (tableColumnSuppressClickRef.current) { tableColumnSuppressClickRef.current = false; return; } setOpenTableMetricMenuId(null); setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex }); }} className={`rounded px-1 py-1 -ml-1 cursor-default select-none touch-none hover:bg-slate-100 hover:text-slate-800 ${tableColumnDrag?.metricId === metric.id && tableColumnDrag?.currentIndex === columnIndex ? 'bg-slate-100 text-slate-700' : ''}`} title="Click for options · hold and move to reorder">{h}</button>
                                   {openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex && <div className="absolute left-0 top-full z-[90] w-40 flex flex-col rounded-lg border border-slate-200 bg-white shadow-lg p-1 text-left font-normal">
                                     {tableSortOptions(table, columnIndex).map((option) => <button key={option.label} type="button" onClick={() => sortTableColumn(metric, columnIndex, option.direction)} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-slate-700 hover:bg-blue-50">{option.label}</button>)}
                                     {columnIndex > 0 && <><div className="h-px bg-slate-100 my-1"/><button type="button" onClick={() => deleteTableColumn(metric, columnIndex)} className="block w-full text-left text-[13px] leading-4 font-normal px-2 py-1 rounded-md text-red-600 hover:bg-red-50">Delete</button></>}
@@ -6032,6 +6082,7 @@ export default function SinglePageDashboard() {
                               </tr></thead>
                               <tbody>{table.rows.map((row, i) => <tr key={i} className="border-b border-slate-100">{row.map((value, j) => <td key={j} data-table-col-key={tableColumnKeys[j]} className="py-2 pr-3 whitespace-nowrap">{value}</td>)}<td className="sticky right-0 bg-white" /></tr>)}</tbody>
                             </table>
+                            {tableColumnDrag?.metricId === metric.id && <div aria-hidden="true" className="pointer-events-none fixed z-[9999] rounded-md bg-slate-100 px-2 py-1 text-[14px] font-medium text-slate-700 shadow-sm" style={{ left: tableColumnDrag.pointerX - tableColumnDrag.offsetX, top: tableColumnDrag.top + 2, minWidth: `${Math.max(48, tableColumnDrag.width)}px`, opacity: 0.96 }}>{tableColumnDrag.label}</div>}
                           </div>;
                         })()}
                         {(metric.type === 'Number' || metric.type === 'Number and Chart') && !['Traffic Acquisition', 'Top Landing Pages'].includes(metric.name) && <div className="flex items-end justify-between gap-2"><div><span className={`${isCompact ? 'text-xl' : 'text-2xl'} font-black tracking-tight text-slate-900`}>{val}</span>{isCompareEnabled && <div className="text-[9px] text-slate-500 mt-0.5">vs <b className="text-slate-700">{metricValueFor(metric.name).replace(/[0-9]/g, (d) => String(Math.max(0, Number(d)-1)))}</b></div>}</div><span className="text-[10px] font-semibold text-emerald-600 whitespace-nowrap rounded-full bg-emerald-50 px-2 py-1">↗ 12.6%</span></div>}
