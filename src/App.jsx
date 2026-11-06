@@ -5527,7 +5527,7 @@ export default function SinglePageDashboard() {
                           )}
                         </div>
                       </div>
-                      <div className="flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
+                      <div data-metric-content className="flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
                         {metric.type === 'Table' && metric.name === 'Traffic Acquisition' && (
                           <div className="w-full flex-1 min-h-0 overflow-y-auto overflow-x-auto text-[9px] text-slate-600 overscroll-y-auto">
                             <table className="w-full min-w-[620px] border-collapse">
