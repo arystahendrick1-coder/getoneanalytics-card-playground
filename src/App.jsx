@@ -5431,7 +5431,7 @@ export default function SinglePageDashboard() {
                   key={page.id}
                   ref={(el) => { reportPaperRefs.current[page.id] = el; if (page.active && el) { const grid = el.querySelector('[data-metric-grid]'); if (grid) metricCanvasRef.current = grid; } }}
                   data-report-page={page.id}
-                  className={`relative shrink-0 w-full ${viewingSavedReport ? 'max-w-[1120px]' : ''} ${isActivePropertyUser && !viewingSavedReport ? 'goa-user-dashboard-page' : ''} rounded-xl border border-slate-200 bg-white shadow-[0_5px_18px_rgba(15,23,42,0.08)] p-4 md:p-5`}
+                  className={`relative shrink-0 w-full ${viewingSavedReport ? 'max-w-[1120px]' : ''} ${isActivePropertyUser && !viewingSavedReport ? 'goa-user-dashboard-page' : ''} ${!(page.title === 'Cover Page' || page.isCover) ? 'goa-dashboard-page' : ''} rounded-xl border border-slate-200 bg-white shadow-[0_5px_18px_rgba(15,23,42,0.08)] p-4 md:p-5`}
                 >
                   {page.title === 'Cover Page' || page.isCover ? (
                     <div className="min-h-[620px] flex flex-col items-center justify-center text-center px-8 py-16">

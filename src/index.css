@@ -3,3 +3,19 @@
 @tailwind utilities;
 html, body, #root { min-height:100%; margin:0; }
 body { font-family: Arial, Helvetica, sans-serif; }
+
+
+/* Increase typography inside report dashboard pages by 2px without affecting the cover, navigation, or other app screens. */
+.goa-dashboard-page [class~="text-[7px]"] { font-size: 9px !important; }
+.goa-dashboard-page [class~="text-[8px]"] { font-size: 10px !important; }
+.goa-dashboard-page [class~="text-[9px]"] { font-size: 11px !important; }
+.goa-dashboard-page [class~="text-[10px]"] { font-size: 12px !important; }
+.goa-dashboard-page [class~="text-xs"] { font-size: 14px !important; }
+.goa-dashboard-page [class~="text-sm"] { font-size: 16px !important; }
+.goa-dashboard-page [class~="text-base"] { font-size: 18px !important; }
+.goa-dashboard-page [class~="text-lg"] { font-size: 20px !important; }
+.goa-dashboard-page [class~="text-xl"] { font-size: 22px !important; }
+.goa-dashboard-page [class~="text-2xl"] { font-size: 26px !important; }
+.goa-dashboard-page [class~="text-3xl"] { font-size: 32px !important; }
+.goa-dashboard-page [class~="text-4xl"] { font-size: 38px !important; }
+.goa-dashboard-page [class~="text-5xl"] { font-size: 50px !important; }
