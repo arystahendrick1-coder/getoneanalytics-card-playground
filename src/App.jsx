@@ -1275,6 +1275,7 @@ export default function SinglePageDashboard() {
   const [openMetricMenuId, setOpenMetricMenuId] = useState(null);
   const [openTableMetricMenuId, setOpenTableMetricMenuId] = useState(null);
   const [tableMetricSearch, setTableMetricSearch] = useState('');
+  const [openTableColumnMenu, setOpenTableColumnMenu] = useState(null);
   const [metricDragPreview, setMetricDragPreview] = useState(null);
   const draggedNewMetricRef = useRef(null);
   const [metricPendingDelete, setMetricPendingDelete] = useState(null);
@@ -4348,7 +4349,7 @@ export default function SinglePageDashboard() {
       'Google Ads|Landing Page': ['Clicks', 'Impressions', 'CTR', 'Average CPC', 'Conversions', 'Cost'],
       'Google Ads|Sitelink Performance': ['Conversions', 'Conversion Rate', 'Average CPC', 'Cost per Conversion'],
       'Google Ads|Keyword Performance': ['Average CPC', 'Cost', 'Conversions', 'Conversion Rate', 'Quality Score', 'Cost per Conversion'],
-      'Google Ads|Campaign Performance': ['CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost per Conversion', 'Search Impression Share'],
+      'Google Ads|Campaign Performance': ['Clicks', 'Impressions', 'CTR', 'Average CPC', 'Cost', 'Conversions', 'Conversion Rate', 'Conversion Value', 'Conversion Value per Cost (ROAS)', 'All Conversions', 'Cost per Conversion', 'Search Impression Share', 'Search Lost IS (Budget)', 'Search Lost IS (Rank)', 'Search Top Impression Share', 'Search Absolute Top Impression Share', 'Interactions', 'Interaction Rate', 'Engagements', 'Engagement Rate', 'Video Views', 'Video View Rate', 'Average CPV', 'View-through Conversions'],
       'Google Business Profile|Search Keywords': ['Searches', 'Search Views', 'Website Clicks', 'Calls', 'Direction Requests'],
       'YouTube Analytics|Each Video Insight': ['Watch Time', 'Average View Duration', 'Likes', 'Comments', 'Subscribers Gained', 'Impressions'],
       'Facebook Pages (Organic)|Post Performance': ['Impressions', 'Engagement', 'Reactions', 'Comments', 'Shares', 'Link Clicks'],
@@ -4419,6 +4420,49 @@ export default function SinglePageDashboard() {
     }));
     setTableMetricSearch('');
     setOpenTableMetricMenuId(null);
+  };
+  const sortTableColumn = (metric, columnIndex, direction) => {
+    setDashboardMetrics((current) => current.map((item) => item.id === metric.id ? { ...item, tableSort: { columnIndex, direction } } : item));
+    setOpenTableColumnMenu(null);
+  };
+  const deleteTableColumn = (metric, columnIndex) => {
+    // Keep the first column as the row identity (Campaign, Channel, Page, etc.).
+    if (columnIndex === 0) return;
+    setDashboardMetrics((current) => current.map((item) => {
+      if (item.id !== metric.id) return item;
+      const base = metricTable(item);
+      const removedName = base.headers[columnIndex];
+      const headers = base.headers.filter((_, index) => index !== columnIndex);
+      const rows = base.rows.map((row) => row.filter((_, index) => index !== columnIndex));
+      return { ...item, relatedTableMetrics: (item.relatedTableMetrics || []).filter((name) => name !== removedName), tableDataOverride: { headers, rows }, tableSort: null };
+    }));
+    setOpenTableColumnMenu(null);
+  };
+  const sortedMetricTable = (metric) => {
+    const base = metricTable(metric);
+    if (!metric.tableSort) return base;
+    const { columnIndex, direction } = metric.tableSort;
+    const rows = [...base.rows].sort((a, b) => {
+      const av = String(a[columnIndex] ?? '').trim();
+      const bv = String(b[columnIndex] ?? '').trim();
+      const parseNumeric = (value) => {
+        const duration = value.match(/^(?:(\d+)m\s*)?(?:(\d+(?:\.\d+)?)s)?$/i);
+        if (duration && (duration[1] || duration[2])) return Number(duration[1] || 0) * 60 + Number(duration[2] || 0);
+        const clockDuration = value.match(/^(\d+):(\d{1,2})$/);
+        if (clockDuration) return Number(clockDuration[1]) * 60 + Number(clockDuration[2]);
+        const ratio = value.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+        if (ratio) return Number(ratio[1]) / Number(ratio[2] || 1);
+        const normalized = value.replace(/[^0-9,.-]/g, '').replace(/,(?=\d{3}(?:\D|$))/g, '');
+        const number = Number(normalized);
+        return Number.isFinite(number) && normalized !== '' ? number : null;
+      };
+      const an = parseNumeric(av); const bn = parseNumeric(bv);
+      let result;
+      if (an !== null && bn !== null) result = an - bn;
+      else result = av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
+      return direction === 'desc' ? -result : result;
+    });
+    return { ...base, rows };
   };
   const metricTable = (metric) => {
     if (metric.tableDataOverride) return metric.tableDataOverride;
@@ -5618,23 +5662,30 @@ export default function SinglePageDashboard() {
                       </div>
                       <div data-metric-content className="flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
                         {metric.type === 'Table' && (() => {
-                          const table = metricTable(metric);
-                          const available = relatedTableMetrics(metric).filter((name) => !table.headers.includes(name) && !(metric.relatedTableMetrics || []).includes(name));
+                          const table = sortedMetricTable(metric);
+                          const available = relatedTableMetrics(metric);
                           const filtered = available.filter((name) => name.toLowerCase().includes(tableMetricSearch.toLowerCase()));
                           return <div className="w-full flex-1 min-h-0 overflow-auto text-[12px] text-slate-600 overscroll-y-auto">
                             <table className="w-full min-w-max border-collapse text-left">
                               <thead className="sticky top-0 z-[2] bg-white"><tr className="text-slate-500 border-b border-slate-200">
-                                {table.headers.map((h) => <th key={h} className="font-semibold py-2 pr-3 whitespace-nowrap">{h}</th>)}
+                                {table.headers.map((h, columnIndex) => <th key={`${h}-${columnIndex}`} className="relative font-semibold py-2 pr-3 whitespace-nowrap">
+                                  <button type="button" className="rounded px-1 py-1 -ml-1 hover:bg-slate-100 hover:text-slate-800" onClick={() => setOpenTableColumnMenu(openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex ? null : { metricId: metric.id, columnIndex })}>{h}</button>
+                                  {openTableColumnMenu?.metricId === metric.id && openTableColumnMenu?.columnIndex === columnIndex && <div className="absolute left-0 top-full z-[90] w-36 rounded-lg border border-slate-200 bg-white shadow-xl p-1 text-left font-normal">
+                                    <button type="button" onClick={() => sortTableColumn(metric, columnIndex, 'asc')} className="w-full text-left text-xs font-normal px-2.5 py-2 rounded-md text-slate-700 hover:bg-blue-50">Sort A–Z</button>
+                                    <button type="button" onClick={() => sortTableColumn(metric, columnIndex, 'desc')} className="w-full text-left text-xs font-normal px-2.5 py-2 rounded-md text-slate-700 hover:bg-blue-50">Sort Z–A</button>
+                                    {columnIndex > 0 && <><div className="h-px bg-slate-100 my-1"/><button type="button" onClick={() => deleteTableColumn(metric, columnIndex)} className="w-full text-left text-xs font-normal px-2.5 py-2 rounded-md text-red-600 hover:bg-red-50">Delete</button></>}
+                                  </div>}
+                                </th>)}
                                 <th className="sticky right-0 z-[3] bg-white w-9 min-w-9 px-1 py-1 text-center">
                                   <div className="relative flex justify-center">
                                     <button type="button" aria-label="Add related metric column" title="Add related metric" onClick={() => { setOpenTableMetricMenuId(openTableMetricMenuId === metric.id ? null : metric.id); setTableMetricSearch(''); }} className="w-7 h-7 rounded-md border border-transparent hover:border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-blue-600 text-lg leading-none font-medium">+</button>
-                                    {openTableMetricMenuId === metric.id && <div className="absolute right-0 top-8 z-[80] w-52 rounded-xl border border-slate-200 bg-white shadow-xl p-1.5 text-left" onClick={(e) => e.stopPropagation()}>
+                                    {openTableMetricMenuId === metric.id && <div className="absolute right-0 top-8 z-[80] w-52 rounded-xl border border-slate-200 bg-white shadow-xl p-1.5 text-left font-normal" onClick={(e) => e.stopPropagation()}>
                                       <div className="flex items-center gap-2 px-2 py-1.5 mb-1 rounded-lg border border-slate-200 bg-white">
                                         <svg className="w-3.5 h-3.5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-                                        <input autoFocus value={tableMetricSearch} onChange={(e) => setTableMetricSearch(e.target.value)} placeholder="Search metrics..." className="w-full min-w-0 outline-none text-xs text-slate-700 placeholder:text-slate-400" />
+                                        <input autoFocus value={tableMetricSearch} onChange={(e) => setTableMetricSearch(e.target.value)} placeholder="Search metrics..." className="w-full min-w-0 outline-none text-xs font-normal text-slate-700 placeholder:text-slate-400" />
                                       </div>
                                       <div className="max-h-48 overflow-y-auto">
-                                        {filtered.length ? filtered.map((name) => <button key={name} type="button" onClick={() => addRelatedTableMetric(metric, name)} className="w-full text-left text-xs px-2.5 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700">{name}</button>) : <div className="px-2.5 py-2 text-xs text-slate-400">No related metrics found</div>}
+                                        {filtered.length ? filtered.map((name) => <button key={name} type="button" onClick={() => addRelatedTableMetric(metric, name)} className="w-full text-left text-xs font-normal px-2.5 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700">{name}</button>) : <div className="px-2.5 py-2 text-xs font-normal text-slate-400">No related metrics found</div>}
                                       </div>
                                     </div>}
                                   </div>
@@ -5651,7 +5702,6 @@ export default function SinglePageDashboard() {
                           </div>
                         )}
                         {metric.type === 'Bar Chart' && <div className="flex-1 min-h-0 flex flex-col justify-center gap-2 py-2 overflow-y-auto">{isCompareEnabled && <div className="flex justify-end gap-3 text-[8px] text-slate-400"><span><i className="inline-block w-2 h-2 rounded-full bg-blue-600 mr-1"/>Current</span><span><i className="inline-block w-2 h-2 rounded-full bg-slate-300 mr-1"/>Previous</span></div>}{metricBreakdown(metric).map((item,i,arr)=><div key={item.label} className="min-w-0 text-[10px] text-slate-600"><div className="flex items-center justify-between gap-2 mb-1"><span className="truncate">{item.label}</span><span className="tabular-nums text-slate-800 font-semibold text-right shrink-0">{Math.round(item.value*112.7).toLocaleString()}{isCompareEnabled && <span className="ml-1 text-slate-400 font-normal">({Math.round(item.value*96.9).toLocaleString()})</span>}</span></div><div className="h-2 rounded-full bg-slate-100 overflow-hidden"><div className="h-full rounded-full bg-blue-600" style={{width:`${item.value/Math.max(...arr.map(x=>x.value))*100}%`}} /></div>{isCompareEnabled && <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-1"><div className="h-full rounded-full bg-slate-300" style={{width:`${Math.max(8,(item.value*0.86)/Math.max(...arr.map(x=>x.value))*100)}%`}} /></div>}</div>)}</div>}
-                        {metric.type === 'Table' && !['Traffic Acquisition', 'Top Landing Pages'].includes(metric.name) && <div className="flex-1 min-h-0 overflow-auto text-[10px] text-slate-600"><table className="w-full text-left"><thead className="sticky top-0 bg-white"><tr className="border-b border-slate-200">{metricTable(metric).headers.map(h=><th key={h} className="py-2 pr-3 font-semibold whitespace-nowrap">{h}</th>)}</tr></thead><tbody>{metricTable(metric).rows.map((r,i)=><tr key={i} className="border-b border-slate-100">{r.map((v,j)=><td key={j} className="py-2 pr-3 whitespace-nowrap">{v}</td>)}</tr>)}</tbody></table></div>}
                         {metric.type === 'Maps' && (metric.name === 'Campaign by Country' ? <div className="flex-1 min-h-0 grid grid-cols-[1.1fr_1fr] gap-3 overflow-hidden"><div className="min-h-0 rounded-lg bg-slate-50 overflow-hidden relative"><svg viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet" className="w-full h-full"><g fill="#dbeafe" stroke="#bfdbfe" strokeWidth="1"><path d="M35 65 L75 38 130 42 158 70 145 105 118 119 103 157 78 145 60 111 38 99Z"/><path d="M145 155 L178 164 194 202 183 244 164 226 155 190Z"/><path d="M250 60 L280 42 315 49 329 67 312 82 284 79 272 96 248 87Z"/><path d="M275 98 L316 88 348 107 353 146 330 180 308 166 293 137Z"/><path d="M328 52 L380 35 450 47 495 70 532 93 510 119 472 115 444 132 410 119 385 94 354 89Z"/><path d="M450 158 L486 149 522 166 535 193 511 216 481 208 462 186Z"/></g><g fill="#2563eb" opacity=".9">{[[105,86],[116,104],[175,194],[303,111],[320,129],[389,93],[424,105],[480,185],[500,194],[350,126]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r={i===0?6:4}/>)}</g></svg></div><div className="min-w-0 overflow-auto text-[9px] text-slate-600"><table className="w-full text-left"><thead className="sticky top-0 bg-white"><tr className="border-b border-slate-200"><th className="py-1 pr-2">Country</th><th className="py-1 pr-2 text-right">Clicks</th><th className="py-1 text-right">Cost</th></tr></thead><tbody>{[['Indonesia','9,820','IDR 42,301,400'],['Australia','3,740','IDR 16,280,600'],['United States','2,690','IDR 11,607,800'],['Singapore','1,820','IDR 7,862,400'],['United Kingdom','1,120','IDR 4,928,100']].map((r,i)=><tr key={i} className="border-b border-slate-100"><td className="py-1 pr-2 whitespace-nowrap">{r[0]}</td><td className="py-1 pr-2 text-right">{r[1]}</td><td className="py-1 text-right whitespace-nowrap">{r[2]}</td></tr>)}</tbody></table></div></div> : <div className="flex-1 min-h-[110px] rounded-lg bg-slate-50 overflow-hidden relative"><svg viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet" className="w-full h-full"><g fill="#dbeafe" stroke="#bfdbfe" strokeWidth="1"><path d="M35 65 L75 38 130 42 158 70 145 105 118 119 103 157 78 145 60 111 38 99Z"/><path d="M145 155 L178 164 194 202 183 244 164 226 155 190Z"/><path d="M250 60 L280 42 315 49 329 67 312 82 284 79 272 96 248 87Z"/><path d="M275 98 L316 88 348 107 353 146 330 180 308 166 293 137Z"/><path d="M328 52 L380 35 450 47 495 70 532 93 510 119 472 115 444 132 410 119 385 94 354 89Z"/><path d="M450 158 L486 149 522 166 535 193 511 216 481 208 462 186Z"/></g><g fill="#2563eb" opacity=".9">{[[105,86],[116,104],[175,194],[303,111],[320,129],[389,93],[424,105],[480,185],[500,194],[350,126]].map(([x,y],i)=><circle key={i} cx={x} cy={y} r={i===0?6:4}/>)}</g></svg><div className="absolute bottom-2 left-3 flex items-center gap-2 text-[9px] text-slate-500"><span className="w-2 h-2 rounded-full bg-blue-600"/>Audience / activity locations</div></div>)}
                         {metric.type === 'Pie Chart' && <div className={`flex-1 min-h-0 min-w-0 flex items-center ${isCompact ? 'justify-center gap-2' : 'justify-start gap-0'}`}>{(() => { const items = metricBreakdown(metric); const total = items.reduce((a,b)=>a+b.value,0); let offset = 0; const colors = ['#2563eb','#22c55e','#a855f7','#93c5fd','#f59e0b']; const ring = isCompact ? 'w-[104px] h-[104px]' : 'h-[calc(100%-10px)] max-h-[260px] aspect-square w-auto max-w-full'; const chartZone = isCompact ? '' : 'h-full min-h-0 min-w-0 flex-[0_0_62%] flex items-center justify-start pl-1 overflow-hidden'; const legendZone = isCompact ? '' : 'h-full min-h-0 min-w-0 flex-[0_0_38%] flex flex-col justify-center pr-2 overflow-hidden'; const donut = <div className={`relative shrink-0 ${ring}`}><svg viewBox="0 0 100 100" className="w-full h-full block"><circle cx="50" cy="50" r="41" fill="none" stroke="#e2e8f0" strokeWidth="18"/>{items.map((item,i)=>{const dash=item.value/total*257.6;const el=<circle key={item.label} cx="50" cy="50" r="41" fill="none" stroke={colors[i%colors.length]} strokeWidth="18" strokeDasharray={`${dash} ${257.6-dash}`} strokeDashoffset={-offset} transform="rotate(-90 50 50)"/>;offset+=dash;return el;})}</svg>{!isCompact && <div className="absolute inset-0 flex flex-col items-center justify-center text-center"><span className="text-base font-bold text-slate-800 leading-tight">{val}</span><span className="text-[8px] text-slate-400">{metric.name.includes('Result')?'Results':'Total'}</span></div>}</div>; return <>{isCompact ? <>{donut}<div className="min-w-0 flex flex-col justify-center"><span className="text-lg font-extrabold leading-tight text-slate-900">{val}</span><span className="text-[8px] text-slate-400">{metric.name.includes('Result')?'Results':'Total'}</span>{items.slice(0,3).map((item,i)=><div key={item.label} className="flex items-center gap-1 mt-1 text-[7px] text-slate-500"><span className="w-1.5 h-1.5 rounded-full shrink-0" style={{background:colors[i%colors.length]}}/><span className="truncate">{Math.round(item.value/total*100)}%</span></div>)}</div></> : <><div className={chartZone}>{donut}</div><div className={`${legendZone} gap-y-2 text-[10px] text-slate-600`}>{items.map((item,i)=><div key={item.label} className="flex w-full min-w-0 items-center gap-1.5 overflow-hidden"><span className="w-2 h-2 rounded-full shrink-0" style={{background:colors[i%colors.length]}}/><span className="flex-1 min-w-0 truncate">{item.label}</span><b className="shrink-0 text-slate-800 text-right">{Math.round(item.value/total*100)}%{isCompareEnabled && <span className="block text-slate-400 font-normal">{Math.max(1,Math.round(item.value/total*100*0.92))}%</span>}</b></div>)}</div></>}</>; })()}</div>}
                         {isLarge && (metric.type === 'Line Chart' || metric.type === 'Number and Chart') && <div className="flex justify-between text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100"><span>1 Oct</span><span>7 Oct</span><span>14 Oct</span><span>Today</span></div>}
