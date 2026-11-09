@@ -791,7 +791,7 @@ export default function SinglePageDashboard() {
     "h": 2,
     "pageId": "p8",
     "section": "Content Performance",
-    "metricReference": "Post, Views, Viewers, Likes, Comments, Shares",
+    "metricReference": "Post, Viewers, Likes, Comments, Shares",
     "notes": "Post-level performance table; exclude legacy Impressions."
   },
   {
@@ -1662,7 +1662,7 @@ export default function SinglePageDashboard() {
   },
   {
     "id": "p8",
-    "title": "Facebook Pages (Organic)",
+    "title": "Facebook Pages",
     "active": false
   },
   {
@@ -1901,7 +1901,7 @@ export default function SinglePageDashboard() {
     { id: '3', name: 'Google Business Profile', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Google Business Profile"><path fill="#4285F4" d="M12 2.2a7 7 0 0 0-7 7c0 5.1 7 12.6 7 12.6s7-7.5 7-12.6a7 7 0 0 0-7-7Z"/><circle cx="12" cy="9.2" r="2.6" fill="white"/></svg> },
     { id: '4', name: 'YouTube Analytics', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="YouTube"><rect x="1.5" y="5" width="21" height="14" rx="4" fill="#FF0033"/><path d="m10 8.5 6 3.5-6 3.5z" fill="white"/></svg> },
     { id: '5', name: 'Meta Ads', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Meta"><path d="M3 16.8C5.2 7.4 8.7 4.1 12 10c3.3-5.9 6.8-2.6 9 6.8" fill="none" stroke="#0866FF" strokeWidth="3.2" strokeLinecap="round"/><path d="M3 16.8c2.2 3.7 5.2 2.5 9-6.8 3.8 9.3 6.8 10.5 9 6.8" fill="none" stroke="#0866FF" strokeWidth="2.2" strokeLinecap="round"/></svg> },
-    { id: '6', name: 'Facebook Pages (Organic)', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Facebook"><circle cx="12" cy="12" r="11" fill="#0866FF"/><path fill="white" d="M13.7 20v-7h2.4l.4-2.8h-2.8V8.4c0-.8.3-1.4 1.4-1.4h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.1H8.3V13h2.4v7z"/></svg> },
+    { id: '6', name: 'Facebook Pages (Organic)', label: 'Facebook Pages', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Facebook"><circle cx="12" cy="12" r="11" fill="#0866FF"/><path fill="white" d="M13.7 20v-7h2.4l.4-2.8h-2.8V8.4c0-.8.3-1.4 1.4-1.4h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.1H8.3V13h2.4v7z"/></svg> },
     { id: '7', name: 'Instagram Professional', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="Instagram"><defs><linearGradient id="igBrand" x1="0" y1="1" x2="1" y2="0"><stop stopColor="#FFB000"/><stop offset=".5" stopColor="#F00075"/><stop offset="1" stopColor="#7048FF"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igBrand)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.4" fill="none" stroke="white" strokeWidth="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="white" strokeWidth="1.8"/><circle cx="17.2" cy="6.9" r="1" fill="white"/></svg> },
     { id: '8', name: 'TikTok Organic', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="TikTok"><path fill="#25F4EE" d="M15.8 3c.3 2.3 1.6 3.8 4.2 4v3.2c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v3.3a2.1 2.1 0 1 0 1.1 1.9V3h3z"/><path fill="#FE2C55" d="M14.5 2c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2h3z"/><path fill="#111827" d="M15.1 2.5c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2.5h3z"/></svg> },
     { id: '9', name: 'TikTok Ads', connected: true, svg: <svg className="w-5 h-5" viewBox="0 0 24 24" aria-label="TikTok Ads"><path fill="#25F4EE" d="M15.8 3c.3 2.3 1.6 3.8 4.2 4v3.2c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v3.3a2.1 2.1 0 1 0 1.1 1.9V3h3z"/><path fill="#FE2C55" d="M14.5 2c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2h3z"/><path fill="#111827" d="M15.1 2.5c.3 2.3 1.6 3.8 4.2 4v2.1c-1.6.1-3-.4-4.2-1.3v6.4a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.2.1v2.2a2.1 2.1 0 1 0 1.1 1.9V2.5h3z"/></svg> }
@@ -4549,7 +4549,7 @@ export default function SinglePageDashboard() {
       'Meta Ads|Campaign Performance': ['Reach', 'Impressions', 'Clicks', 'Cost', 'CTR', 'Average CPC', 'CPM', 'Frequency', 'Results', 'Cost per Result', 'Conversions', 'Conversion Rate', 'Conversion Value', 'ROAS', 'Link Clicks', 'Landing Page Views', 'Post Engagements', 'Video Views'],
       'Google Business Profile|Search Keywords': ['Monthly search keyword impressions'],
       'YouTube Analytics|Each Video Insight': ['Watch Time', 'Average View Duration', 'Likes', 'Comments', 'Subscribers Gained', 'Impressions'],
-      'Facebook Pages (Organic)|Post Performance': ['Viewers', 'Reach', 'Likes', 'Comments', 'Shares', 'Engagement', 'Reactions', 'Link Clicks'],
+      'Facebook Pages (Organic)|Post Performance': ['Viewers', 'Likes', 'Comments', 'Shares', 'Engagement', 'Reactions', 'Link Clicks'],
       'Instagram Professional|Post Performance': ['Reach', 'Impressions', 'Likes', 'Comments', 'Saves', 'Shares', 'Engagement Rate'],
       'TikTok Organic|Video Performance': ['Reach', 'Likes', 'Comments', 'Shares', 'Average Watch Time', 'Completion Rate'],
       'TikTok Ads|Campaign Performance': ['CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost per Conversion'],
@@ -4801,8 +4801,8 @@ export default function SinglePageDashboard() {
       rows: [['Heritage Villas', '3,120', '152,440', '2.05%', 'IDR 12,480,800'], ['Skylight Villas', '2,680', '130,221', '2.06%', 'IDR 10,764,200'], ['Special Offers', '1,940', '98,560', '1.97%', 'IDR 7,428,600'], ['Jingga Restaurant', '1,520', '76,430', '1.99%', 'IDR 6,452,800'], ['BuKi Spa', '1,310', '64,702', '2.02%', 'IDR 5,673,400']]
     };
     if (metric.platform === 'Facebook Pages (Organic)' && metric.name === 'Post Performance') return {
-      headers: ['Post', 'Viewers', 'Reach', 'Likes', 'Comments', 'Shares'],
-      rows: [['Post 1 · Product feature', '12,480', '9,860', '842', '64', '28'], ['Post 2 · Community story', '9,320', '8,420', '624', '42', '19'], ['Post 3 · Event highlight', '7,840', '7,120', '518', '38', '15'], ['Post 4 · Brand update', '5,210', '4,680', '386', '24', '11']]
+      headers: ['Post', 'Viewers', 'Likes', 'Comments', 'Shares'],
+      rows: [['Post 1 · Product feature', '12,480', '842', '64', '28'], ['Post 2 · Community story', '9,320', '624', '42', '19'], ['Post 3 · Event highlight', '7,840', '518', '38', '15'], ['Post 4 · Brand update', '5,210', '386', '24', '11']]
     };
     if (metric.platform === 'Instagram Professional' && metric.name === 'Post Performance') return {
       headers: ['Post', 'Reach', 'Impressions', 'Likes', 'Comments', 'Shares'],
@@ -6285,7 +6285,7 @@ export default function SinglePageDashboard() {
                 <div className="flex flex-col gap-0.5 overflow-y-auto pr-1">
                   {integrationsList.filter((item) => item.name.toLowerCase().includes(metricSearch.toLowerCase())).map((item) => (
                     <button key={item.id} type="button" onClick={() => { setSelectedMetricPlatform(item); setMetricSearch(''); setSelectedMetricSearch(''); }} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 cursor-default transition-all border border-transparent hover:border-slate-200 group text-left">
-                      <span className="flex items-center gap-3 min-w-0"><span className="w-5 h-5 flex items-center justify-center shrink-0">{item.svg}</span><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{item.name}</span></span>
+                      <span className="flex items-center gap-3 min-w-0"><span className="w-5 h-5 flex items-center justify-center shrink-0">{item.svg}</span><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{(item.label || item.name)}</span></span>
                       <span className="text-slate-400 group-hover:text-slate-600 font-bold text-base">›</span>
                     </button>
                   ))}
@@ -6294,7 +6294,7 @@ export default function SinglePageDashboard() {
               <div className={`absolute inset-0 p-4 flex flex-col gap-3 transition-transform duration-300 ease-out ${selectedMetricPlatform ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                   <button type="button" onClick={() => { setSelectedMetricPlatform(null); setSelectedMetricSearch(''); }} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-600" aria-label="Back to platforms"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 12h12" strokeLinecap="round"/></svg></button>
-                  <span className="font-bold text-sm text-slate-900 truncate">{selectedMetricPlatform?.name} Metrics</span>
+                  <span className="font-bold text-sm text-slate-900 truncate">{(selectedMetricPlatform?.label || selectedMetricPlatform?.name)} Metrics</span>
                 </div>
                 <p className="text-[11px] text-slate-400">Drag a metric into the dashboard</p>
                 <div className="relative shrink-0">
