@@ -1287,9 +1287,11 @@ export default function SinglePageDashboard() {
     { id: 'u2', property: 'Prasana Villas Uluwatu', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
     { id: 'u3', property: 'Bumi Kinar Ubud', email: 'ah@gmail.com', type: 'Member', status: 'Active', you: true },
     { id: 'u4', property: 'Selong Selo Resort & Villas', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
+    { id: 'u5', property: 'Patra Bali', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
   ]);
   const [billingPlan, setBillingPlan] = useState('Pro');
   const [userSort, setUserSort] = useState({ key: 'property', direction: 'asc' });
+  const [billingSort, setBillingSort] = useState({ key: 'property', direction: 'asc' });
 
   // State untuk dropdown menu Add Page di panel kiri
   const [isAddPageDropdownOpen, setIsAddPageDropdownOpen] = useState(false);
@@ -1320,7 +1322,8 @@ export default function SinglePageDashboard() {
   const [clientList, setClientList] = useState([
     'Prasana Villas Uluwatu',
     'Bumi Kinar Ubud',
-    'Selong Selo Resort & Villas'
+    'Selong Selo Resort & Villas',
+    'Patra Bali'
   ]);
 
   // Billing subscription records are kept per property in this UI prototype.
@@ -1328,6 +1331,7 @@ export default function SinglePageDashboard() {
     { id: 'sub-1', property: 'Prasana Villas Uluwatu', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '2026-11-16', autoRenewal: false, status: '7 Days Left', statusNote: 'Some integrations will be disabled.' },
     { id: 'sub-2', property: 'Bumi Kinar Ubud', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '2026-12-09', autoRenewal: false, status: 'Active', statusNote: '' },
     { id: 'sub-3', property: 'Selong Selo Resort & Villas', plan: 'Free', paymentMethod: 'Not set', expiresOn: '2026-11-14', autoRenewal: false, status: 'Free Trial · 5 Days Left', statusNote: 'Some integrations will be disabled.' },
+    { id: 'sub-4', property: 'Patra Bali', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '', autoRenewal: false, status: 'Active', statusNote: '' },
   ]);
   const [billingActionMenu, setBillingActionMenu] = useState(null);
   const [selectedBillingProperty, setSelectedBillingProperty] = useState('Prasana Villas Uluwatu');
@@ -5500,7 +5504,7 @@ export default function SinglePageDashboard() {
                     ))}
                   </div>
 
-                  {!isActivePropertyUser && <div className="border-t border-slate-100 pt-1.5 px-2 mt-1">
+                  <div className="border-t border-slate-100 pt-1.5 px-2 mt-1">
                     <button 
                       onClick={() => {
                         setIsClientDropdownOpen(false);
@@ -5511,7 +5515,7 @@ export default function SinglePageDashboard() {
                     >
                       <span>+</span> Add Property
                     </button>
-                  </div>}
+                  </div>
                 </div>
               )}
             </div>
@@ -6325,9 +6329,9 @@ export default function SinglePageDashboard() {
             <section className="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
               <div className="px-4 py-4 border-b border-slate-100 flex items-center justify-between"><div><h2 className="font-bold text-slate-900">Property Subscriptions</h2><p className="text-xs text-slate-500 mt-1">Manage each property's plan and renewal settings.</p></div></div>
               <div className="overflow-visible"><table className="w-full min-w-[850px] text-left text-sm">
-                <thead className="text-slate-400"><tr className="border-b border-slate-200">{['Property','Subscription','Payment Method','Expired','Auto Renewal','Status','Action'].map(label=><th key={label} className="px-4 py-3 font-semibold whitespace-nowrap">{label}</th>)}</tr></thead>
-                <tbody className="divide-y divide-slate-100">{billingSubscriptions.map(subscription=>{const canManageSubscription=getCurrentUserRoleForProperty(subscription.property)==='Admin';return <tr key={subscription.id} className={`hover:bg-slate-50/70 ${selectedBillingProperty===subscription.property?'bg-blue-50/30':''}`}>
-                  <td className="px-4 py-4 font-medium"><button type="button" onClick={()=>{setSelectedBillingProperty(subscription.property);setBillingPlan(subscription.plan);setBillingActionMenu(null);}} className={`text-left hover:text-blue-700 hover:underline ${selectedBillingProperty===subscription.property?'text-blue-700':'text-slate-900'}`}>{subscription.property}</button></td>
+                <thead className="text-slate-400"><tr className="border-b border-slate-200">{[['property','Property'],['plan','Subscription'],['paymentMethod','Payment Method'],['expiresOn','Expired'],['autoRenewal','Auto Renewal'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3 font-semibold whitespace-nowrap"><button type="button" onClick={()=>setBillingSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))} className="inline-flex items-center gap-1 hover:text-slate-700">{label}<span aria-hidden="true">{billingSort.key===key?(billingSort.direction==='asc'?'↑':'↓'):'↕'}</span></button></th>)}<th className="px-4 py-3 font-semibold whitespace-nowrap">Action</th></tr></thead>
+                <tbody className="divide-y divide-slate-100">{[...billingSubscriptions].sort((a,b)=>{const av=a[billingSort.key]??'';const bv=b[billingSort.key]??'';const cmp=typeof av==='boolean'?(av===bv?0:av?1:-1):String(av).localeCompare(String(bv),undefined,{numeric:true,sensitivity:'base'});return cmp*(billingSort.direction==='asc'?1:-1);}).map(subscription=>{const canManageSubscription=getCurrentUserRoleForProperty(subscription.property)==='Admin';return <tr key={subscription.id} className={`hover:bg-slate-50/70 ${selectedBillingProperty===subscription.property?'bg-blue-50/30':''}`}>
+                  <td className="px-4 py-4 font-medium">{canManageSubscription?<button type="button" onClick={()=>{setSelectedBillingProperty(subscription.property);setBillingPlan(subscription.plan);setBillingActionMenu(null);}} className={`text-left hover:text-blue-700 hover:underline ${selectedBillingProperty===subscription.property?'text-blue-700':'text-slate-900'}`}>{subscription.property}</button>:<span className="text-slate-900 cursor-default">{subscription.property}</span>}</td>
                   {!canManageSubscription ? <td colSpan={6} className="px-4 py-4"><div className="flex items-center gap-2 text-sm text-slate-600"><span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600"><icon name="lock" size="sm"/></span><span><strong className="font-semibold text-slate-800">Admin Access Required</strong><span className="text-slate-500"> · Only property Admins can manage subscriptions. Contact your property Admin for assistance.</span></span></div></td> : <>
                     <td className="px-4 py-4 text-slate-700">{subscription.plan}</td>
                     <td className="px-4 py-4 text-slate-600">{subscription.paymentMethod}</td>
