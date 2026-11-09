@@ -5449,7 +5449,7 @@ export default function SinglePageDashboard() {
                 <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
                 <p className="text-xs text-slate-400">{profileEmail}</p>
               </div>
-              {[['profile','Profile'],['users','Member'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
+              {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
               <div className="border-t border-slate-100 my-1"></div>
               <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
             </div>
