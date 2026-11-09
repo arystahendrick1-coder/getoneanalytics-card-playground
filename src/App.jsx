@@ -5161,16 +5161,52 @@ export default function SinglePageDashboard() {
     setOpenMetricMenuId(null);
   };
   const [dataSources, setDataSources] = useState([
-    { id: 'ds1', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
-    { id: 'ds2', name: 'Facebook', svg: <svg className="w-4 h-4 fill-blue-600" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
-    { id: 'ds3', name: 'Google Ads', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#FBBC05" d="M5.4 14.5l6.5-11.3c.6-1 1.9-1.3 2.9-.7 1 .6 1.3 1.9.7 2.9L9 16.7c-.6 1-1.9 1.3-2.9.7-1-.6-1.3-1.9-.7-2.9z"/><path fill="#4285F4" d="M12.5 17.5c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4z"/><path fill="#34A853" d="M2.5 13.5c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2z"/></svg>, label: 'Hospio', identifier: '106022758308270071350', clients: '2 clients', status: 'Connected' },
-    { id: 'ds4', name: 'Meta Ads', svg: <svg className="w-4 h-4 fill-blue-500" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.328 13.5c-1.127 0-2.128-.535-2.778-1.365-.65.83-1.651 1.365-2.778 1.365-2.015 0-3.65-1.635-3.65-3.65s1.635-3.65 3.65-3.65c1.127 0 2.128.535 2.778 1.365.65-.83 1.651-1.365 2.778-1.365 2.015 0 3.65 1.635 3.65 3.65s-1.635 3.65-3.65 3.65z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '2 clients', status: 'Connected' },
-    { id: 'ds5', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
-    { id: 'ds6', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
-    { id: 'ds7', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '0 clients', status: 'Connected' },
-    { id: 'ds8', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
-    { id: 'ds9', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
+    { id: 'ds1', property: 'Prasana Villas Uluwatu', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
+    { id: 'ds2', property: 'Prasana Villas Uluwatu', name: 'Facebook', svg: <svg className="w-4 h-4 fill-blue-600" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
+    { id: 'ds3', property: 'Prasana Villas Uluwatu', name: 'Google Ads', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#FBBC05" d="M5.4 14.5l6.5-11.3c.6-1 1.9-1.3 2.9-.7 1 .6 1.3 1.9.7 2.9L9 16.7c-.6 1-1.9 1.3-2.9.7-1-.6-1.3-1.9-.7-2.9z"/><path fill="#4285F4" d="M12.5 17.5c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4z"/><path fill="#34A853" d="M2.5 13.5c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2z"/></svg>, label: 'Hospio', identifier: '106022758308270071350', clients: '2 clients', status: 'Connected' },
+    { id: 'ds4', property: 'Prasana Villas Uluwatu', name: 'Meta Ads', svg: <svg className="w-4 h-4 fill-blue-500" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.328 13.5c-1.127 0-2.128-.535-2.778-1.365-.65.83-1.651 1.365-2.778 1.365-2.015 0-3.65-1.635-3.65-3.65s1.635-3.65 3.65-3.65c1.127 0 2.128.535 2.778 1.365.65-.83 1.651-1.365 2.778-1.365 2.015 0 3.65 1.635 3.65 3.65s-1.635 3.65-3.65 3.65z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '2 clients', status: 'Connected' },
+    { id: 'ds5', property: 'Prasana Villas Uluwatu', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
+    { id: 'ds6', property: 'Prasana Villas Uluwatu', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
+    { id: 'ds7', property: 'Prasana Villas Uluwatu', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '0 clients', status: 'Connected' },
+    { id: 'ds8', property: 'Prasana Villas Uluwatu', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
+    { id: 'ds9', property: 'Prasana Villas Uluwatu', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
   ]);
+
+
+
+  // Data source rows are scoped to the selected property. Prasana uses the supplied
+  // reference records; other properties receive independent prototype/demo records.
+  const propertyDataSources = selectedClient === 'Prasana Villas Uluwatu'
+    ? dataSources.filter((source) => source.property === selectedClient)
+    : dataSources.map((source, index) => ({
+        ...source,
+        id: `${selectedClient}-${source.id}`,
+        property: selectedClient,
+        label: selectedClient === 'Bumi Kinar Ubud' ? 'Bumi Kinar' : selectedClient === 'Patra Bali' ? 'Patra Marketing' : 'Selong Selo',
+        identifier: `${String(10000000000000000000n + BigInt(index + 1))}`,
+        clients: index % 3 === 0 ? '1 client' : '2 clients',
+        status: (selectedClient === 'Bumi Kinar Ubud'
+          ? ['Connected', 'Connected', 'Connected', 'Disconnected', 'Connected', 'Connected', 'Disconnected', 'Connected', 'Disconnected']
+          : selectedClient === 'Patra Bali'
+            ? ['Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected']
+            : ['Connected', 'Disconnected', 'Connected', 'Disconnected', 'Connected', 'Connected', 'Connected', 'Disconnected', 'Connected'])[index],
+      }));
+
+  const platformIntegrationName = (platformName) => ({
+    'Facebook Pages (Organic)': 'Facebook',
+    'Facebook Pages': 'Facebook',
+    'Instagram Professional': 'Instagram',
+  }[platformName] || platformName);
+  const propertyIntegrations = integrationsList.map((item) => {
+    const integrationName = platformIntegrationName(item.name);
+    const matchingSources = propertyDataSources.filter((source) => source.name === integrationName);
+    const connected = matchingSources.some((source) => source.status === 'Connected');
+    return { ...item, connected, integrationAvailable: matchingSources.length > 0 };
+  });
+  const orderedPropertyIntegrations = [
+    ...propertyIntegrations.filter((item) => item.connected),
+    ...propertyIntegrations.filter((item) => !item.connected),
+  ];
 
   const [viewingSavedReport, setViewingSavedReport] = useState(null);
   const dashboardBackupRef = useRef(null);
@@ -5327,9 +5363,10 @@ export default function SinglePageDashboard() {
     { id: 'r4', name: 'Prasana Villas Uluwatu - August 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 02, 2026' },
     { id: 'r5', name: 'Prasana Villas Uluwatu - September 2025', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 15, 2025' },
     { id: 'r6', name: 'Prasana Villas Uluwatu - August 2025', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Sep 05, 2025' },
-    { id: 'r7', name: 'Selong Selo Resort - October 2026', client: 'Selong Selo Resort', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 21, 2026' },
-    { id: 'r8', name: 'Selong Selo Resort - September 2026', client: 'Selong Selo Resort', user: 'Hospio Team', type: 'Member', created: 'Oct 01, 2026' },
-    { id: 'r9', name: 'Selong Selo Resort - August 2026', client: 'Selong Selo Resort', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 01, 2026' },
+    { id: 'r7', name: 'Selong Selo Resort - October 2026', client: 'Selong Selo Resort & Villas', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 21, 2026' },
+    { id: 'r8', name: 'Selong Selo Resort - September 2026', client: 'Selong Selo Resort & Villas', user: 'Hospio Team', type: 'Member', created: 'Oct 01, 2026' },
+    { id: 'r9', name: 'Selong Selo Resort - August 2026', client: 'Selong Selo Resort & Villas', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 01, 2026' },
+    { id: 'r10', name: 'Patra Bali Oct 11, 2026 – Nov 9, 2026', client: 'Patra Bali', user: 'Arysta Hendrik', type: 'Admin', created: 'Nov 09, 2026' },
   ]);
 
   const handleSaveReport = (e) => {
@@ -6106,8 +6143,8 @@ export default function SinglePageDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-                    {reportList.map((rep, index) => {
-                      const isNearBottom = index >= reportList.length - 2;
+                    {reportList.filter((rep) => rep.client === selectedClient).map((rep, index, visibleReports) => {
+                      const isNearBottom = index >= visibleReports.length - 2;
                       const isEditingThisReport = editingReportId === rep.id;
 
                       return (
@@ -6268,7 +6305,7 @@ export default function SinglePageDashboard() {
 
               <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
                 <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-                  <span className="text-sm font-bold text-slate-600">Showing {dataSources.length} Rows</span>
+                  <span className="text-sm font-bold text-slate-600">Showing {propertyDataSources.length} Rows</span>
                   <input type="text" placeholder="Search" className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 w-64" />
                 </div>
                 <table className="w-full text-left text-sm border-collapse">
@@ -6282,7 +6319,7 @@ export default function SinglePageDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-                    {dataSources.map((ds) => (
+                    {propertyDataSources.map((ds) => (
                       <tr key={ds.id} className="hover:bg-slate-50 transition-colors">
                         <td className="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-2.5">
                           {ds.svg}
@@ -6332,7 +6369,7 @@ export default function SinglePageDashboard() {
                 <thead className="text-slate-400"><tr className="border-b border-slate-200">{[['property','Property'],['plan','Subscription'],['paymentMethod','Payment Method'],['expiresOn','Expired'],['autoRenewal','Auto Renewal'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3 font-semibold whitespace-nowrap"><button type="button" onClick={()=>setBillingSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))} className="inline-flex items-center gap-1 hover:text-slate-700">{label}<span aria-hidden="true">{billingSort.key===key?(billingSort.direction==='asc'?'↑':'↓'):'↕'}</span></button></th>)}<th className="px-4 py-3 font-semibold whitespace-nowrap">Action</th></tr></thead>
                 <tbody className="divide-y divide-slate-100">{[...billingSubscriptions].sort((a,b)=>{const av=a[billingSort.key]??'';const bv=b[billingSort.key]??'';const cmp=typeof av==='boolean'?(av===bv?0:av?1:-1):String(av).localeCompare(String(bv),undefined,{numeric:true,sensitivity:'base'});return cmp*(billingSort.direction==='asc'?1:-1);}).map(subscription=>{const canManageSubscription=getCurrentUserRoleForProperty(subscription.property)==='Admin';return <tr key={subscription.id} className={`hover:bg-slate-50/70 ${selectedBillingProperty===subscription.property?'bg-blue-50/30':''}`}>
                   <td className="px-4 py-4 font-medium">{canManageSubscription?<button type="button" onClick={()=>{setSelectedBillingProperty(subscription.property);setBillingPlan(subscription.plan);setBillingActionMenu(null);}} className={`text-left hover:text-blue-700 hover:underline ${selectedBillingProperty===subscription.property?'text-blue-700':'text-slate-900'}`}>{subscription.property}</button>:<span className="text-slate-900 cursor-default">{subscription.property}</span>}</td>
-                  {!canManageSubscription ? <td colSpan={6} className="px-4 py-4"><div className="flex items-center gap-2 text-sm text-slate-600"><span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600"><icon name="lock" size="sm"/></span><span><strong className="font-semibold text-slate-800">Admin Access Required</strong><span className="text-slate-500"> · Only property Admins can manage subscriptions. Contact your property Admin for assistance.</span></span></div></td> : <>
+                  {!canManageSubscription ? <td colSpan={6} className="px-4 py-4"><div className="flex items-center gap-2 text-sm text-slate-600"><span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg></span><span><strong className="font-semibold text-slate-800">Admin Access Required</strong><span className="text-slate-500"> · Only property Admins can manage subscriptions. Contact your property Admin for assistance.</span></span></div></td> : <>
                     <td className="px-4 py-4 text-slate-700">{subscription.plan}</td>
                     <td className="px-4 py-4 text-slate-600">{subscription.paymentMethod}</td>
                     <td className="px-4 py-4 text-slate-600">{subscription.expiresOn ? new Date(`${subscription.expiresOn}T12:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
@@ -6364,10 +6401,10 @@ export default function SinglePageDashboard() {
                 <span className="font-bold text-slate-900 uppercase tracking-wide mb-1 text-xs">CUSTOMIZE METRIC</span>
                 <input type="text" value={metricSearch} onChange={(e) => setMetricSearch(e.target.value)} placeholder="Search platform..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500" />
                 <div className="flex flex-col gap-0.5 overflow-y-auto pr-1">
-                  {integrationsList.filter((item) => item.name.toLowerCase().includes(metricSearch.toLowerCase())).map((item) => (
-                    <button key={item.id} type="button" onClick={() => { setSelectedMetricPlatform(item); setMetricSearch(''); setSelectedMetricSearch(''); }} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 cursor-default transition-all border border-transparent hover:border-slate-200 group text-left">
-                      <span className="flex items-center gap-3 min-w-0"><span className="w-5 h-5 flex items-center justify-center shrink-0">{item.svg}</span><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{(item.label || item.name)}</span></span>
-                      <span className="text-slate-400 group-hover:text-slate-600 font-bold text-base">›</span>
+                  {orderedPropertyIntegrations.filter((item) => item.name.toLowerCase().includes(metricSearch.toLowerCase())).map((item) => (
+                    <button key={item.id} type="button" disabled={!item.connected} onClick={() => { if (!item.connected) return; setSelectedMetricPlatform(item); setMetricSearch(''); setSelectedMetricSearch(''); }} className={`flex items-center justify-between py-2 px-3 rounded-lg transition-colors border border-transparent text-left w-full min-h-[52px] ${item.connected ? 'hover:bg-slate-50 hover:border-slate-200 group cursor-pointer' : 'bg-slate-50/70 cursor-not-allowed'}`}>
+                      <span className="flex items-center gap-3 min-w-0"><span className={`w-5 h-5 flex items-center justify-center shrink-0 ${item.connected ? '' : 'opacity-40 grayscale'}`}>{item.svg}</span><span className="min-w-0 flex flex-col justify-center"><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{(item.label || item.name)}</span>{!item.connected && <span className="text-[10px] leading-3 text-slate-400 mt-0.5">Account integration required</span>}</span></span>
+                      <span className={`font-bold text-base ${item.connected ? 'text-slate-400 group-hover:text-slate-600' : 'text-slate-300'}`}>›</span>
                     </button>
                   ))}
                 </div>
