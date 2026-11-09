@@ -791,7 +791,7 @@ export default function SinglePageDashboard() {
     "h": 2,
     "pageId": "p8",
     "section": "Content Performance",
-    "metricReference": "Post, Viewers, Likes, Comments, Shares",
+    "metricReference": "Post, Views, Viewers, Likes, Comments, Shares",
     "notes": "Post-level performance table; exclude legacy Impressions."
   },
   {
@@ -1284,8 +1284,8 @@ export default function SinglePageDashboard() {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [userRows, setUserRows] = useState([
     { id: 'u1', property: 'Prasana Villas Uluwatu', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
-    { id: 'u2', property: 'Prasana Villas Uluwatu', email: 'marketing@example.com', type: 'User', status: 'Pending' },
-    { id: 'u3', property: 'Bumi Kinar Ubud', email: 'ah@gmail.com', type: 'User', status: 'Active', you: true },
+    { id: 'u2', property: 'Prasana Villas Uluwatu', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
+    { id: 'u3', property: 'Bumi Kinar Ubud', email: 'ah@gmail.com', type: 'Member', status: 'Active', you: true },
     { id: 'u4', property: 'Selong Selo Resort & Villas', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
   ]);
   const [billingPlan, setBillingPlan] = useState('Pro');
@@ -1333,7 +1333,7 @@ export default function SinglePageDashboard() {
     row.property === selectedClient &&
     row.status === 'Active'
   )?.type || 'No Access';
-  const isActivePropertyUser = activePropertyRole === 'User';
+  const isActivePropertyUser = activePropertyRole === 'Member';
   
   const getInitialDates = () => {
     const end = new Date();
@@ -4549,7 +4549,7 @@ export default function SinglePageDashboard() {
       'Meta Ads|Campaign Performance': ['Reach', 'Impressions', 'Clicks', 'Cost', 'CTR', 'Average CPC', 'CPM', 'Frequency', 'Results', 'Cost per Result', 'Conversions', 'Conversion Rate', 'Conversion Value', 'ROAS', 'Link Clicks', 'Landing Page Views', 'Post Engagements', 'Video Views'],
       'Google Business Profile|Search Keywords': ['Monthly search keyword impressions'],
       'YouTube Analytics|Each Video Insight': ['Watch Time', 'Average View Duration', 'Likes', 'Comments', 'Subscribers Gained', 'Impressions'],
-      'Facebook Pages (Organic)|Post Performance': ['Viewers', 'Likes', 'Comments', 'Shares', 'Engagement', 'Reactions', 'Link Clicks'],
+      'Facebook Pages (Organic)|Post Performance': ['Views', 'Viewers', 'Likes', 'Comments', 'Shares', 'Engagement', 'Reactions', 'Link Clicks'],
       'Instagram Professional|Post Performance': ['Reach', 'Impressions', 'Likes', 'Comments', 'Saves', 'Shares', 'Engagement Rate'],
       'TikTok Organic|Video Performance': ['Reach', 'Likes', 'Comments', 'Shares', 'Average Watch Time', 'Completion Rate'],
       'TikTok Ads|Campaign Performance': ['CTR', 'Average CPC', 'Conversions', 'Conversion Rate', 'Cost per Conversion'],
@@ -4801,8 +4801,8 @@ export default function SinglePageDashboard() {
       rows: [['Heritage Villas', '3,120', '152,440', '2.05%', 'IDR 12,480,800'], ['Skylight Villas', '2,680', '130,221', '2.06%', 'IDR 10,764,200'], ['Special Offers', '1,940', '98,560', '1.97%', 'IDR 7,428,600'], ['Jingga Restaurant', '1,520', '76,430', '1.99%', 'IDR 6,452,800'], ['BuKi Spa', '1,310', '64,702', '2.02%', 'IDR 5,673,400']]
     };
     if (metric.platform === 'Facebook Pages (Organic)' && metric.name === 'Post Performance') return {
-      headers: ['Post', 'Viewers', 'Likes', 'Comments', 'Shares'],
-      rows: [['Post 1 · Product feature', '12,480', '842', '64', '28'], ['Post 2 · Community story', '9,320', '624', '42', '19'], ['Post 3 · Event highlight', '7,840', '518', '38', '15'], ['Post 4 · Brand update', '5,210', '386', '24', '11']]
+      headers: ['Post', 'Views', 'Viewers', 'Likes', 'Comments', 'Shares'],
+      rows: [['Post 1 · Product feature', '12,480', '9,860', '842', '64', '28'], ['Post 2 · Community story', '9,320', '8,420', '624', '42', '19'], ['Post 3 · Event highlight', '7,840', '7,120', '518', '38', '15'], ['Post 4 · Brand update', '5,210', '4,680', '386', '24', '11']]
     };
     if (metric.platform === 'Instagram Professional' && metric.name === 'Post Performance') return {
       headers: ['Post', 'Reach', 'Impressions', 'Likes', 'Comments', 'Shares'],
@@ -5272,7 +5272,7 @@ export default function SinglePageDashboard() {
   const pendingPrintInNewTabRef = useRef(false);
 
   const [reportList, setReportList] = useState([
-    { id: 'r0', name: 'Bumi Kinar Ubud · October 2026', client: 'Bumi Kinar Ubud', user: 'Arysta Hendrik', type: 'User', created: 'Oct 30, 2026' },
+    { id: 'r0', name: 'Bumi Kinar Ubud · October 2026', client: 'Bumi Kinar Ubud', user: 'Arysta Hendrik', type: 'Member', created: 'Oct 30, 2026' },
     { id: 'r1', name: 'Demo report', client: 'Demo client', user: 'Arysta Hendrik', type: 'Admin', created: 'Aug 13, 2026' },
     { id: 'r2', name: 'Prasana Villas Uluwatu - September 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 16, 2026' },
     { id: 'r3', name: 'Prasana Villas Uluwatu - October 2026', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Oct 20, 2026' },
@@ -5356,8 +5356,8 @@ export default function SinglePageDashboard() {
       {!viewingSavedReport && <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-30 h-full">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3 px-2 py-1">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-base tracking-wider shadow-md shadow-blue-500/20">
-              GOA
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+              <img src="/favicon-32x32.png" alt="Get One Analytics" className="w-8 h-8 object-contain" />
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-slate-900 text-sm tracking-tight">Get One Analytics</span>
@@ -5408,7 +5408,7 @@ export default function SinglePageDashboard() {
                 <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
                 <p className="text-xs text-slate-400">{profileEmail}</p>
               </div>
-              {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
+              {[['profile','Profile'],['users','Member'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
               <div className="border-t border-slate-100 my-1"></div>
               <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
             </div>
@@ -5624,11 +5624,11 @@ export default function SinglePageDashboard() {
         <div className="flex flex-1 min-h-0 overflow-hidden">
           
           {/* SUB-SIDEBAR HALAMAN (HANYA DI DASHBOARD) DENGAN ANIMASI LEBIH PELAN & ELEGAN */}
-          {activeTab === 'dashboard' && !viewingSavedReport && !isActivePropertyUser && (
+          {activeTab === 'dashboard' && !viewingSavedReport && (
             <aside className="w-64 bg-white border-r border-slate-200 p-4 flex flex-col gap-4 shrink-0 shadow-sm h-full overflow-y-auto">
               
-              {/* TOMBOL & DROPDOWN ADD PAGE */}
-              <div className="relative" ref={addPageDropdownRef}>
+              {/* Admin page controls; Members use this panel only for quick navigation. */}
+              {!isActivePropertyUser && <div className="relative" ref={addPageDropdownRef}>
                 <button 
                   onClick={() => setIsAddPageDropdownOpen(!isAddPageDropdownOpen)}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all cursor-default select-none"
@@ -5705,9 +5705,9 @@ export default function SinglePageDashboard() {
                     </div>
                   </div>
                 )}
-              </div>
+              </div>}
 
-              <div ref={pagesContainerRef} className="flex flex-col gap-2.5 mt-2 overflow-y-auto flex-1 pr-0.5 relative">
+              <div ref={pagesContainerRef} className={`flex flex-col gap-2.5 ${isActivePropertyUser ? 'mt-0' : 'mt-2'} overflow-y-auto flex-1 pr-0.5 relative`}>
                 {reportPages.map((page) => {
                   const isDragging = draggedPageId === page.id;
 
@@ -5715,7 +5715,7 @@ export default function SinglePageDashboard() {
                     <div
                       key={page.id}
                       ref={(el) => { pageItemsRef.current[page.id] = el; }}
-                      onPointerDown={(e) => handlePagePointerDown(e, page)}
+                      onPointerDown={(e) => { if (!isActivePropertyUser) handlePagePointerDown(e, page); }}
                       onClick={() => {
                         if (!didMovePageRef.current && editingPageId !== page.id) {
                           setReportPages((prev) => prev.map(p => ({ ...p, active: p.id === page.id })));
@@ -5730,9 +5730,9 @@ export default function SinglePageDashboard() {
                       }`}
                     >
                       <div className="flex items-center gap-2.5 truncate flex-1 mr-2">
-                        <span className="text-slate-300 group-hover:text-slate-500 font-bold tracking-tighter text-xs cursor-default">
+                        {!isActivePropertyUser && <span className="text-slate-300 group-hover:text-slate-500 font-bold tracking-tighter text-xs cursor-default">
                           ⋮⋮
-                        </span>
+                        </span>}
                         
                         {editingPageId === page.id ? (
                           <input 
@@ -5764,7 +5764,7 @@ export default function SinglePageDashboard() {
                         )}
                       </div>
 
-                      <div className="relative page-menu-container" onClick={(e) => e.stopPropagation()}>
+                      {!isActivePropertyUser && <div className="relative page-menu-container" onClick={(e) => e.stopPropagation()}>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -5843,13 +5843,13 @@ export default function SinglePageDashboard() {
                             </button>
                           </div>
                         )}
-                      </div>
+                      </div>}
                     </div>
                   );
                 })}
 
                 {/* Floating drag preview locked to the original sidebar X position and width. */}
-                {draggedPageId && (() => {
+                {!isActivePropertyUser && draggedPageId && (() => {
                   const draggedPage = reportPages.find((p) => p.id === draggedPageId);
                   if (!draggedPage) return null;
                   return (
@@ -6051,7 +6051,7 @@ export default function SinglePageDashboard() {
                       <th className="py-3 px-4">Name</th>
                       <th className="py-3 px-4">Download</th>
                       <th className="py-3 px-4">Client</th>
-                      <th className="py-3 px-4">User</th>
+                      <th className="py-3 px-4">Member</th>
                       <th className="py-3 px-4">Type</th>
                       <th className="py-3 px-4">Created</th>
                       <th className="py-3 px-4 text-right">Action</th>
@@ -6264,7 +6264,7 @@ export default function SinglePageDashboard() {
             <div className="border-t border-slate-100 pt-5"><h2 className="font-bold text-slate-900 mb-3">Change Password</h2><div className="grid md:grid-cols-3 gap-3">{['Current Password','New Password','Confirm New Password'].map(x=><input key={x} type="password" placeholder={x} className="border border-slate-200 rounded-lg p-2.5 text-sm"/>)}</div></div><div className="border-t border-slate-100 pt-4 flex justify-between items-center"><div><span className="text-xs text-slate-500">Account Created · 12 March 2026</span>{profileSaved&&<p className="text-xs text-emerald-600 font-semibold mt-1">Profile changes saved for this session.</p>}</div><button onClick={()=>setProfileSaved(true)} className={`px-5 py-2.5 rounded-lg font-semibold ${profileSaved?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-700'}`}>{profileSaved?'Saved':'Save Profile'}</button></div></div></main>}
 
           {/* ACCOUNT: USERS */}
-          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{userRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...userRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=><tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><select aria-label="User actions" className="border border-slate-200 rounded-md p-1 text-xs" defaultValue=""><option value="" disabled>⋮</option>{(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']).map(action=><option key={action}>{action}</option>)}</select></td></tr>)}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
+          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Members</h1><p className="text-sm text-slate-500 mt-1">Manage member access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{userRows.length} members</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...userRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=><tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><select aria-label="User actions" className="border border-slate-200 rounded-md p-1 text-xs" defaultValue=""><option value="" disabled>⋮</option>{(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']).map(action=><option key={action}>{action}</option>)}</select></td></tr>)}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add Member</button></div></div></main>}
 
           {/* ACCOUNT: BILLING */}
           {activeTab === 'billing' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Billing</h1><p className="text-sm text-slate-500 mt-1">Manage your subscription and payments.</p></div><div className="grid md:grid-cols-3 gap-4">{[{name:'Free',price:'Rp0',desc:'For getting started',features:['Limited platforms','Basic dashboard']},{name:'Pro',price:'Rp200.000',desc:'Per property / month',features:['All core platforms','Saved reports','Multiple properties']},{name:'Agency',price:'Rp300.000',desc:'Per property / month',features:['Everything in Pro','White label branding','Custom domain']}].map(plan=><div key={plan.name} className={`bg-white border rounded-2xl p-5 ${billingPlan===plan.name?'border-blue-500 ring-2 ring-blue-100':''}`}><div className="flex justify-between"><h2 className="font-bold text-lg">{plan.name}</h2>{billingPlan===plan.name&&<span className="text-xs text-blue-600 font-bold">Current Plan</span>}</div><p className="text-2xl font-bold mt-4">{plan.price}</p><p className="text-xs text-slate-500">{plan.desc}</p><ul className="text-sm text-slate-600 my-5 space-y-2">{plan.features.map(f=><li key={f}>✓ {f}</li>)}</ul><button onClick={()=>setBillingPlan(plan.name)} className="w-full border border-slate-200 rounded-lg py-2 text-sm font-semibold hover:bg-slate-50">{billingPlan===plan.name?'Current Plan':'Select Plan'}</button></div>)}</div><div className="grid md:grid-cols-3 gap-4 mt-6">{['Property Usage','Payment Method','Billing History'].map(title=><div key={title} className="bg-white border border-slate-200 rounded-xl p-5"><h3 className="font-bold text-slate-900">{title}</h3><p className="text-sm text-slate-500 mt-3">{title==='Property Usage'?`${clientList.length} properties`:title==='Payment Method'?'No payment method added':'No billing history yet'}</p></div>)}</div></main>}
@@ -6272,7 +6272,7 @@ export default function SinglePageDashboard() {
           {/* ACCOUNT: SETTINGS */}
           {activeTab === 'settings' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-4xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Settings</h1><p className="text-sm text-slate-500 mt-1">Manage account and workspace preferences.</p></div><div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100"> <div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Appearance</h3><p className="text-xs text-slate-500 mt-1">Choose your dashboard theme.</p></div><select value={appearance} onChange={e=>setAppearance(e.target.value)} className="border border-slate-200 rounded-lg p-2 text-sm"><option>Light Mode</option><option>Dark Mode</option></select></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">White Label Branding</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Branding</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Custom Domain</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Domain</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Delete Account</h3><p className="text-xs text-slate-500 mt-1">Permanently delete your account.</p></div><button onClick={()=>setShowDeleteAccountConfirm(true)} className="px-4 py-2 rounded-lg border border-rose-200 text-rose-600 text-sm font-semibold">Delete Account</button></div></div></main>}
 
-          {showAddUserModal && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-md"><h3 className="font-bold text-lg mb-4">Add User</h3><label className="block text-xs font-semibold mb-3">Property<select id="invite-property" className="mt-1 w-full border rounded-lg p-2.5">{clientList.map(c=><option key={c}>{c}</option>)}</select></label><label className="block text-xs font-semibold mb-3">Email<input id="invite-email" type="email" placeholder="name@example.com" className="mt-1 w-full border rounded-lg p-2.5"/></label><label className="block text-xs font-semibold mb-4">Type<select id="invite-type" className="mt-1 w-full border rounded-lg p-2.5"><option>User</option><option>Admin</option></select></label><div className="flex justify-end gap-2"><button onClick={()=>setShowAddUserModal(false)} className="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{const email=document.getElementById('invite-email')?.value;const prop=document.getElementById('invite-property')?.value;const type=document.getElementById('invite-type')?.value;if(email&&prop){setUserRows(rows=>[...rows,{id:'u'+Date.now(),property:prop,email,type,status:'Pending'}]);setShowAddUserModal(false);}}} className="px-4 py-2 rounded-lg bg-blue-600 text-white">Send Invitation</button></div></div></div>}
+          {showAddUserModal && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-md"><h3 className="font-bold text-lg mb-4">Add Member</h3><label className="block text-xs font-semibold mb-3">Property<select id="invite-property" className="mt-1 w-full border rounded-lg p-2.5">{clientList.map(c=><option key={c}>{c}</option>)}</select></label><label className="block text-xs font-semibold mb-3">Email<input id="invite-email" type="email" placeholder="name@example.com" className="mt-1 w-full border rounded-lg p-2.5"/></label><label className="block text-xs font-semibold mb-4">Type<select id="invite-type" className="mt-1 w-full border rounded-lg p-2.5"><option>Member</option><option>Admin</option></select></label><div className="flex justify-end gap-2"><button onClick={()=>setShowAddUserModal(false)} className="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{const email=document.getElementById('invite-email')?.value;const prop=document.getElementById('invite-property')?.value;const type=document.getElementById('invite-type')?.value;if(email&&prop){setUserRows(rows=>[...rows,{id:'u'+Date.now(),property:prop,email,type,status:'Pending'}]);setShowAddUserModal(false);}}} className="px-4 py-2 rounded-lg bg-blue-600 text-white">Send Invitation</button></div></div></div>}
           {showLogoutConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Log out?</h3><p className="text-sm text-slate-500 my-3">Are you sure you want to log out?</p><div className="flex gap-2"><button onClick={()=>setShowLogoutConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{setShowLogoutConfirm(false);setActiveTab('dashboard');}} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Logout</button></div></div></div>}
           {showDeleteAccountConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Delete Account?</h3><p className="text-sm text-slate-500 my-3">This is a prototype confirmation. Property data and saved reports are not deleted here.</p><div className="flex gap-2"><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Confirm Delete</button></div></div></div>}
 
