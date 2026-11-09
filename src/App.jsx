@@ -1287,9 +1287,11 @@ export default function SinglePageDashboard() {
     { id: 'u2', property: 'Prasana Villas Uluwatu', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
     { id: 'u3', property: 'Bumi Kinar Ubud', email: 'ah@gmail.com', type: 'Member', status: 'Active', you: true },
     { id: 'u4', property: 'Selong Selo Resort & Villas', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
+    { id: 'u5', property: 'Patra Bali', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
   ]);
   const [billingPlan, setBillingPlan] = useState('Pro');
   const [userSort, setUserSort] = useState({ key: 'property', direction: 'asc' });
+  const [billingSort, setBillingSort] = useState({ key: 'property', direction: 'asc' });
 
   // State untuk dropdown menu Add Page di panel kiri
   const [isAddPageDropdownOpen, setIsAddPageDropdownOpen] = useState(false);
@@ -1320,16 +1322,21 @@ export default function SinglePageDashboard() {
   const [clientList, setClientList] = useState([
     'Prasana Villas Uluwatu',
     'Bumi Kinar Ubud',
-    'Selong Selo Resort & Villas'
+    'Selong Selo Resort & Villas',
+    'Patra Bali'
   ]);
 
   // Billing subscription records are kept per property in this UI prototype.
   const [billingSubscriptions, setBillingSubscriptions] = useState([
-    { id: 'sub-1', property: 'Prasana Villas Uluwatu', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '', autoRenewal: false, status: 'Active' },
-    { id: 'sub-2', property: 'Bumi Kinar Ubud', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '', autoRenewal: false, status: 'Active' },
-    { id: 'sub-3', property: 'Selong Selo Resort & Villas', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '', autoRenewal: false, status: 'Active' },
+    { id: 'sub-1', property: 'Prasana Villas Uluwatu', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '2026-11-16', autoRenewal: false, status: '7 Days Left', statusNote: 'Some integrations will be disabled.' },
+    { id: 'sub-2', property: 'Bumi Kinar Ubud', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '2026-12-09', autoRenewal: false, status: 'Active', statusNote: '' },
+    { id: 'sub-3', property: 'Selong Selo Resort & Villas', plan: 'Free', paymentMethod: 'Not set', expiresOn: '2026-11-14', autoRenewal: false, status: 'Free Trial · 5 Days Left', statusNote: 'Some integrations will be disabled.' },
+    { id: 'sub-4', property: 'Patra Bali', plan: 'Pro', paymentMethod: 'Not set', expiresOn: '', autoRenewal: false, status: 'Active', statusNote: '' },
   ]);
   const [billingActionMenu, setBillingActionMenu] = useState(null);
+  const [selectedBillingProperty, setSelectedBillingProperty] = useState('Prasana Villas Uluwatu');
+  const [extendingBillingSubscription, setExtendingBillingSubscription] = useState(null);
+  const [billingExtensionDuration, setBillingExtensionDuration] = useState('30 days');
   const [editingBillingSubscription, setEditingBillingSubscription] = useState(null);
   const [billingEditForm, setBillingEditForm] = useState({ plan: 'Pro', paymentMethod: 'Not set', expiresOn: '', autoRenewal: false });
 
@@ -1350,13 +1357,16 @@ export default function SinglePageDashboard() {
       : row));
     setEditingBillingSubscription(null);
   };
-  const extendBillingSubscription = (subscription) => {
+  const extendBillingSubscription = (subscription, duration = billingExtensionDuration) => {
     const baseDate = subscription.expiresOn ? new Date(`${subscription.expiresOn}T12:00:00`) : new Date();
-    baseDate.setDate(baseDate.getDate() + 30);
+    if (duration === '1 year') baseDate.setFullYear(baseDate.getFullYear() + 1);
+    else baseDate.setDate(baseDate.getDate() + 30);
     const expiresOn = `${baseDate.getFullYear()}-${String(baseDate.getMonth()+1).padStart(2,'0')}-${String(baseDate.getDate()).padStart(2,'0')}`;
     setBillingSubscriptions(rows => rows.map(row => row.id === subscription.id ? { ...row, expiresOn, status: 'Active' } : row));
+    setExtendingBillingSubscription(null);
     setBillingActionMenu(null);
   };
+  const selectedBillingSubscription = billingSubscriptions.find(row => row.property === selectedBillingProperty) || billingSubscriptions[0] || null;
 
   // Property access and role are derived from the same User table rows.
   const currentUserEmail = profileEmail.toLowerCase();
@@ -1367,6 +1377,9 @@ export default function SinglePageDashboard() {
     row.email.toLowerCase() === currentUserEmail &&
     row.property === selectedClient &&
     row.status === 'Active'
+  )?.type || 'No Access';
+  const getCurrentUserRoleForProperty = (property) => userRows.find(row =>
+    row.email.toLowerCase() === currentUserEmail && row.property === property && row.status === 'Active'
   )?.type || 'No Access';
   const isActivePropertyUser = activePropertyRole === 'Member';
   
@@ -5148,16 +5161,65 @@ export default function SinglePageDashboard() {
     setOpenMetricMenuId(null);
   };
   const [dataSources, setDataSources] = useState([
-    { id: 'ds1', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
-    { id: 'ds2', name: 'Facebook', svg: <svg className="w-4 h-4 fill-blue-600" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, label: 'Arysta Hendrik', identifier: '28857747253813516', clients: '2 clients', status: 'Disconnected' },
-    { id: 'ds3', name: 'Google Ads', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#FBBC05" d="M5.4 14.5l6.5-11.3c.6-1 1.9-1.3 2.9-.7 1 .6 1.3 1.9.7 2.9L9 16.7c-.6 1-1.9 1.3-2.9.7-1-.6-1.3-1.9-.7-2.9z"/><path fill="#4285F4" d="M12.5 17.5c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4z"/><path fill="#34A853" d="M2.5 13.5c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2z"/></svg>, label: 'Hospio', identifier: '106022758308270071350', clients: '2 clients', status: 'Connected' },
-    { id: 'ds4', name: 'Meta Ads', svg: <svg className="w-4 h-4 fill-blue-500" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.328 13.5c-1.127 0-2.128-.535-2.778-1.365-.65.83-1.651 1.365-2.778 1.365-2.015 0-3.65-1.635-3.65-3.65s1.635-3.65 3.65-3.65c1.127 0 2.128.535 2.778 1.365.65-.83 1.651-1.365 2.778-1.365 2.015 0 3.65 1.635 3.65 3.65s-1.635 3.65-3.65 3.65z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '2 clients', status: 'Connected' },
-    { id: 'ds5', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
-    { id: 'ds6', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Arysta Hendrik', identifier: '107195461450649798977', clients: '1 client', status: 'Connected' },
-    { id: 'ds7', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Nava Hospio', identifier: '122130236169149456', clients: '0 clients', status: 'Connected' },
-    { id: 'ds8', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
-    { id: 'ds9', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Hospio Solution', identifier: '106022758308270071350', clients: '1 client', status: 'Connected' },
+    { id: 'ds1', property: 'Prasana Villas Uluwatu', name: 'Instagram', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Prasana Instagram Account', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds2', property: 'Prasana Villas Uluwatu', name: 'Facebook', svg: <svg className="w-4 h-4 fill-blue-600" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>, label: 'Prasana Facebook Page', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds3', property: 'Prasana Villas Uluwatu', name: 'Google Ads', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#FBBC05" d="M5.4 14.5l6.5-11.3c.6-1 1.9-1.3 2.9-.7 1 .6 1.3 1.9.7 2.9L9 16.7c-.6 1-1.9 1.3-2.9.7-1-.6-1.3-1.9-.7-2.9z"/><path fill="#4285F4" d="M12.5 17.5c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4z"/><path fill="#34A853" d="M2.5 13.5c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2z"/></svg>, label: 'Google Ads Account', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds4', property: 'Prasana Villas Uluwatu', name: 'Meta Ads', svg: <svg className="w-4 h-4 fill-blue-500" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.328 13.5c-1.127 0-2.128-.535-2.778-1.365-.65.83-1.651 1.365-2.778 1.365-2.015 0-3.65-1.635-3.65-3.65s1.635-3.65 3.65-3.65c1.127 0 2.128.535 2.778 1.365.65-.83 1.651-1.365 2.778-1.365 2.015 0 3.65 1.635 3.65 3.65s-1.635 3.65-3.65 3.65z"/></svg>, label: 'Meta Ads Account', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds5', property: 'Prasana Villas Uluwatu', name: 'Google Analytics', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Prasana Analytics', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds6', property: 'Prasana Villas Uluwatu', name: 'Google Business Profile', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Prasana Business Profile', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds7', property: 'Prasana Villas Uluwatu', name: 'YouTube Analytics', svg: <svg className="w-4 h-4 fill-pink-600" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>, label: 'Prasana YouTube Channel', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds8', property: 'Prasana Villas Uluwatu', name: 'TikTok Organic', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#F9AB00" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>, label: 'Prasana TikTok Account', connectedBy: 'Arysta Hendrik', status: 'Connected' },
+    { id: 'ds9', property: 'Prasana Villas Uluwatu', name: 'TikTok Ads', svg: <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>, label: 'Prasana TikTok Ads Account', connectedBy: 'Arysta Hendrik', status: 'Connected' },
   ]);
+
+
+
+  // Data source rows are scoped to the selected property. Prasana uses the supplied
+  // reference records; other properties receive independent prototype/demo records.
+  const propertyDataSources = selectedClient === 'Prasana Villas Uluwatu'
+    ? dataSources.filter((source) => source.property === selectedClient)
+    : dataSources.map((source, index) => ({
+        ...source,
+        id: `${selectedClient}-${source.id}`,
+        property: selectedClient,
+        label: ({
+          'Instagram': `${selectedClient} Instagram`,
+          'Facebook': `${selectedClient} Facebook Page`,
+          'Google Ads': `${selectedClient} Google Ads Account`,
+          'Meta Ads': `${selectedClient} Meta Ads Account`,
+          'Google Analytics': `${selectedClient} Website Analytics`,
+          'Google Business Profile': `${selectedClient} Business Profile`,
+          'YouTube Analytics': `${selectedClient} YouTube Channel`,
+          'TikTok Organic': `${selectedClient} TikTok Account`,
+          'TikTok Ads': `${selectedClient} TikTok Ads Account`,
+        }[source.name] || selectedClient),
+        connectedBy: index % 2 === 0 ? 'Arysta Hendrik' : 'Property Admin',
+        status: (selectedClient === 'Bumi Kinar Ubud'
+          ? ['Connected', 'Connected', 'Connected', 'Disconnected', 'Disconnected', 'Connected', 'Disconnected', 'Disconnected', 'Connected']
+          : selectedClient === 'Patra Bali'
+            ? ['Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected']
+            : ['Connected', 'Disconnected', 'Connected', 'Disconnected', 'Disconnected', 'Connected', 'Disconnected', 'Disconnected', 'Disconnected'])[index],
+      }));
+
+  const platformIntegrationName = (platformName) => ({
+    'Facebook Pages (Organic)': 'Facebook',
+    'Facebook Pages': 'Facebook',
+    'Instagram Professional': 'Instagram',
+  }[platformName] || platformName);
+  const propertyDataSourcesWithIcons = propertyDataSources.map((source) => ({
+    ...source,
+    svg: integrationsList.find((platform) => platformIntegrationName(platform.name) === source.name)?.svg || source.svg,
+  }));
+  const propertyIntegrations = integrationsList.map((item) => {
+    const integrationName = platformIntegrationName(item.name);
+    const matchingSources = propertyDataSourcesWithIcons.filter((source) => source.name === integrationName);
+    const connected = matchingSources.some((source) => source.status === 'Connected');
+    return { ...item, connected, integrationAvailable: matchingSources.length > 0 };
+  });
+  const orderedPropertyIntegrations = [
+    ...propertyIntegrations.filter((item) => item.connected),
+    ...propertyIntegrations.filter((item) => !item.connected),
+  ];
 
   const [viewingSavedReport, setViewingSavedReport] = useState(null);
   const dashboardBackupRef = useRef(null);
@@ -5314,9 +5376,10 @@ export default function SinglePageDashboard() {
     { id: 'r4', name: 'Prasana Villas Uluwatu - August 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 02, 2026' },
     { id: 'r5', name: 'Prasana Villas Uluwatu - September 2025', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 15, 2025' },
     { id: 'r6', name: 'Prasana Villas Uluwatu - August 2025', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Sep 05, 2025' },
-    { id: 'r7', name: 'Selong Selo Resort - October 2026', client: 'Selong Selo Resort', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 21, 2026' },
-    { id: 'r8', name: 'Selong Selo Resort - September 2026', client: 'Selong Selo Resort', user: 'Hospio Team', type: 'Member', created: 'Oct 01, 2026' },
-    { id: 'r9', name: 'Selong Selo Resort - August 2026', client: 'Selong Selo Resort', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 01, 2026' },
+    { id: 'r7', name: 'Selong Selo Resort - October 2026', client: 'Selong Selo Resort & Villas', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 21, 2026' },
+    { id: 'r8', name: 'Selong Selo Resort - September 2026', client: 'Selong Selo Resort & Villas', user: 'Hospio Team', type: 'Member', created: 'Oct 01, 2026' },
+    { id: 'r9', name: 'Selong Selo Resort - August 2026', client: 'Selong Selo Resort & Villas', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 01, 2026' },
+    { id: 'r10', name: 'Patra Bali Oct 11, 2026 – Nov 9, 2026', client: 'Patra Bali', user: 'Arysta Hendrik', type: 'Admin', created: 'Nov 09, 2026' },
   ]);
 
   const handleSaveReport = (e) => {
@@ -5443,7 +5506,7 @@ export default function SinglePageDashboard() {
                 <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
                 <p className="text-xs text-slate-400">{profileEmail}</p>
               </div>
-              {[['profile','Profile'],['users','Member'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
+              {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
               <div className="border-t border-slate-100 my-1"></div>
               <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
             </div>
@@ -5491,7 +5554,7 @@ export default function SinglePageDashboard() {
                     ))}
                   </div>
 
-                  {!isActivePropertyUser && <div className="border-t border-slate-100 pt-1.5 px-2 mt-1">
+                  <div className="border-t border-slate-100 pt-1.5 px-2 mt-1">
                     <button 
                       onClick={() => {
                         setIsClientDropdownOpen(false);
@@ -5502,7 +5565,7 @@ export default function SinglePageDashboard() {
                     >
                       <span>+</span> Add Property
                     </button>
-                  </div>}
+                  </div>
                 </div>
               )}
             </div>
@@ -6093,8 +6156,8 @@ export default function SinglePageDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-                    {reportList.map((rep, index) => {
-                      const isNearBottom = index >= reportList.length - 2;
+                    {reportList.filter((rep) => rep.client === selectedClient).map((rep, index, visibleReports) => {
+                      const isNearBottom = index >= visibleReports.length - 2;
                       const isEditingThisReport = editingReportId === rep.id;
 
                       return (
@@ -6255,34 +6318,34 @@ export default function SinglePageDashboard() {
 
               <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
                 <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-                  <span className="text-sm font-bold text-slate-600">Showing {dataSources.length} Rows</span>
+                  <span className="text-sm font-bold text-slate-600">Showing {propertyDataSourcesWithIcons.length} Rows</span>
                   <input type="text" placeholder="Search" className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 w-64" />
                 </div>
                 <table className="w-full text-left text-sm border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/30">
-                      <th className="py-3.5 px-4">Integration</th>
-                      <th className="py-3.5 px-4">Label</th>
-                      <th className="py-3.5 px-4">Identifier</th>
-                      <th className="py-3.5 px-4">Connected clients</th>
+                      <th className="py-3.5 px-4">Platform</th>
+                      <th className="py-3.5 px-4">Page / Account</th>
+                      <th className="py-3.5 px-4">Connected By</th>
                       <th className="py-3.5 px-4">Status ▼</th>
+                      <th className="py-3.5 px-4 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-                    {dataSources.map((ds) => (
+                    {propertyDataSourcesWithIcons.map((ds) => (
                       <tr key={ds.id} className="hover:bg-slate-50 transition-colors">
                         <td className="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-2.5">
                           {ds.svg}
                           <span className="text-blue-600 underline cursor-default">{ds.name}</span>
                         </td>
                         <td className="py-3.5 px-4 text-slate-700">{ds.label}</td>
-                        <td className="py-3.5 px-4 font-mono text-slate-600">{ds.identifier}</td>
-                        <td className="py-3.5 px-4 text-slate-700">{ds.clients}</td>
+                        <td className="py-3.5 px-4 text-slate-700">{ds.connectedBy || 'Property Admin'}</td>
                         <td className="py-3.5 px-4">
                           <span className={`px-3 py-1 rounded-full font-semibold text-xs ${ds.status === 'Connected' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
                             {ds.status}
                           </span>
                         </td>
+                        <td className="py-3.5 px-4 text-right"><button type="button" className="px-2 py-1 rounded-md text-slate-500 font-bold hover:bg-slate-100" aria-label={`Actions for ${ds.name}`}>···</button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -6299,46 +6362,48 @@ export default function SinglePageDashboard() {
             <div className="border-t border-slate-100 pt-5"><h2 className="font-bold text-slate-900 mb-3">Change Password</h2><div className="grid md:grid-cols-3 gap-3">{['Current Password','New Password','Confirm New Password'].map(x=><input key={x} type="password" placeholder={x} className="border border-slate-200 rounded-lg p-2.5 text-sm"/>)}</div></div><div className="border-t border-slate-100 pt-4 flex justify-between items-center"><div><span className="text-xs text-slate-500">Account Created · 12 March 2026</span>{profileSaved&&<p className="text-xs text-emerald-600 font-semibold mt-1">Profile changes saved for this session.</p>}</div><button onClick={()=>setProfileSaved(true)} className={`px-5 py-2.5 rounded-lg font-semibold ${profileSaved?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-700'}`}>{profileSaved?'Saved':'Save Profile'}</button></div></div></main>}
 
           {/* ACCOUNT: USERS */}
-          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Members</h1><p className="text-sm text-slate-500 mt-1">Manage member access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{userRows.length} members</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...userRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=><tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><select aria-label="User actions" className="border border-slate-200 rounded-md p-1 text-xs" defaultValue=""><option value="" disabled>⋮</option>{(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']).map(action=><option key={action}>{action}</option>)}</select></td></tr>)}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add Member</button></div></div></main>}
+          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage user access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{userRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...userRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=>{const canManageUserRow=getCurrentUserRoleForProperty(row.property)==='Admin';return <tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3">{canManageUserRow?<select aria-label={`User actions for ${row.email}`} className="border border-slate-200 rounded-md p-1 text-xs" defaultValue=""><option value="" disabled>⋮</option>{(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']).map(action=><option key={action}>{action}</option>)}</select>:<span className="inline-flex items-center gap-1.5 text-xs text-slate-400" title="Only property Admins can manage users"><icon name="lock" size="xs"/> View only</span>}</td></tr>})}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
 
           {/* ACCOUNT: BILLING */}
-          {activeTab === 'billing' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Billing</h1><p className="text-sm text-slate-500 mt-1">Manage your subscription and payments.</p></div><div className="grid md:grid-cols-3 gap-4">{[{name:'Free',price:'Rp0',desc:'For getting started',features:['Limited platforms','Basic dashboard']},{name:'Pro',price:'Rp200.000',desc:'Per property / month',features:['All core platforms','Saved reports','Multiple properties']},{name:'Agency',price:'Rp300.000',desc:'Per property / month',features:['Everything in Pro','White label branding','Custom domain']}].map(plan=><div key={plan.name} className={`bg-white border rounded-2xl p-5 ${billingPlan===plan.name?'border-blue-500 ring-2 ring-blue-100':''}`}><div className="flex justify-between"><h2 className="font-bold text-lg">{plan.name}</h2>{billingPlan===plan.name&&<span className="text-xs text-blue-600 font-bold">Current Plan</span>}</div><p className="text-2xl font-bold mt-4">{plan.price}</p><p className="text-xs text-slate-500">{plan.desc}</p><ul className="text-sm text-slate-600 my-5 space-y-2">{plan.features.map(f=><li key={f}>✓ {f}</li>)}</ul><button onClick={()=>setBillingPlan(plan.name)} className="w-full border border-slate-200 rounded-lg py-2 text-sm font-semibold hover:bg-slate-50">{billingPlan===plan.name?'Current Plan':'Select Plan'}</button></div>)}</div><div className="grid md:grid-cols-3 gap-4 mt-6">{['Property Usage','Payment Method','Billing History'].map(title=><div key={title} className="bg-white border border-slate-200 rounded-xl p-5"><h3 className="font-bold text-slate-900">{title}</h3><p className="text-sm text-slate-500 mt-3">{title==='Property Usage'?`${clientList.length} properties`:title==='Payment Method'?'No payment method added':'No billing history yet'}</p></div>)}</div>
+          {activeTab === 'billing' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+            <div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Billing</h1><p className="text-sm text-slate-500 mt-1">Manage your subscription and payments.</p></div>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-bold text-slate-900">Subscription Overview · {selectedBillingSubscription?.property || 'No property selected'}</h2></div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[{name:'Free',price:'Rp0',desc:'For getting started',features:['Limited platforms','Basic dashboard']},{name:'Pro',price:'Rp200.000',desc:'Per property / month',features:['All core platforms','Saved reports','Multiple properties']},{name:'Agency',price:'Rp300.000',desc:'Per property / month',features:['Everything in Pro','White label branding','Custom domain']}].map(plan=><div key={plan.name} className={`bg-white border rounded-2xl p-5 ${selectedBillingSubscription?.plan===plan.name?'border-blue-500 ring-2 ring-blue-100':''}`}><div className="flex justify-between"><h2 className="font-bold text-lg">{plan.name}</h2>{selectedBillingSubscription?.plan===plan.name&&<span className="text-xs text-blue-600 font-bold">Current Plan</span>}</div><p className="text-2xl font-bold mt-4">{plan.price}</p><p className="text-xs text-slate-500">{plan.desc}</p><ul className="text-sm text-slate-600 my-5 space-y-2">{plan.features.map(f=><li key={f}>✓ {f}</li>)}</ul><button disabled={!selectedBillingSubscription || getCurrentUserRoleForProperty(selectedBillingSubscription.property)!=='Admin'} onClick={()=>{if(selectedBillingSubscription&&getCurrentUserRoleForProperty(selectedBillingSubscription.property)==='Admin'){setBillingSubscriptions(rows=>rows.map(row=>row.id===selectedBillingSubscription.id?{...row,plan,status:'Active',statusNote:''}:row));setBillingPlan(plan.name);}}} className="w-full border border-slate-200 rounded-lg py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">{selectedBillingSubscription?.plan===plan.name?'Current Plan':'Select Plan'}</button></div>)}
+            </div>
+            <div className="grid md:grid-cols-3 gap-4 mt-6">
+              <div className="bg-white border border-slate-200 rounded-xl p-5"><h3 className="font-bold text-slate-900">Property Usage</h3><p className="text-sm text-slate-500 mt-3">{clientList.length} properties</p></div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5"><h3 className="font-bold text-slate-900">Payment Method · {selectedBillingSubscription?.property || '—'}</h3><p className="text-sm text-slate-500 mt-3">{selectedBillingSubscription?.paymentMethod || 'No payment method added'}</p></div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5"><h3 className="font-bold text-slate-900">Billing History · {selectedBillingSubscription?.property || '—'}</h3><p className="text-sm text-slate-500 mt-3">{selectedBillingSubscription?.billingHistory || 'No billing history yet'}</p></div>
+            </div>
             <section className="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
               <div className="px-4 py-4 border-b border-slate-100 flex items-center justify-between"><div><h2 className="font-bold text-slate-900">Property Subscriptions</h2><p className="text-xs text-slate-500 mt-1">Manage each property's plan and renewal settings.</p></div></div>
-              <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-sm">
-                <thead className="text-slate-400"><tr className="border-b border-slate-200">{['Property','Subscription','Payment Method','Expired','Auto Renewal','Status','Action'].map(label=><th key={label} className="px-4 py-3 font-semibold whitespace-nowrap">{label}</th>)}</tr></thead>
-                <tbody className="divide-y divide-slate-100">{billingSubscriptions.map(subscription=><tr key={subscription.id} className="hover:bg-slate-50/70">
-                  <td className="px-4 py-4 font-medium text-slate-900">{subscription.property}</td>
-                  <td className="px-4 py-4 text-slate-700">{subscription.plan}</td>
-                  <td className="px-4 py-4 text-slate-600">{subscription.paymentMethod}</td>
-                  <td className="px-4 py-4 text-slate-600">{subscription.expiresOn ? new Date(`${subscription.expiresOn}T12:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
-                  <td className="px-4 py-4"><button type="button" aria-label={`Toggle auto renewal for ${subscription.property}`} onClick={()=>setBillingSubscriptions(rows=>rows.map(row=>row.id===subscription.id?{...row,autoRenewal:!row.autoRenewal}:row))} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${subscription.autoRenewal?'bg-blue-600':'bg-slate-300'}`}><span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${subscription.autoRenewal?'translate-x-4':'translate-x-1'}`}/></button><span className="ml-2 text-xs text-slate-500">{subscription.autoRenewal?'On':'Off'}</span></td>
-                  <td className="px-4 py-4"><span className={`inline-flex rounded-md px-2.5 py-1 text-xs ${subscription.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-rose-50 text-rose-600'}`}>{subscription.status}</span></td>
-                  <td className="px-4 py-4 text-right relative"><button type="button" aria-label={`Actions for ${subscription.property}`} onClick={()=>setBillingActionMenu(current=>current===subscription.id?null:subscription.id)} className="px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100">•••</button>
-                    {billingActionMenu===subscription.id&&<div className="absolute right-4 top-11 z-30 w-52 rounded-xl border border-slate-200 bg-white py-1 shadow-lg text-left">
-                      <button onClick={()=>openBillingEdit(subscription)} className="w-full px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Edit Subscription</button>
-                      <button onClick={()=>extendBillingSubscription(subscription)} className="w-full px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Extend Subscription (+30 days)</button>
-                      <button onClick={()=>{setBillingSubscriptions(rows=>rows.map(row=>row.id===subscription.id?{...row,autoRenewal:!row.autoRenewal}:row));setBillingActionMenu(null);}} className="w-full px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">{subscription.autoRenewal?'Disable':'Enable'} Auto Renewal</button>
-                      <button onClick={()=>{if(window.confirm(`Cancel subscription for ${subscription.property}? The property will remain in your workspace.`)){setBillingSubscriptions(rows=>rows.map(row=>row.id===subscription.id?{...row,status:'Cancelled',autoRenewal:false}:row));}setBillingActionMenu(null);}} className="w-full px-3 py-2 text-sm text-rose-600 hover:bg-rose-50">Cancel Subscription</button>
-                      <button onClick={()=>{if(window.confirm(`Delete ${subscription.property} from this workspace? This cannot be undone.`)){setBillingSubscriptions(rows=>rows.filter(row=>row.id!==subscription.id));setClientList(rows=>rows.filter(name=>name!==subscription.property));}setBillingActionMenu(null);}} className="w-full px-3 py-2 text-sm text-rose-600 hover:bg-rose-50">Delete Property</button>
-                    </div>}
-                  </td>
-                </tr>)}</tbody>
+              <div className="overflow-visible"><table className="w-full min-w-[850px] text-left text-sm">
+                <thead className="text-slate-400"><tr className="border-b border-slate-200">{[['property','Property'],['plan','Subscription'],['paymentMethod','Payment Method'],['expiresOn','Expired'],['autoRenewal','Auto Renewal'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3 font-semibold whitespace-nowrap"><button type="button" onClick={()=>setBillingSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))} className="inline-flex items-center gap-1 hover:text-slate-700">{label}<span aria-hidden="true">{billingSort.key===key?(billingSort.direction==='asc'?'↑':'↓'):'↕'}</span></button></th>)}<th className="px-4 py-3 font-semibold whitespace-nowrap">Action</th></tr></thead>
+                <tbody className="divide-y divide-slate-100">{[...billingSubscriptions].sort((a,b)=>{const av=a[billingSort.key]??'';const bv=b[billingSort.key]??'';const cmp=typeof av==='boolean'?(av===bv?0:av?1:-1):String(av).localeCompare(String(bv),undefined,{numeric:true,sensitivity:'base'});return cmp*(billingSort.direction==='asc'?1:-1);}).map(subscription=>{const canManageSubscription=getCurrentUserRoleForProperty(subscription.property)==='Admin';return <tr key={subscription.id} className={`hover:bg-slate-50/70 ${selectedBillingProperty===subscription.property?'bg-blue-50/30':''}`}>
+                  <td className="px-4 py-4 font-medium">{canManageSubscription?<button type="button" onClick={()=>{setSelectedBillingProperty(subscription.property);setBillingPlan(subscription.plan);setBillingActionMenu(null);}} className={`text-left hover:text-blue-700 hover:underline ${selectedBillingProperty===subscription.property?'text-blue-700':'text-slate-900'}`}>{subscription.property}</button>:<span className="text-slate-900 cursor-default">{subscription.property}</span>}</td>
+                  {!canManageSubscription ? <td colSpan={6} className="px-4 py-4"><div className="flex items-center gap-2 text-sm text-slate-600"><span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg></span><span><strong className="font-semibold text-slate-800">Admin Access Required</strong><span className="text-slate-500"> · Only property Admins can manage subscriptions. Contact your property Admin for assistance.</span></span></div></td> : <>
+                    <td className="px-4 py-4 text-slate-700">{subscription.plan}</td>
+                    <td className="px-4 py-4 text-slate-600">{subscription.paymentMethod}</td>
+                    <td className="px-4 py-4 text-slate-600">{subscription.expiresOn ? new Date(`${subscription.expiresOn}T12:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
+                    <td className="px-4 py-4"><button type="button" aria-label={`Toggle auto renewal for ${subscription.property}`} onClick={()=>setBillingSubscriptions(rows=>rows.map(row=>row.id===subscription.id?{...row,autoRenewal:!row.autoRenewal}:row))} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${subscription.autoRenewal?'bg-blue-600':'bg-slate-300'}`}><span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${subscription.autoRenewal?'translate-x-4':'translate-x-1'}`}/></button><span className="ml-2 text-xs text-slate-500">{subscription.autoRenewal?'On':'Off'}</span></td>
+                    <td className="px-4 py-4"><span className={`inline-flex rounded-md px-2.5 py-1 text-xs ${subscription.status==='Active'?'bg-emerald-50 text-emerald-700':subscription.status.includes('Trial')||subscription.status.includes('Days Left')?'bg-amber-50 text-amber-700':'bg-rose-50 text-rose-600'}`}>{subscription.status}</span>{subscription.statusNote&&<p className="mt-1 max-w-[190px] text-[11px] leading-4 text-slate-500">{subscription.statusNote}</p>}</td>
+                    <td className="px-4 py-4 text-right relative"><button type="button" aria-label={`Actions for ${subscription.property}`} onClick={()=>setBillingActionMenu(current=>current===subscription.id?null:subscription.id)} className="px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100">•••</button>
+                      {billingActionMenu===subscription.id&&<div className="absolute right-0 top-full mt-1 z-50 w-52 rounded-xl border border-slate-200 bg-white py-1 shadow-lg text-left"><button onClick={()=>openBillingEdit(subscription)} className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">Edit Subscription</button><button onClick={()=>{setExtendingBillingSubscription(subscription);setBillingExtensionDuration('30 days');setBillingActionMenu(null);}} className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">Extend Subscription</button><button onClick={()=>{setBillingSubscriptions(rows=>rows.map(row=>row.id===subscription.id?{...row,autoRenewal:!row.autoRenewal}:row));setBillingActionMenu(null);}} className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50">{subscription.autoRenewal?'Disable':'Enable'} Auto Renewal</button><button onClick={()=>{if(window.confirm(`Cancel subscription for ${subscription.property}? The property will remain in your workspace.`)){setBillingSubscriptions(rows=>rows.map(row=>row.id===subscription.id?{...row,status:'Cancelled',statusNote:'Subscription cancelled.',autoRenewal:false}:row));}setBillingActionMenu(null);}} className="w-full px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50">Cancel Subscription</button><button onClick={()=>{if(window.confirm(`Delete ${subscription.property} from this workspace? This cannot be undone.`)){setBillingSubscriptions(rows=>rows.filter(row=>row.id!==subscription.id));setClientList(rows=>rows.filter(name=>name!==subscription.property));if(selectedBillingProperty===subscription.property)setSelectedBillingProperty('');}setBillingActionMenu(null);}} className="w-full px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50">Delete Property</button></div>}
+                    </td>
+                  </>}
+                </tr>})}</tbody>
               </table></div>
               {billingSubscriptions.length===0&&<div className="px-4 py-8 text-center text-sm text-slate-400">No property subscriptions.</div>}
             </section>
-            {editingBillingSubscription&&<div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/40 p-4"><div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"><h3 className="text-lg font-bold text-slate-900">Edit Subscription</h3><p className="mt-1 text-sm text-slate-500">{editingBillingSubscription.property}</p><div className="mt-5 space-y-4">
-              <label className="block text-sm font-medium text-slate-700">Subscription<select value={billingEditForm.plan} onChange={e=>setBillingEditForm(form=>({...form,plan:e.target.value}))} className="mt-1 w-full rounded-lg border border-slate-200 p-2.5"><option>Free</option><option>Pro</option><option>Agency</option></select></label>
-              <label className="block text-sm font-medium text-slate-700">Payment Method<input value={billingEditForm.paymentMethod} onChange={e=>setBillingEditForm(form=>({...form,paymentMethod:e.target.value}))} placeholder="e.g. Bank Transfer, Credit Card" className="mt-1 w-full rounded-lg border border-slate-200 p-2.5"/></label>
-              <label className="block text-sm font-medium text-slate-700">Expired<input type="date" value={billingEditForm.expiresOn} onChange={e=>setBillingEditForm(form=>({...form,expiresOn:e.target.value}))} className="mt-1 w-full rounded-lg border border-slate-200 p-2.5"/></label>
-              <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={billingEditForm.autoRenewal} onChange={e=>setBillingEditForm(form=>({...form,autoRenewal:e.target.checked}))}/> Auto Renewal</label>
-            </div><div className="mt-6 flex justify-end gap-2"><button onClick={()=>setEditingBillingSubscription(null)} className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button><button onClick={saveBillingEdit} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Save Changes</button></div></div></div>}
+            {editingBillingSubscription&&<div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/40 p-4"><div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"><h3 className="text-lg font-bold text-slate-900">Edit Subscription</h3><p className="mt-1 text-sm text-slate-500">{editingBillingSubscription.property}</p><div className="mt-5 space-y-4"><label className="block text-sm font-medium text-slate-700">Subscription<select value={billingEditForm.plan} onChange={e=>setBillingEditForm(form=>({...form,plan:e.target.value}))} className="mt-1 w-full rounded-lg border border-slate-200 p-2.5"><option>Free</option><option>Pro</option><option>Agency</option></select></label><label className="block text-sm font-medium text-slate-700">Payment Method<input value={billingEditForm.paymentMethod} onChange={e=>setBillingEditForm(form=>({...form,paymentMethod:e.target.value}))} placeholder="e.g. Bank Transfer, Credit Card" className="mt-1 w-full rounded-lg border border-slate-200 p-2.5"/></label><label className="block text-sm font-medium text-slate-700">Expired<input type="date" value={billingEditForm.expiresOn} onChange={e=>setBillingEditForm(form=>({...form,expiresOn:e.target.value}))} className="mt-1 w-full rounded-lg border border-slate-200 p-2.5"/></label><label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={billingEditForm.autoRenewal} onChange={e=>setBillingEditForm(form=>({...form,autoRenewal:e.target.checked}))}/> Auto Renewal</label></div><div className="mt-6 flex justify-end gap-2"><button onClick={()=>setEditingBillingSubscription(null)} className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button><button onClick={saveBillingEdit} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Save Changes</button></div></div></div>}
+            {extendingBillingSubscription&&<div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/40 p-4"><div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"><h3 className="text-lg font-bold text-slate-900">Extend Subscription</h3><p className="mt-1 text-sm text-slate-500">{extendingBillingSubscription.property}</p><div className="mt-5 space-y-3"><label className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 ${billingExtensionDuration==='30 days'?'border-blue-500 bg-blue-50':'border-slate-200'}`}><span className="text-sm font-medium text-slate-700">30 Days</span><input type="radio" name="billing-extension" checked={billingExtensionDuration==='30 days'} onChange={()=>setBillingExtensionDuration('30 days')}/></label><label className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 ${billingExtensionDuration==='1 year'?'border-blue-500 bg-blue-50':'border-slate-200'}`}><span className="text-sm font-medium text-slate-700">1 Year</span><input type="radio" name="billing-extension" checked={billingExtensionDuration==='1 year'} onChange={()=>setBillingExtensionDuration('1 year')}/></label></div><div className="mt-6 flex justify-end gap-2"><button onClick={()=>setExtendingBillingSubscription(null)} className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button><button onClick={()=>extendBillingSubscription(extendingBillingSubscription,billingExtensionDuration)} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Confirm Extension</button></div></div></div>}
           </main>}
 
           {/* ACCOUNT: SETTINGS */}
           {activeTab === 'settings' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-4xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Settings</h1><p className="text-sm text-slate-500 mt-1">Manage account and workspace preferences.</p></div><div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100"> <div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Appearance</h3><p className="text-xs text-slate-500 mt-1">Choose your dashboard theme.</p></div><select value={appearance} onChange={e=>setAppearance(e.target.value)} className="border border-slate-200 rounded-lg p-2 text-sm"><option>Light Mode</option><option>Dark Mode</option></select></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">White Label Branding</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Branding</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Custom Domain</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Domain</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Delete Account</h3><p className="text-xs text-slate-500 mt-1">Permanently delete your account.</p></div><button onClick={()=>setShowDeleteAccountConfirm(true)} className="px-4 py-2 rounded-lg border border-rose-200 text-rose-600 text-sm font-semibold">Delete Account</button></div></div></main>}
 
-          {showAddUserModal && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-md"><h3 className="font-bold text-lg mb-4">Add Member</h3><label className="block text-xs font-semibold mb-3">Property<select id="invite-property" className="mt-1 w-full border rounded-lg p-2.5">{clientList.map(c=><option key={c}>{c}</option>)}</select></label><label className="block text-xs font-semibold mb-3">Email<input id="invite-email" type="email" placeholder="name@example.com" className="mt-1 w-full border rounded-lg p-2.5"/></label><label className="block text-xs font-semibold mb-4">Type<select id="invite-type" className="mt-1 w-full border rounded-lg p-2.5"><option>Member</option><option>Admin</option></select></label><div className="flex justify-end gap-2"><button onClick={()=>setShowAddUserModal(false)} className="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{const email=document.getElementById('invite-email')?.value;const prop=document.getElementById('invite-property')?.value;const type=document.getElementById('invite-type')?.value;if(email&&prop){setUserRows(rows=>[...rows,{id:'u'+Date.now(),property:prop,email,type,status:'Pending'}]);setShowAddUserModal(false);}}} className="px-4 py-2 rounded-lg bg-blue-600 text-white">Send Invitation</button></div></div></div>}
+          {showAddUserModal && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-md"><h3 className="font-bold text-lg mb-4">Add User</h3><label className="block text-xs font-semibold mb-3">Property<select id="invite-property" className="mt-1 w-full border rounded-lg p-2.5">{clientList.filter(c=>getCurrentUserRoleForProperty(c)==='Admin').map(c=><option key={c}>{c}</option>)}</select></label><label className="block text-xs font-semibold mb-3">Email<input id="invite-email" type="email" placeholder="name@example.com" className="mt-1 w-full border rounded-lg p-2.5"/></label><label className="block text-xs font-semibold mb-4">Type<select id="invite-type" className="mt-1 w-full border rounded-lg p-2.5"><option>Member</option><option>Admin</option></select></label><div className="flex justify-end gap-2"><button onClick={()=>setShowAddUserModal(false)} className="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{const email=document.getElementById('invite-email')?.value;const prop=document.getElementById('invite-property')?.value;const type=document.getElementById('invite-type')?.value;if(email&&prop){setUserRows(rows=>[...rows,{id:'u'+Date.now(),property:prop,email,type,status:'Pending'}]);setShowAddUserModal(false);}}} className="px-4 py-2 rounded-lg bg-blue-600 text-white">Send Invitation</button></div></div></div>}
           {showLogoutConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Log out?</h3><p className="text-sm text-slate-500 my-3">Are you sure you want to log out?</p><div className="flex gap-2"><button onClick={()=>setShowLogoutConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{setShowLogoutConfirm(false);setActiveTab('dashboard');}} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Logout</button></div></div></div>}
           {showDeleteAccountConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Delete Account?</h3><p className="text-sm text-slate-500 my-3">This is a prototype confirmation. Property data and saved reports are not deleted here.</p><div className="flex gap-2"><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Confirm Delete</button></div></div></div>}
 
@@ -6349,10 +6414,10 @@ export default function SinglePageDashboard() {
                 <span className="font-bold text-slate-900 uppercase tracking-wide mb-1 text-xs">CUSTOMIZE METRIC</span>
                 <input type="text" value={metricSearch} onChange={(e) => setMetricSearch(e.target.value)} placeholder="Search platform..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500" />
                 <div className="flex flex-col gap-0.5 overflow-y-auto pr-1">
-                  {integrationsList.filter((item) => item.name.toLowerCase().includes(metricSearch.toLowerCase())).map((item) => (
-                    <button key={item.id} type="button" onClick={() => { setSelectedMetricPlatform(item); setMetricSearch(''); setSelectedMetricSearch(''); }} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 cursor-default transition-all border border-transparent hover:border-slate-200 group text-left">
-                      <span className="flex items-center gap-3 min-w-0"><span className="w-5 h-5 flex items-center justify-center shrink-0">{item.svg}</span><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{(item.label || item.name)}</span></span>
-                      <span className="text-slate-400 group-hover:text-slate-600 font-bold text-base">›</span>
+                  {orderedPropertyIntegrations.filter((item) => item.name.toLowerCase().includes(metricSearch.toLowerCase())).map((item) => (
+                    <button key={item.id} type="button" disabled={!item.connected} onClick={() => { if (!item.connected) return; setSelectedMetricPlatform(item); setMetricSearch(''); setSelectedMetricSearch(''); }} className={`flex items-center justify-between py-2 px-3 rounded-lg transition-colors border border-transparent text-left w-full min-h-[52px] ${item.connected ? 'hover:bg-slate-50 hover:border-slate-200 group cursor-pointer' : 'bg-slate-50/70 cursor-not-allowed'}`}>
+                      <span className="flex items-center gap-3 min-w-0"><span className={`w-5 h-5 flex items-center justify-center shrink-0 ${item.connected ? '' : 'opacity-40 grayscale'}`}>{item.svg}</span><span className="min-w-0 flex flex-col justify-center"><span className={`font-medium text-sm truncate ${item.connected ? 'text-slate-800' : 'text-slate-400'}`}>{(item.label || item.name)}</span>{!item.connected && <span className="text-[10px] leading-3 text-slate-400 mt-0.5">Account integration required</span>}</span></span>
+                      <span className={`font-bold text-base ${item.connected ? 'text-slate-400 group-hover:text-slate-600' : 'text-slate-300'}`}>›</span>
                     </button>
                   ))}
                 </div>
