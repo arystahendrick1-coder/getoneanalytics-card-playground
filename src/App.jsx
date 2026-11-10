@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 export default function SinglePageDashboard() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => { try { return localStorage.getItem('goa:lastActiveTab') || 'dashboard'; } catch (_) { return 'dashboard'; } });
   // Metric builder state for Master V4
   const [selectedMetricPlatform, setSelectedMetricPlatform] = useState(null);
   const [metricSearch, setMetricSearch] = useState('');
@@ -1265,7 +1265,9 @@ export default function SinglePageDashboard() {
     observer.observe(canvas);
     return () => observer.disconnect();
   }, [activeTab]);
-  const [selectedClient, setSelectedClient] = useState('Prasana Villas Uluwatu');
+  const [selectedClient, setSelectedClient] = useState(() => { try { return localStorage.getItem('goa:lastSelectedProperty') || 'Prasana Villas Uluwatu'; } catch (_) { return 'Prasana Villas Uluwatu'; } });
+  useEffect(() => { try { localStorage.setItem('goa:lastSelectedProperty', selectedClient); } catch (_) {} }, [selectedClient]);
+  useEffect(() => { try { localStorage.setItem('goa:lastActiveTab', activeTab); } catch (_) {} }, [activeTab]);
   const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
   const clientDropdownRef = useRef(null);
   const [activePropertyMenu, setActivePropertyMenu] = useState(null);
@@ -1731,6 +1733,27 @@ export default function SinglePageDashboard() {
     "active": false
   }
 ]);
+
+  // Remember only the selected page for navigation continuity; dashboard data remains demo state and resets on refresh.
+  const skipPageRestoreSaveRef = useRef(true);
+  useEffect(() => {
+    try {
+      const savedPageId = localStorage.getItem(`goa:lastActivePage:${selectedClient}`);
+      if (savedPageId && reportPages.some((page) => page.id === savedPageId)) {
+        setReportPages((pages) => pages.map((page) => ({ ...page, active: page.id === savedPageId })));
+      }
+    } catch (_) {}
+    // The persistence effect below skips its first pass, then stores the restored page.
+    // Restore once when the app loads; property-specific page is read from local storage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (skipPageRestoreSaveRef.current) return;
+    const activePage = reportPages.find((page) => page.active);
+    if (activePage) {
+      try { localStorage.setItem(`goa:lastActivePage:${selectedClient}`, activePage.id); } catch (_) {}
+    }
+  }, [reportPages, selectedClient]);
 
   // Initial template and one-step history for Restore Default / Restore Last.
   const defaultDashboardRef = useRef(null);
@@ -5238,7 +5261,7 @@ export default function SinglePageDashboard() {
   }[pageTitle] || pageTitle);
   const visibleReportPages = reportPages.filter((page) => {
     if (page.title === 'Cover Page' || page.isCover) return true;
-    const sourceName = pageIntegrationName(page.title);
+    const sourceName = pageIntegrationName(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, ''));
     return propertyDataSources.some((source) => source.name === sourceName);
   });
   const getPageIntegrationStatus = (pageTitle) => {
@@ -5807,12 +5830,21 @@ export default function SinglePageDashboard() {
                               <button
                                 key={template.title}
                                 onClick={() => {
-                                  const newPageId = 'p_' + Date.now();
-                                  const newPage = { id: newPageId, title: template.title, active: false };
-                                  setReportPages([...reportPages, newPage]);
+                                  const newPageId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                                  const newPage = { id: newPageId, title: template.title, active: true, ...(template.title !== 'Blank Page' ? { sourceTitle: template.title } : {}) };
+                                  const canonicalPage = defaultDashboardRef.current?.reportPages?.find((item) => item.title === template.title);
+                                  const canonicalMetrics = template.title === 'Blank Page' ? [] : (defaultDashboardRef.current?.dashboardMetrics || []).filter((metric) => metric.pageId === canonicalPage?.id);
+                                  setReportPages((pages) => [...pages.map((page) => ({ ...page, active: false })), newPage]);
+                                  if (canonicalMetrics.length) {
+                                    setDashboardMetrics((current) => [
+                                      ...current,
+                                      ...canonicalMetrics.map((metric, index) => ({ ...metric, id: makeMetricId(), pageId: newPageId, col: metric.col ?? 0, row: metric.row ?? index })),
+                                    ]);
+                                  }
                                   setIsAddPageDropdownOpen(false);
                                   setIsAddPageSeeMoreOpen(false);
                                   setAddPageSearch('');
+                                  requestAnimationFrame(() => reportPaperRefs.current[newPageId]?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
                                 }}
                                 className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
                               >
@@ -5946,11 +5978,11 @@ export default function SinglePageDashboard() {
                             <button 
                               onClick={() => {
                                 const duplicatedId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-                                const duplicated = { ...page, id: duplicatedId, title: `${page.title} (Copy)`, active: false, isCover: page.title === 'Cover Page' || page.isCover === true };
+                                const duplicated = { ...page, id: duplicatedId, sourceTitle: page.sourceTitle || page.title, title: `${page.title} (Copy)`, active: true, isCover: page.title === 'Cover Page' || page.isCover === true };
                                 const idx = reportPages.findIndex(p => p.id === page.id);
                                 const updated = [...reportPages];
                                 updated.splice(idx + 1, 0, duplicated);
-                                setReportPages(updated);
+                                setReportPages(updated.map((item) => ({ ...item, active: item.id === duplicatedId })));
                                 setDashboardMetrics((current) => [
                                   ...current,
                                   ...current.filter((metric) => metric.pageId === page.id).map((metric) => ({
@@ -5960,6 +5992,7 @@ export default function SinglePageDashboard() {
                                   })),
                                 ]);
                                 setActivePageMenuId(null);
+                                requestAnimationFrame(() => reportPaperRefs.current[duplicatedId]?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
                               }}
                               className="px-4 py-2 hover:bg-slate-50 text-slate-700 font-medium text-left cursor-default"
                             >
@@ -6052,6 +6085,13 @@ export default function SinglePageDashboard() {
                         </div>
                         <span className="text-[10px] text-slate-400">Demo data</span>
                       </div>
+                      {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) === 'Disconnected' && (
+                        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden">
+                          <svg viewBox="0 0 200 200" className="w-[min(42vw,420px)] h-[min(42vw,420px)] text-amber-500 opacity-[0.075]" fill="currentColor">
+                            <path d="M100 12c-9 0-16 7-16 16v91c0 9 7 16 16 16s16-7 16-16V28c0-9-7-16-16-16Zm0 144a20 20 0 1 0 0 40 20 20 0 0 0 0-40Z" />
+                          </svg>
+                        </div>
+                      )}
                       <div
                         data-metric-grid
                         ref={(el) => { if (page.active) metricCanvasRef.current = el; }}
