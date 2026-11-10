@@ -5195,11 +5195,11 @@ export default function SinglePageDashboard() {
         }[source.name] || selectedClient),
         connectedBy: index % 2 === 0 ? 'Arysta Hendrik' : 'Property Admin',
         status: (selectedClient === 'Bumi Kinar Ubud'
-          ? ['Connected', 'Connected', 'Connected', 'Disconnected', 'Disconnected', 'Connected', 'Disconnected', 'Disconnected', 'Connected']
+          ? ['Connected', 'Connected', 'Connected', 'Disconnected', 'Never connected', 'Connected', 'Never connected', 'Disconnected', 'Connected']
           : selectedClient === 'Patra Bali'
             ? ['Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected', 'Connected']
-            : ['Connected', 'Disconnected', 'Connected', 'Disconnected', 'Disconnected', 'Connected', 'Disconnected', 'Disconnected', 'Disconnected'])[index],
-      }));
+            : ['Connected', 'Disconnected', 'Connected', 'Disconnected', 'Disconnected', 'Connected', 'Never connected', 'Never connected', 'Never connected'])[index],
+      })).filter((source) => source.status !== 'Never connected');
 
   const platformIntegrationName = (platformName) => ({
     'Facebook Pages (Organic)': 'Facebook',
@@ -5220,6 +5220,25 @@ export default function SinglePageDashboard() {
     ...propertyIntegrations.filter((item) => item.connected),
     ...propertyIntegrations.filter((item) => !item.connected),
   ];
+  // Data Sources is the single source of truth for page visibility and platform availability.
+  // A disconnected integration remains listed (and keeps its page); a never-connected
+  // platform has no Data Source record and therefore no page in the navigation/canvas.
+  const pageIntegrationName = (pageTitle) => ({
+    'Google Analytics': 'Google Analytics',
+    'Google Ads': 'Google Ads',
+    'Google Business Profile': 'Google Business Profile',
+    'YouTube Analytics': 'YouTube Analytics',
+    'Meta Ads': 'Meta Ads',
+    'Facebook Pages': 'Facebook',
+    'Instagram Professional': 'Instagram',
+    'TikTok Organic': 'TikTok Organic',
+    'TikTok Ads': 'TikTok Ads',
+  }[pageTitle] || pageTitle);
+  const visibleReportPages = reportPages.filter((page) => {
+    if (page.title === 'Cover Page' || page.isCover) return true;
+    const sourceName = pageIntegrationName(page.title);
+    return propertyDataSources.some((source) => source.name === sourceName);
+  });
 
   const [viewingSavedReport, setViewingSavedReport] = useState(null);
   const dashboardBackupRef = useRef(null);
@@ -5806,7 +5825,7 @@ export default function SinglePageDashboard() {
               </div>}
 
               <div ref={pagesContainerRef} className={`flex flex-col gap-2.5 ${isActivePropertyUser ? 'mt-0' : 'mt-2'} overflow-y-auto flex-1 pr-0.5 relative`}>
-                {reportPages.map((page) => {
+                {visibleReportPages.map((page) => {
                   const isDragging = draggedPageId === page.id;
 
                   return (
@@ -5978,7 +5997,7 @@ export default function SinglePageDashboard() {
           {/* REPORT CANVAS: continuous vertical stack of paper pages */}
           {activeTab === 'dashboard' && (
             <main id="report-print-root" ref={reportScrollRef} className={`flex-1 min-w-0 px-6 md:px-8 pt-5 pb-10 flex flex-col items-center gap-5 overflow-y-auto h-full bg-slate-100/70 scroll-smooth ${isActivePropertyUser && !viewingSavedReport ? 'max-w-7xl w-full mx-auto' : ''} ${viewingSavedReport ? 'saved-report-readonly' : ''}`}>
-              {reportPages.map((page) => (
+              {visibleReportPages.map((page) => (
                 <section
                   key={page.id}
                   ref={(el) => { reportPaperRefs.current[page.id] = el; if (page.active && el) { const grid = el.querySelector('[data-metric-grid]'); if (grid) metricCanvasRef.current = grid; } }}
