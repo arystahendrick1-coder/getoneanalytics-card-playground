@@ -1454,8 +1454,9 @@ export default function SinglePageDashboard() {
   const datePickerRef = useRef(null);
 
   const today = new Date();
-  const calendarStartMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-  const calendarCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const [calendarMonthOffset, setCalendarMonthOffset] = useState(0);
+  const calendarStartMonth = new Date(today.getFullYear(), today.getMonth() - 1 + calendarMonthOffset, 1);
+  const calendarCurrentMonth = new Date(today.getFullYear(), today.getMonth() + calendarMonthOffset, 1);
   const formatCalendarDate = (date) => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const formatMonthHeading = (date) => date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const buildMonthDays = (monthDate) => {
@@ -5260,7 +5261,7 @@ export default function SinglePageDashboard() {
     'TikTok Ads': 'TikTok Ads',
   }[pageTitle] || pageTitle);
   const visibleReportPages = reportPages.filter((page) => {
-    if (page.title === 'Cover Page' || page.isCover) return true;
+    if (page.title === 'Cover Page' || page.isCover || page.isCustom) return true;
     const sourceName = pageIntegrationName(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, ''));
     return propertyDataSources.some((source) => source.name === sourceName);
   });
@@ -5378,9 +5379,7 @@ export default function SinglePageDashboard() {
       const frozenWrap = reportWindow.document.createElement('div');
       frozenWrap.style.cssText = 'width:100%;box-sizing:border-box;padding:28px 16px;display:flex;flex-direction:column;align-items:center;gap:20px;';
       const frozenRoot = root.cloneNode(true);
-      frozenRoot.removeAttribute('id');
-      frozenRoot.removeAttribute('class');
-      frozenRoot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;height:auto;overflow:visible;padding:0;margin:0;background:transparent;';
+      frozenRoot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;height:auto;min-height:0;max-height:none;overflow:visible;padding:0;margin:0;background:transparent;';
       frozenRoot.querySelectorAll('[data-report-page]').forEach((page) => {
         page.style.width = '1120px';
         page.style.minWidth = '1120px';
@@ -5402,7 +5401,16 @@ export default function SinglePageDashboard() {
 
       if (pendingPrintInNewTabRef.current) {
         pendingPrintInNewTabRef.current = false;
-        reportWindow.setTimeout(() => reportWindow.print(), 500);
+        reportWindow.setTimeout(() => {
+          const images = Array.from(reportWindow.document.images || []);
+          Promise.all([
+            reportWindow.document.fonts?.ready || Promise.resolve(),
+            ...images.map((image) => image.complete ? Promise.resolve() : new Promise((resolve) => {
+              image.addEventListener('load', resolve, { once: true });
+              image.addEventListener('error', resolve, { once: true });
+            }))
+          ]).then(() => reportWindow.setTimeout(() => reportWindow.print(), 250));
+        }, 700);
       }
     } catch (error) {
       reportWindow.document.body.textContent = 'Unable to render this saved report in a new tab. Please return to GOA and try again.';
@@ -5647,10 +5655,16 @@ export default function SinglePageDashboard() {
                 <div className="absolute right-0 top-12 bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 z-50 flex gap-8 text-sm w-[720px]">
                   <div className="flex flex-col gap-4 flex-1 border-r border-slate-100 pr-6">
                     <div className="flex justify-between items-center">
-                      <div className="flex gap-2 text-slate-400 font-bold"><span>«</span><span>‹</span></div>
+                      <div className="flex gap-1 text-slate-500 font-bold">
+                        <button type="button" aria-label="Previous year" onClick={() => setCalendarMonthOffset((value) => value - 12)} className="w-6 h-6 rounded hover:bg-slate-100">«</button>
+                        <button type="button" aria-label="Previous month" onClick={() => setCalendarMonthOffset((value) => value - 1)} className="w-6 h-6 rounded hover:bg-slate-100">‹</button>
+                      </div>
                       <span className="font-bold text-slate-900">{formatMonthHeading(calendarStartMonth)}</span>
                       <span className="font-bold text-slate-900">{formatMonthHeading(calendarCurrentMonth)}</span>
-                      <div className="flex gap-2 text-slate-400 font-bold"><span>›</span><span>»</span></div>
+                      <div className="flex gap-1 text-slate-500 font-bold">
+                        <button type="button" aria-label="Next month" onClick={() => setCalendarMonthOffset((value) => value + 1)} className="w-6 h-6 rounded hover:bg-slate-100">›</button>
+                        <button type="button" aria-label="Next year" onClick={() => setCalendarMonthOffset((value) => value + 12)} className="w-6 h-6 rounded hover:bg-slate-100">»</button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
@@ -5831,7 +5845,7 @@ export default function SinglePageDashboard() {
                                 key={template.title}
                                 onClick={() => {
                                   const newPageId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-                                  const newPage = { id: newPageId, title: template.title, active: true, ...(template.title !== 'Blank Page' ? { sourceTitle: template.title } : {}) };
+                                  const newPage = { id: newPageId, title: template.title, active: true, ...(template.title !== 'Blank Page' ? { sourceTitle: template.title } : { isCustom: true }) };
                                   const canonicalPage = defaultDashboardRef.current?.reportPages?.find((item) => item.title === template.title);
                                   const canonicalMetrics = template.title === 'Blank Page' ? [] : (defaultDashboardRef.current?.dashboardMetrics || []).filter((metric) => metric.pageId === canonicalPage?.id);
                                   setReportPages((pages) => [...pages.map((page) => ({ ...page, active: false })), newPage]);
@@ -5978,7 +5992,7 @@ export default function SinglePageDashboard() {
                             <button 
                               onClick={() => {
                                 const duplicatedId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-                                const duplicated = { ...page, id: duplicatedId, sourceTitle: page.sourceTitle || page.title, title: `${page.title} (Copy)`, active: true, isCover: page.title === 'Cover Page' || page.isCover === true };
+                                const duplicated = { ...page, id: duplicatedId, ...(page.isCustom ? { isCustom: true } : { sourceTitle: page.sourceTitle || page.title }), title: `${page.title} (Copy)`, active: true, isCover: page.title === 'Cover Page' || page.isCover === true };
                                 const idx = reportPages.findIndex(p => p.id === page.id);
                                 const updated = [...reportPages];
                                 updated.splice(idx + 1, 0, duplicated);
@@ -6086,10 +6100,13 @@ export default function SinglePageDashboard() {
                         <span className="text-[10px] text-slate-400">Demo data</span>
                       </div>
                       {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) === 'Disconnected' && (
-                        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden">
-                          <svg viewBox="0 0 200 200" className="w-[min(42vw,420px)] h-[min(42vw,420px)] text-amber-500 opacity-[0.075]" fill="currentColor">
-                            <path d="M100 12c-9 0-16 7-16 16v91c0 9 7 16 16 16s16-7 16-16V28c0-9-7-16-16-16Zm0 144a20 20 0 1 0 0 40 20 20 0 0 0 0-40Z" />
+                        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 overflow-hidden">
+                          <svg viewBox="0 0 240 220" className="w-[min(36vw,340px)] h-auto text-red-600 opacity-[0.19] drop-shadow-sm" fill="currentColor">
+                            <path d="M120 12 226 198H14L120 12Z" />
+                            <path d="M120 72v62" fill="none" stroke="white" strokeWidth="17" strokeLinecap="round" />
+                            <circle cx="120" cy="160" r="10" fill="white" />
                           </svg>
+                          <span className="text-red-600/35 font-extrabold tracking-[0.22em] text-sm md:text-base text-center">ACCOUNT INTEGRATION REQUIRED</span>
                         </div>
                       )}
                       <div
