@@ -5461,18 +5461,19 @@ export default function SinglePageDashboard() {
 
   const [reportList, setReportList] = useState(() => {
     const demoProperties = [
-      { id: 'demo-prasana', client: 'Prasana Villas Uluwatu', type: 'Admin' },
-      { id: 'demo-bumikinar', client: 'Bumi Kinar Ubud', type: 'Member' },
-      { id: 'demo-selongselo', client: 'Selong Selo Resort & Villas', type: 'Admin' },
-      { id: 'demo-patra', client: 'Patra Bali', type: 'Admin' },
+      { id: 'demo-prasana', client: 'Prasana Villas Uluwatu', created: 'Aug 13, 2026' },
+      { id: 'demo-bumikinar', client: 'Bumi Kinar Ubud', created: 'Nov 10, 2026' },
+      { id: 'demo-selongselo', client: 'Selong Selo Resort & Villas', created: 'Nov 10, 2026' },
+      { id: 'demo-patra', client: 'Patra Bali', created: 'Nov 10, 2026' },
     ];
-    return demoProperties.map((property) => ({
+    const demoReports = demoProperties.map((property) => ({
       id: property.id,
-      name: 'Demo report',
-      client: property.client,
-      user: 'Arysta Hendrik',
-      type: property.type,
-      created: 'Nov 10, 2026',
+      name: 'Demo Report',
+      client: 'System',
+      user: 'System',
+      type: 'Demo',
+      created: property.created,
+      propertyClient: property.client,
       active: true,
       dateRange,
       snapshot: {
@@ -5489,6 +5490,15 @@ export default function SinglePageDashboard() {
         compareEndDate,
       },
     }));
+    const prasanaCustomReports = [
+      { id: 'r2', name: 'Prasana Villas Uluwatu - September 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 16, 2026' },
+      { id: 'r3', name: 'Prasana Villas Uluwatu - October 2026', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Oct 20, 2026' },
+      { id: 'r4', name: 'Prasana Villas Uluwatu - August 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 02, 2026' },
+      { id: 'r5', name: 'Prasana Villas Uluwatu - September 2025', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 15, 2025' },
+      { id: 'r6', name: 'Prasana Villas Uluwatu - August 2025', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Sep 05, 2025' },
+    ];
+    const sortedPrasanaReports = prasanaCustomReports.sort((a, b) => new Date(b.created) - new Date(a.created));
+    return [...sortedPrasanaReports, ...demoReports];
   });
 
   const handleSaveReport = (e) => {
@@ -6313,7 +6323,11 @@ export default function SinglePageDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
-                    {reportList.filter((rep) => rep.client === selectedClient).map((rep, index, visibleReports) => {
+                    {reportList.filter((rep) => rep.client === selectedClient || (rep.type === 'Demo' && rep.propertyClient === selectedClient)).sort((a, b) => {
+                      if (a.type === 'Demo') return 1;
+                      if (b.type === 'Demo') return -1;
+                      return new Date(b.created) - new Date(a.created);
+                    }).map((rep, index, visibleReports) => {
                       const isNearBottom = index >= visibleReports.length - 2;
                       const isEditingThisReport = editingReportId === rep.id;
 
