@@ -1255,16 +1255,6 @@ export default function SinglePageDashboard() {
       }));
     }
   }, [dashboardMetrics]);
-  useEffect(() => {
-    const canvas = metricCanvasRef.current;
-    if (!canvas || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect?.width || canvas.clientWidth;
-      setMetricCellHeight(Math.max(72, (width - 36) / 6));
-    });
-    observer.observe(canvas);
-    return () => observer.disconnect();
-  }, [activeTab]);
   const [selectedClient, setSelectedClient] = useState(() => { try { return localStorage.getItem('goa:lastSelectedProperty') || 'Prasana Villas Uluwatu'; } catch (_) { return 'Prasana Villas Uluwatu'; } });
   useEffect(() => { try { localStorage.setItem('goa:lastSelectedProperty', selectedClient); } catch (_) {} }, [selectedClient]);
   useEffect(() => { try { localStorage.setItem('goa:lastActiveTab', activeTab); } catch (_) {} }, [activeTab]);
@@ -1734,6 +1724,50 @@ export default function SinglePageDashboard() {
     "active": false
   }
 ]);
+
+  // Keep the dashboard grid cell height in sync with the currently visible property/page.
+  // The canvas ref can be replaced when the property or active page changes, so observe it again
+  // after React has committed the new page and after the browser has completed layout.
+  const activeReportPageId = reportPages.find((page) => page.active)?.id || reportPages[0]?.id;
+  useEffect(() => {
+    if (activeTab !== 'dashboard') return;
+    let observer = null;
+    let cancelled = false;
+    let firstFrame = 0;
+    let secondFrame = 0;
+    const measureCanvas = () => {
+      if (cancelled) return;
+      const activePaper = activeReportPageId ? reportPaperRefs.current[activeReportPageId] : null;
+      const canvas = activePaper?.querySelector('[data-metric-grid]') || metricCanvasRef.current;
+      if (!canvas) return;
+      const width = canvas.getBoundingClientRect().width || canvas.clientWidth;
+      if (width > 0) {
+        const nextHeight = Math.max(72, (width - 36) / 6);
+        setMetricCellHeight((current) => Math.abs(current - nextHeight) > 0.5 ? nextHeight : current);
+      }
+    };
+    firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => {
+        measureCanvas();
+        const activePaper = activeReportPageId ? reportPaperRefs.current[activeReportPageId] : null;
+        const canvas = activePaper?.querySelector('[data-metric-grid]') || metricCanvasRef.current;
+        if (canvas && typeof ResizeObserver !== 'undefined') {
+          observer = new ResizeObserver(measureCanvas);
+          observer.observe(canvas);
+        }
+      });
+    });
+    window.addEventListener('resize', measureCanvas, { passive: true });
+    const fontsReady = document.fonts?.ready;
+    if (fontsReady && typeof fontsReady.then === 'function') fontsReady.then(measureCanvas);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+      if (observer) observer.disconnect();
+      window.removeEventListener('resize', measureCanvas);
+    };
+  }, [activeTab, selectedClient, activeReportPageId]);
 
   // Remember only the selected page for navigation continuity; dashboard data remains demo state and resets on refresh.
   const skipPageRestoreSaveRef = useRef(true);
