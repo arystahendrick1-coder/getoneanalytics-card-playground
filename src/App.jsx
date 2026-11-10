@@ -5239,6 +5239,11 @@ export default function SinglePageDashboard() {
     const sourceName = pageIntegrationName(page.title);
     return propertyDataSources.some((source) => source.name === sourceName);
   });
+  const getPageIntegrationStatus = (pageTitle) => {
+    const sourceName = pageIntegrationName(pageTitle);
+    const matchingSource = propertyDataSources.find((source) => source.name === sourceName);
+    return matchingSource?.status || null;
+  };
 
   const [viewingSavedReport, setViewingSavedReport] = useState(null);
   const dashboardBackupRef = useRef(null);
@@ -5877,7 +5882,20 @@ export default function SinglePageDashboard() {
                             className="bg-white border border-blue-500 rounded px-2 py-0.5 text-xs font-medium text-slate-900 focus:outline-none w-full shadow-sm"
                           />
                         ) : (
-                          <span className="truncate">{page.title}</span>
+                          <span className="flex items-center gap-1.5 min-w-0 truncate">
+                            <span className="truncate">{page.title}</span>
+                            {getPageIntegrationStatus(page.title) === 'Disconnected' && (
+                              <span
+                                className="inline-flex items-center justify-center shrink-0 text-amber-600"
+                                title="Integration disconnected. Reconnect this data source to restore live data."
+                                aria-label="Integration disconnected"
+                              >
+                                <svg viewBox="0 0 20 20" className="w-4 h-4" fill="currentColor" aria-hidden="true">
+                                  <path fillRule="evenodd" d="M9.13 2.74a1 1 0 0 1 1.74 0l7.2 12.6A1 1 0 0 1 17.2 16.8H2.8a1 1 0 0 1-.87-1.46l7.2-12.6ZM10 7a.85.85 0 0 0-.85.85v3.3a.85.85 0 1 0 1.7 0v-3.3A.85.85 0 0 0 10 7Zm0 7.1a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z" clipRule="evenodd" />
+                                </svg>
+                              </span>
+                            )}
+                          </span>
                         )}
                       </div>
 
