@@ -52,3 +52,12 @@ This is a front-end prototype with sample display values. It does not connect to
 - Added Campaign by Location to the Google Ads Add Metric catalogue as a Map, default size 2 × 2.
 - This is an optional metric card and is not part of the approved 13-card Google Ads Default Page. Campaign by Country remains Bar Chart, 2 × 2.
 - Geographic metric and dimension combinations must be validated against the current Google Ads API field compatibility rules before live integration.
+
+
+## Geographic card consolidation (10 November 2026)
+
+- Consolidated geographic `By Location` cards into their matching `By Country` cards in the Add Metric catalogue.
+- Added `Map` as an available visualisation for the consolidated `By Country` cards, retaining Bar/Table/Pie options where already supported.
+- Renamed existing Default Page geographic cards from `By Location` to `By Country` without changing their visualisation type, position, or size. Existing Map cards remain Maps.
+- Kept source/API metric references and API audit labels unchanged; geographic source data can use native location data when available, with country-to-map processing as fallback.
+- Updated the Master Metrics workbook card labels and visualisation availability, plus the relevant Default View titles.
