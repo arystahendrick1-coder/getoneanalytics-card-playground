@@ -5860,7 +5860,7 @@ export default function SinglePageDashboard() {
                                   setAddPageSearch('');
                                   requestAnimationFrame(() => reportPaperRefs.current[newPageId]?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
                                 }}
-                                className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
+                                className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-normal text-left transition-colors cursor-default flex items-center gap-2"
                               >
                                 {template.label}
                               </button>
@@ -5941,7 +5941,7 @@ export default function SinglePageDashboard() {
                         ) : (
                           <span className="flex items-center gap-1.5 min-w-0 truncate">
                             <span className="truncate">{page.title}</span>
-                            {getPageIntegrationStatus(page.title) === 'Disconnected' && (
+                            {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) === 'Disconnected' && (
                               <span
                                 className="inline-flex items-center justify-center shrink-0 text-amber-600"
                                 title="Integration disconnected. Reconnect this data source to restore live data."
