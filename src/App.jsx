@@ -5459,19 +5459,37 @@ export default function SinglePageDashboard() {
 
   const pendingPrintInNewTabRef = useRef(false);
 
-  const [reportList, setReportList] = useState([
-    { id: 'r0', name: 'Bumi Kinar Ubud · October 2026', client: 'Bumi Kinar Ubud', user: 'Arysta Hendrik', type: 'Member', created: 'Oct 30, 2026' },
-    { id: 'r1', name: 'Demo report', client: 'Demo client', user: 'Arysta Hendrik', type: 'Admin', created: 'Aug 13, 2026' },
-    { id: 'r2', name: 'Prasana Villas Uluwatu - September 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 16, 2026' },
-    { id: 'r3', name: 'Prasana Villas Uluwatu - October 2026', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Oct 20, 2026' },
-    { id: 'r4', name: 'Prasana Villas Uluwatu - August 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 02, 2026' },
-    { id: 'r5', name: 'Prasana Villas Uluwatu - September 2025', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 15, 2025' },
-    { id: 'r6', name: 'Prasana Villas Uluwatu - August 2025', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Sep 05, 2025' },
-    { id: 'r7', name: 'Selong Selo Resort - October 2026', client: 'Selong Selo Resort & Villas', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 21, 2026' },
-    { id: 'r8', name: 'Selong Selo Resort - September 2026', client: 'Selong Selo Resort & Villas', user: 'Hospio Team', type: 'Member', created: 'Oct 01, 2026' },
-    { id: 'r9', name: 'Selong Selo Resort - August 2026', client: 'Selong Selo Resort & Villas', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 01, 2026' },
-    { id: 'r10', name: 'Patra Bali Oct 11, 2026 – Nov 9, 2026', client: 'Patra Bali', user: 'Arysta Hendrik', type: 'Admin', created: 'Nov 09, 2026' },
-  ]);
+  const [reportList, setReportList] = useState(() => {
+    const demoProperties = [
+      { id: 'demo-prasana', client: 'Prasana Villas Uluwatu', type: 'Admin' },
+      { id: 'demo-bumikinar', client: 'Bumi Kinar Ubud', type: 'Member' },
+      { id: 'demo-selongselo', client: 'Selong Selo Resort & Villas', type: 'Admin' },
+      { id: 'demo-patra', client: 'Patra Bali', type: 'Admin' },
+    ];
+    return demoProperties.map((property) => ({
+      id: property.id,
+      name: 'Demo report',
+      client: property.client,
+      user: 'Arysta Hendrik',
+      type: property.type,
+      created: 'Nov 10, 2026',
+      active: true,
+      dateRange,
+      snapshot: {
+        dashboardMetrics: dashboardMetrics.map((metric) => ({ ...metric })),
+        reportPages: reportPages.map((page) => ({ ...page })),
+        selectedClient: property.client,
+        dateRange,
+        startDate,
+        endDate,
+        datePreset,
+        isCompareEnabled,
+        compareMode,
+        compareStartDate,
+        compareEndDate,
+      },
+    }));
+  });
 
   const handleSaveReport = (e) => {
     e.preventDefault();
