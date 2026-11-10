@@ -269,7 +269,7 @@ export default function SinglePageDashboard() {
     "type": "Table",
     "col": 0,
     "row": 7,
-    "w": 4,
+    "w": 2,
     "h": 2,
     "pageId": "p5",
     "section": "Assets & Traffic",
@@ -294,7 +294,7 @@ export default function SinglePageDashboard() {
     "id": "p5-12",
     "platform": "Google Ads",
     "name": "Campaign by Country",
-    "type": "Maps",
+    "type": "Bar Chart",
     "col": 2,
     "row": 7,
     "w": 2,
@@ -490,7 +490,7 @@ export default function SinglePageDashboard() {
     "id": "p9-6",
     "platform": "YouTube Analytics",
     "name": "Views by Country",
-    "type": "Maps",
+    "type": "Bar Chart",
     "col": 2,
     "row": 1,
     "w": 2,
@@ -498,7 +498,7 @@ export default function SinglePageDashboard() {
     "pageId": "p9",
     "section": "Audience",
     "metricReference": "country + views",
-    "notes": "Second row, right; map needs geographic mapping"
+    "notes": "Second row, right; country performance breakdown"
   },
   {
     "id": "p9-7",
@@ -1147,7 +1147,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p11-8",
     "platform": "TikTok Ads",
-    "name": "Campaign by Location (Map)",
+    "name": "Campaign by Location",
     "type": "Maps",
     "col": 2,
     "row": 3,
@@ -1156,7 +1156,7 @@ export default function SinglePageDashboard() {
     "pageId": "p11",
     "section": "Medium Cards – Row 2",
     "metricReference": "country_code + spend / impressions / clicks; geocoding layer",
-    "notes": "Position 8. Approved Default Page card. Country-level map, not city-level."
+    "notes": "Position 8. Approved Default Page card. Geographic location map."
   },
   {
     "id": "p11-9",
@@ -4194,7 +4194,7 @@ export default function SinglePageDashboard() {
       "Bar Chart",
       "Table"
     ],
-    "Campaign by Location (Map)": [
+    "Campaign by Location": [
       "Bar Chart",
       "Map",
       "Table"
