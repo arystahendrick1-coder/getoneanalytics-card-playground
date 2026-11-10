@@ -1255,19 +1255,31 @@ export default function SinglePageDashboard() {
       }));
     }
   }, [dashboardMetrics]);
-  useEffect(() => {
-    const canvas = metricCanvasRef.current;
-    if (!canvas || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect?.width || canvas.clientWidth;
-      setMetricCellHeight(Math.max(72, (width - 36) / 6));
-    });
-    observer.observe(canvas);
-    return () => observer.disconnect();
-  }, [activeTab]);
   const [selectedClient, setSelectedClient] = useState(() => { try { return localStorage.getItem('goa:lastSelectedProperty') || 'Prasana Villas Uluwatu'; } catch (_) { return 'Prasana Villas Uluwatu'; } });
   useEffect(() => { try { localStorage.setItem('goa:lastSelectedProperty', selectedClient); } catch (_) {} }, [selectedClient]);
   useEffect(() => { try { localStorage.setItem('goa:lastActiveTab', activeTab); } catch (_) {} }, [activeTab]);
+  useEffect(() => {
+    const activePageId = reportPages.find((page) => page.active)?.id;
+    const activePaper = activePageId ? reportPaperRefs.current[activePageId] : null;
+    const canvas = activePaper?.querySelector('[data-metric-grid]') || metricCanvasRef.current;
+    if (!canvas) return;
+    const measure = () => {
+      const width = canvas.getBoundingClientRect().width || canvas.clientWidth;
+      if (width > 0) setMetricCellHeight(Math.max(72, (width - 36) / 6));
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    let frame = 0;
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    });
+    observer.observe(canvas);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [activeTab, selectedClient, reportPages.find((page) => page.active)?.id]);
   const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
   const clientDropdownRef = useRef(null);
   const [activePropertyMenu, setActivePropertyMenu] = useState(null);
@@ -5260,7 +5272,7 @@ export default function SinglePageDashboard() {
     'TikTok Ads': 'TikTok Ads',
   }[pageTitle] || pageTitle);
   const visibleReportPages = reportPages.filter((page) => {
-    if (page.title === 'Cover Page' || page.isCover) return true;
+    if (page.title === 'Cover Page' || page.isCover || page.isCustomPage || page.title === 'Blank Page') return true;
     const sourceName = pageIntegrationName(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, ''));
     return propertyDataSources.some((source) => source.name === sourceName);
   });
@@ -5831,7 +5843,7 @@ export default function SinglePageDashboard() {
                                 key={template.title}
                                 onClick={() => {
                                   const newPageId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-                                  const newPage = { id: newPageId, title: template.title, active: true, ...(template.title !== 'Blank Page' ? { sourceTitle: template.title } : {}) };
+                                  const newPage = { id: newPageId, title: template.title, active: true, ...(template.title !== 'Blank Page' ? { sourceTitle: template.title } : { isCustomPage: true }) };
                                   const canonicalPage = defaultDashboardRef.current?.reportPages?.find((item) => item.title === template.title);
                                   const canonicalMetrics = template.title === 'Blank Page' ? [] : (defaultDashboardRef.current?.dashboardMetrics || []).filter((metric) => metric.pageId === canonicalPage?.id);
                                   setReportPages((pages) => [...pages.map((page) => ({ ...page, active: false })), newPage]);
@@ -5927,7 +5939,7 @@ export default function SinglePageDashboard() {
                         ) : (
                           <span className="flex items-center gap-1.5 min-w-0 truncate">
                             <span className="truncate">{page.title}</span>
-                            {getPageIntegrationStatus(page.title) === 'Disconnected' && (
+                            {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) === 'Disconnected' && (
                               <span
                                 className="inline-flex items-center justify-center shrink-0 text-amber-600"
                                 title="Integration disconnected. Reconnect this data source to restore live data."
@@ -5978,7 +5990,7 @@ export default function SinglePageDashboard() {
                             <button 
                               onClick={() => {
                                 const duplicatedId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-                                const duplicated = { ...page, id: duplicatedId, sourceTitle: page.sourceTitle || page.title, title: `${page.title} (Copy)`, active: true, isCover: page.title === 'Cover Page' || page.isCover === true };
+                                const duplicated = { ...page, id: duplicatedId, ...(page.isCustomPage ? {} : { sourceTitle: page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '') }), title: `${page.title} (Copy)`, active: true, isCover: page.title === 'Cover Page' || page.isCover === true };
                                 const idx = reportPages.findIndex(p => p.id === page.id);
                                 const updated = [...reportPages];
                                 updated.splice(idx + 1, 0, duplicated);
@@ -6086,10 +6098,13 @@ export default function SinglePageDashboard() {
                         <span className="text-[10px] text-slate-400">Demo data</span>
                       </div>
                       {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) === 'Disconnected' && (
-                        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden">
-                          <svg viewBox="0 0 200 200" className="w-[min(42vw,420px)] h-[min(42vw,420px)] text-amber-500 opacity-[0.075]" fill="currentColor">
-                            <path d="M100 12c-9 0-16 7-16 16v91c0 9 7 16 16 16s16-7 16-16V28c0-9-7-16-16-16Zm0 144a20 20 0 1 0 0 40 20 20 0 0 0 0-40Z" />
+                        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 overflow-hidden">
+                          <svg viewBox="0 0 220 220" className="w-[min(48vw,460px)] h-[min(48vw,460px)] drop-shadow-sm" role="presentation">
+                            <path d="M110 12 211 190H9L110 12Z" fill="#dc2626" fillOpacity="0.22" stroke="#b91c1c" strokeOpacity="0.34" strokeWidth="5" strokeLinejoin="round" />
+                            <path d="M110 70v61" stroke="#991b1b" strokeOpacity="0.68" strokeWidth="17" strokeLinecap="round" />
+                            <circle cx="110" cy="160" r="10" fill="#991b1b" fillOpacity="0.72" />
                           </svg>
+                          <div className="rounded-lg bg-white/75 px-4 py-2 text-center text-sm md:text-base font-extrabold tracking-[0.12em] text-red-700/80 shadow-sm border border-red-200/70">ACCOUNT INTEGRATION REQUIRED</div>
                         </div>
                       )}
                       <div
