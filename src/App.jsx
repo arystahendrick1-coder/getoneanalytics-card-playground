@@ -97,7 +97,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p3-7",
     "platform": "Google Analytics",
-    "name": "Total Users by Location",
+    "name": "Total Users by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -643,7 +643,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p6-8",
     "platform": "Meta Ads",
-    "name": "Reach by Location",
+    "name": "Reach by Country",
     "type": "Maps",
     "col": 2,
     "row": 3,
@@ -755,7 +755,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p8-8",
     "platform": "Facebook Pages (Organic)",
-    "name": "Followers by Location",
+    "name": "Followers by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -881,7 +881,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p7-8",
     "platform": "Instagram Professional",
-    "name": "Followers by Location",
+    "name": "Followers by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -1007,7 +1007,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p10-6",
     "platform": "TikTok Organic",
-    "name": "Followers by Location",
+    "name": "Followers by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -1147,7 +1147,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p11-8",
     "platform": "TikTok Ads",
-    "name": "Campaign by Location",
+    "name": "Campaign by Country",
     "type": "Maps",
     "col": 2,
     "row": 3,
