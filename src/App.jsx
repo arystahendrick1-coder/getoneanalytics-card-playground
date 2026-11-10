@@ -2218,6 +2218,9 @@ export default function SinglePageDashboard() {
       "Table",
       "Map"
     ],
+    "Campaign by Location": [
+      "Map"
+    ],
     "Campaign Performance": [
       "Table"
     ],

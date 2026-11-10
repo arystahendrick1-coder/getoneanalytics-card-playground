@@ -26,7 +26,7 @@ Vite output: `dist/`
 - Original cover page and report page navigation.
 - Four-column dashboard canvas. Existing card sizes and placements are retained.
 - Seven card visualisation types: Number, Line Chart, Bar Chart, Pie Chart, Number and Chart, Table, and Maps.
-- Metric type compatibility catalogue synchronised with `GetOneAnalytics_Master_Metrics_QA_Reviewed_v3.xlsx` (437 metrics across 9 reporting surfaces).
+- Metric type compatibility catalogue synchronised with `GetOneAnalytics_Master_Metrics_QA_Reviewed_v3.xlsx` (438 metrics across 9 reporting surfaces).
 - Compare presentation for supported visual types.
 - TikTok Organic default page includes the four small KPI cards: Followers, Profile Views, Video Views, and Link Clicks.
 
@@ -46,3 +46,9 @@ This is a front-end prototype with sample display values. It does not connect to
 - Google Ads: default canvas now follows the approved 13-card arrangement: two 2 × 2 charts, four 1 × 1 KPI cards, four 2 × 2 analysis cards (including Campaign by Country as Maps with a country table), and one 4 × 2 Campaign Performance table.
 - Canvas remains four grid units wide; card interactions and resize controls are retained.
 - JSX transpilation check passed. Production build has not been verified because dependency installation timed out in this environment.
+
+
+## Google Ads optional geographic metric (10 November 2026)
+- Added Campaign by Location to the Google Ads Add Metric catalogue as a Map, default size 2 × 2.
+- This is an optional metric card and is not part of the approved 13-card Google Ads Default Page. Campaign by Country remains Bar Chart, 2 × 2.
+- Geographic metric and dimension combinations must be validated against the current Google Ads API field compatibility rules before live integration.
