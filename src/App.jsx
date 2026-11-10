@@ -1295,6 +1295,8 @@ export default function SinglePageDashboard() {
 
   // State untuk dropdown menu Add Page di panel kiri
   const [isAddPageDropdownOpen, setIsAddPageDropdownOpen] = useState(false);
+  const [isAddPageSeeMoreOpen, setIsAddPageSeeMoreOpen] = useState(false);
+  const [addPageSearch, setAddPageSearch] = useState('');
   const addPageDropdownRef = useRef(null);
 
   // State untuk modal Add Property kustom
@@ -5759,72 +5761,81 @@ export default function SinglePageDashboard() {
                 </button>
 
                 {isAddPageDropdownOpen && (
-                  <div className="absolute left-0 top-12 w-full bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50 flex flex-col text-sm">
-                    <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">SELECT PAGE TEMPLATE</div>
-                    <div className="flex flex-col py-1">
-                      <button 
-                        onClick={() => {
-                          const newPageId = 'p_' + Date.now();
-                          const newPage = { id: newPageId, title: 'Blank Page', active: false };
-                          setReportPages([...reportPages, newPage]);
-                          setIsAddPageDropdownOpen(false);
+                  <div className="absolute left-0 top-12 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 flex flex-col text-sm overflow-hidden">
+                    <div className="px-3 pt-3 pb-2">
+                      <input
+                        type="text"
+                        value={addPageSearch}
+                        onChange={(e) => {
+                          setAddPageSearch(e.target.value);
+                          if (e.target.value.trim()) setIsAddPageSeeMoreOpen(true);
                         }}
-                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
-                      >
-                        Blank Page
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const newPageId = 'p_' + Date.now();
-                          const newPage = { id: newPageId, title: 'Google Analytics', active: false };
-                          setReportPages([...reportPages, newPage]);
-                          setIsAddPageDropdownOpen(false);
-                        }}
-                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
-                      >
-                        Google Analytics
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const newPageId = 'p_' + Date.now();
-                          const newPage = { id: newPageId, title: 'Google Business Profile', active: false };
-                          setReportPages([...reportPages, newPage]);
-                          setIsAddPageDropdownOpen(false);
-                        }}
-                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
-                      >
-                        Google Business Profile
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const newPageId = 'p_' + Date.now();
-                          const newPage = { id: newPageId, title: 'Meta Ads', active: false };
-                          setReportPages([...reportPages, newPage]);
-                          setIsAddPageDropdownOpen(false);
-                        }}
-                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
-                      >
-                        Meta Ads
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const newPageId = 'p_' + Date.now();
-                          const newPage = { id: newPageId, title: 'Instagram', active: false };
-                          setReportPages([...reportPages, newPage]);
-                          setIsAddPageDropdownOpen(false);
-                        }}
-                        className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
-                      >
-                        Instagram
-                      </button>
+                        placeholder="Search"
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 placeholder:text-slate-400 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                      />
                     </div>
-
-                    {/* SEE MORE POSISI TENGAH BLOK */}
-                    <div className="border-t border-slate-100 pt-2.5 pb-1 px-3 mt-1 flex items-center justify-center text-xs text-slate-400 font-semibold cursor-default hover:text-slate-600">
-                      <span className="flex items-center gap-1">
-                        See More <span className="text-[10px]">▼</span>
-                      </span>
-                    </div>
+                    <div className="px-3 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">SELECT PAGE TEMPLATE</div>
+                    {(() => {
+                      const pageTemplates = [
+                        { title: 'Blank Page', label: 'Blank Page' },
+                        { title: 'Google Analytics', label: 'Google Analytics' },
+                        { title: 'Google Ads', label: 'Google Ads' },
+                        { title: 'Meta Ads', label: 'Meta Ads' },
+                        { title: 'Google Business Profile', label: 'Google Business Profile' },
+                        { title: 'YouTube Analytics', label: 'YouTube Analytics' },
+                        { title: 'Facebook Pages', label: 'Facebook Pages' },
+                        { title: 'Instagram Professional', label: 'Instagram' },
+                        { title: 'TikTok Organic', label: 'TikTok Organic' },
+                        { title: 'TikTok Ads', label: 'TikTok Ads' },
+                      ];
+                      const filteredTemplates = pageTemplates.filter((template) =>
+                        template.label.toLowerCase().includes(addPageSearch.trim().toLowerCase())
+                      );
+                      const initialTemplates = filteredTemplates.filter((template) =>
+                        ['Blank Page', 'Google Analytics', 'Google Ads', 'Meta Ads'].includes(template.title)
+                      );
+                      const additionalTemplates = filteredTemplates.filter((template) =>
+                        !['Blank Page', 'Google Analytics', 'Google Ads', 'Meta Ads'].includes(template.title)
+                      );
+                      const visibleTemplates = addPageSearch.trim() || isAddPageSeeMoreOpen
+                        ? filteredTemplates
+                        : initialTemplates;
+                      return (
+                        <>
+                          <div className="flex flex-col overflow-y-auto max-h-64 py-1">
+                            {visibleTemplates.map((template) => (
+                              <button
+                                key={template.title}
+                                onClick={() => {
+                                  const newPageId = 'p_' + Date.now();
+                                  const newPage = { id: newPageId, title: template.title, active: false };
+                                  setReportPages([...reportPages, newPage]);
+                                  setIsAddPageDropdownOpen(false);
+                                  setIsAddPageSeeMoreOpen(false);
+                                  setAddPageSearch('');
+                                }}
+                                className="px-3 py-2 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium text-left transition-colors cursor-default flex items-center gap-2"
+                              >
+                                {template.label}
+                              </button>
+                            ))}
+                            {visibleTemplates.length === 0 && (
+                              <div className="px-3 py-4 text-xs text-slate-400 text-center">No pages found</div>
+                            )}
+                          </div>
+                          {!addPageSearch.trim() && (
+                            <button
+                              type="button"
+                              onClick={() => setIsAddPageSeeMoreOpen((value) => !value)}
+                              className="border-t border-slate-100 py-2.5 px-3 flex items-center justify-center text-xs text-slate-400 font-semibold hover:text-slate-600"
+                            >
+                              {isAddPageSeeMoreOpen ? 'See Less' : 'See More'}
+                              <span className="text-[10px] ml-1">{isAddPageSeeMoreOpen ? '▲' : '▼'}</span>
+                            </button>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>}
