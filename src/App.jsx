@@ -97,7 +97,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p3-7",
     "platform": "Google Analytics",
-    "name": "Total Users by Location",
+    "name": "Total Users by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -643,7 +643,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p6-8",
     "platform": "Meta Ads",
-    "name": "Reach by Location",
+    "name": "Reach by Country",
     "type": "Maps",
     "col": 2,
     "row": 3,
@@ -755,7 +755,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p8-8",
     "platform": "Facebook Pages (Organic)",
-    "name": "Followers by Location",
+    "name": "Followers by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -881,7 +881,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p7-8",
     "platform": "Instagram Professional",
-    "name": "Followers by Location",
+    "name": "Followers by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -1007,7 +1007,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p10-6",
     "platform": "TikTok Organic",
-    "name": "Followers by Location",
+    "name": "Followers by Country",
     "type": "Maps",
     "col": 0,
     "row": 3,
@@ -1147,7 +1147,7 @@ export default function SinglePageDashboard() {
   {
     "id": "p11-8",
     "platform": "TikTok Ads",
-    "name": "Campaign by Location",
+    "name": "Campaign by Country",
     "type": "Maps",
     "col": 2,
     "row": 3,
@@ -2021,1463 +2021,1408 @@ export default function SinglePageDashboard() {
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Active Users": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "New Users": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Sessions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engaged Sessions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engagement Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Bounce Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Session Duration": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Views per Session": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Event Count": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Key Events": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Session Key Event Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Total Revenue": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Purchase Revenue": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Transactions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Traffic Acquisition": [
       "Table",
       "Bar Chart",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Sessions by Source": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
+      "Table",
     ],
     "Top Landing Pages": [
       "Table",
       "Bar Chart",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Views by Page": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Total Users by Country": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Total Users by Location": [
-      "Bar Chart",
+      "Table",
       "Map",
-      "Table"
     ],
+
     "Users by Device Category": [
+
       "Pie Chart",
+
       "Bar Chart",
-      "Table"
+
+      "Table",
+
     ],
     "Sessions by Campaign": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
-    ]
+      "Pie Chart",
+    ],
   },
   "Google Ads": {
     "Clicks by Campaign": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Clicks by Network": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Impressions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average CPC": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Amount Spent": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "CPC by Campaign": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Cost by Campaign": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Landing Page": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
+      "Table",
     ],
     "Sitelink": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
+      "Table",
     ],
     "Keyword": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
+      "Table",
     ],
     "Campaign by Country": [
       "Bar Chart",
       "Table",
-      "Map"
+      "Map",
     ],
-    "Campaign by Location": [
-      "Map"
-    ],
+
     "Campaign Performance": [
-      "Table"
+      "Table",
     ],
     "Average CPM": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Interactions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Interaction Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engagements": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engagement Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Conversions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Conversion Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Conversion": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Conversion Value": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "ROAS": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "All Conversions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Search Impression Share": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Search Lost IS (Budget)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Search Lost IS (Rank)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Search Top Impression Share": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Search Absolute Top Impression Share": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Video View Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average CPV": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Completion": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "View-through Conversions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Frequency": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
-    "Clicks by Location": [
+    "Clicks by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Impressions by Location": [
+    "Impressions by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "CTR by Location": [
+    "CTR by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Average CPC by Location": [
+    "Average CPC by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Conversions by Location": [
+    "Conversions by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Conversion Rate by Location": [
+    "Conversion Rate by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Cost per Conversion by Location": [
+    "Cost per Conversion by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Conversion Value by Location": [
+    "Conversion Value by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "All Conversions by Location": [
+    "All Conversions by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Average CPM by Location": [
+    "Average CPM by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Interactions by Location": [
+    "Interactions by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Interaction Rate by Location": [
+    "Interaction Rate by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Engagements by Location": [
+    "Engagements by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Engagement Rate by Location": [
+    "Engagement Rate by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Video Views by Location": [
+    "Video Views by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Video View Rate by Location": [
+    "Video View Rate by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "Average CPV by Location": [
+    "Average CPV by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
-    "View-through Conversions by Location": [
+    "View-through Conversions by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
     "Sitelink Performance": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
+      "Table",
     ],
     "Keyword Performance": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
-    ]
+      "Table",
+    ],
   },
   "Google Business Profile": {
     "Search Impressions (Desktop)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Search Impressions (Mobile)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Maps Impressions (Desktop)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Maps Impressions (Mobile)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Overview": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Direction Requests": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Call Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Device": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
+      "Table",
     ],
     "Views: Maps vs Search": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Search Keywords": [
       "Table",
       "Bar Chart",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Messaging Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Bookings": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Food Menu Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Reviews": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
-    ]
+      "Table",
+    ],
   },
   "YouTube Analytics": {
     "Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engaged Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Watch Time": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average View Duration": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Average View Percentage": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Subscribers Gained": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Subscribers Lost": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Net Subscribers": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Earn": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Interaction": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Views by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
     "Watch Time by Country": [
       "Bar Chart",
       "Map",
-      "Table"
+      "Table",
     ],
     "Views by Top Videos": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Watch Time by Top Videos": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Video Engagement": [
-      "Table"
+      "Table",
     ],
     "Each Video Insight": [
-      "Table"
+      "Table",
     ],
     "Views by Traffic Source": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Watch Time by Traffic Source": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Views by Device": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Watch Time by Device": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Views by Subscription Status": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Views by Content Type": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Views by Playback Location": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ]
+      "Table",
+    ],
   },
   "Meta Ads": {
     "Impressions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Impressions by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Impressions by Campaign": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Impressions by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Impressions by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Reach": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Reach by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Reach by Campaign": [
       "Bar Chart",
-      "Table"
-    ],
-    "Reach by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Reach by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Frequency": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Frequency by Platform": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Frequency by Campaign": [
       "Bar Chart",
-      "Table"
-    ],
-    "Frequency by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Frequency by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Total Spent": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Spend by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Spend by Campaign": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Spend by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Spend by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Clicks by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Clicks by Campaign": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Clicks by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Clicks by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Link Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Link Clicks by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Link Clicks by Campaign": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Link Clicks by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Link Clicks by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "CTR": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "CTR by Platform": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "CTR by Campaign": [
       "Bar Chart",
-      "Table"
-    ],
-    "CTR by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "CTR by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Average CPC": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average CPC by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Average CPC by Campaign": [
       "Bar Chart",
-      "Table"
-    ],
-    "Average CPC by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Average CPC by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "CPM": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "CPM by Platform": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "CPM by Campaign": [
       "Bar Chart",
-      "Table"
-    ],
-    "CPM by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "CPM by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Result": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Result by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Result by Campaign": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Result by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Result by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Cost per Result": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Result by Platform": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Result by Campaign": [
       "Bar Chart",
-      "Table"
-    ],
-    "Cost per Result by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Cost per Result by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Purchases": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Purchases by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Purchases by Campaign": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Purchases by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Purchases by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Purchase Conversion Value": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Purchase Value by Platform": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Purchase Value by Campaign": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Purchase Value by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "Purchase Value by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "ROAS": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "ROAS by Platform": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "ROAS by Campaign": [
       "Bar Chart",
-      "Table"
-    ],
-    "ROAS by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
+      "Table",
     ],
     "ROAS by Country": [
       "Bar Chart",
-      "Table"
+      "Map",
+      "Table",
     ],
+
     "Campaign Performance": [
-      "Table"
+      "Table",
     ],
     "Campaign Results": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Placement Performance": [
-      "Table"
+      "Table",
     ],
     "Result by Placement": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Age & Gender Performance": [
-      "Table"
+      "Table",
     ],
     "Result by Age": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Result by Gender": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
-    "Click by Location": [
+    "Click by Country": [
       "Bar Chart",
       "Map",
-      "Table"
-    ]
+      "Table",
+    ],
   },
   "Facebook Pages (Organic)": {
     "Page Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Link Clicks": [
-      "Number"
+      "Number",
     ],
     "Viewers": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Page Visits": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Followers": [
-      "Number"
+      "Number",
     ],
     "Post Engagements": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Followers by Country": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
+      "Map",
     ],
     "Followers by City": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
-    "Followers by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
-    ],
+
     "Interaction": [
-      "Number"
+      "Number",
     ],
     "Interaction Breakdown": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Post Views": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Viewers": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Clicks": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Clicks by Type": [
       "Bar Chart",
       "Pie Chart",
-      "Table"
+      "Table",
     ],
     "Post Reactions": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Video Views": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Average Video Watch Time": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Performance": [
-      "Table"
-    ]
+      "Table",
+    ],
   },
   "Instagram Professional": {
     "Followers": [
-      "Number"
+      "Number",
     ],
     "Views": [
-      "Number"
+      "Number",
     ],
     "Reach": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Accounts Engaged": [
-      "Number"
+      "Number",
     ],
     "Total Interactions": [
-      "Number"
+      "Number",
     ],
     "Likes": [
-      "Number"
+      "Number",
     ],
     "Comments": [
-      "Number"
+      "Number",
     ],
     "Shares": [
-      "Number"
+      "Number",
     ],
     "Saves": [
-      "Number"
+      "Number",
     ],
     "Replies": [
-      "Number"
+      "Number",
     ],
     "Reposts": [
-      "Number"
+      "Number",
     ],
     "Follows and Unfollows": [
-      "Number"
+      "Number",
     ],
     "Link Clicks": [
-      "Number"
+      "Number",
     ],
     "Followers by Country": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
+      "Map",
     ],
     "Followers by City": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
-    "Followers by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
-    ],
+
     "Engaged Audience by Country": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
+      "Map",
     ],
     "Engaged Audience by City": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
-    "Engaged Audience by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
-    ],
+
     "Interaction": [
-      "Number"
+      "Number",
     ],
     "Interaction Breakdown": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Post Performance": [
-      "Table"
+      "Table",
     ],
     "Post Views": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Reach": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Likes": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Comments": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Saves": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Shares": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Post Interactions": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Follows from Content": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Profile Visits from Content": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Profile Activity from Content": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Average Reels Watch Time": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Reels Watch Time": [
       "Number",
-      "Table"
+      "Table",
     ],
     "Story Navigation": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Story Replies from Content": [
       "Number",
-      "Table"
-    ]
+      "Table",
+    ],
   },
   "TikTok Organic": {
     "Followers": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "New Followers": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "New Likes": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Profile Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Reach": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Likes": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Comments": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Shares": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Audience by Gender": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Audience by Age": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Followers by Country": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
+      "Map",
     ],
     "Followers by City": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Audience Activity": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Interaction": [
       "Number",
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
-    "Followers by Location": [
-      "Bar Chart",
-      "Map",
-      "Table"
-    ],
+
     "Video Performance": [
-      "Table"
+      "Table",
     ],
     "Video, Video Views": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Video, Likes, Comments, Shares": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Total Interactions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engagement Rate by Views": [
       "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Like Rate by Views": [
       "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Comment Rate by Views": [
       "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Share Rate by Views": [
       "Bar Chart",
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Views per Video": [
       "Number",
       "Bar Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Reach per Video": [
       "Number",
       "Bar Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Follower Growth Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Interactions per Video": [
       "Number",
       "Bar Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Views per Reached User": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Top Videos by Likes": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Top Videos by Comments": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Top Videos by Shares": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Top Videos by Reach": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Top Videos by Engagement Rate": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Video Engagement Overview": [
       "Table",
       "Bar Chart",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Link Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
-    ]
+      "Table",
+    ],
   },
   "TikTok Ads": {
     "Impressions": [
@@ -3485,875 +3430,872 @@ export default function SinglePageDashboard() {
       "Line Chart",
       "Number and Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Reach": [
       "Number",
       "Line Chart",
       "Number and Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Frequency": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Gross Impressions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "CPC": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "CPM": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "CTR": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per 1,000 People Reached": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Conversions": [
       "Number",
       "Line Chart",
       "Number and Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Conversion": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Conversion Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Conversion Rate (Impressions)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Conversions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Cost per Conversion": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Conversion Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Conversion Rate (Impressions)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Results": [
       "Number",
       "Line Chart",
       "Number and Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Result": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Result Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Results": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Cost per Result": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Result Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "2-Second Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "6-Second Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Video Play Time": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views at 25%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views at 50%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views at 75%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Views at 100%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "6-Second Focused Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "15-Second Focused Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Music Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Paid Follows": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Paid Likes": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Paid Comments": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Paid Shares": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Paid Profile Visits": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Paid Profile Visit Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "LIVE Product Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "App Installs": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per App Install": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time App Installs": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Real-time Cost per App Install": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Registrations": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Registration": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Registration Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Purchases": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Purchase": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Purchase Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Landing Page Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Landing Page View": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Landing Page View Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "SKAN Conversions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "SKAN Cost per Conversion": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "SKAN Conversion Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "SKAN App Installs": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "SKAN Cost per App Install": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "SKAN App Installs (Privacy Withheld)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Page Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Outbound Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Product Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Form Submissions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "App Store Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Complete Payments (Website)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Complete Payment (Website)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Complete Payment Rate (Website)": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Button Clicks": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Website Button Click": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Button Click Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Contacts": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Website Contact": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Contact Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Form Submissions": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Website Form Submission": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Form Submission Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Downloads": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Website Download": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Website Download Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Product Page Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per TikTok Shop Product Page View": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Add to Cart": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per TikTok Shop Add to Cart": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Initiated Checkouts": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per TikTok Shop Initiated Checkout": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Purchases": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per TikTok Shop Purchase": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Gross Revenue": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Average Order Value": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop ROAS": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Add to Wishlist": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per TikTok Shop Add to Wishlist": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Wishlist Value": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Checkout Value": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Product Page View Value": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Add to Cart Value": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Instant Experience Page Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Average View Time": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Average View Percentage": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Video Views at 25%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Video Views at 50%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Video Views at 75%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Video Views at 100%": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engagements": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Engagement Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per Engagement": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Completion Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "2-Second View Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "6-Second View Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Cost per Video View": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost per 1,000 Video Views": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Landing Page View per Click Rate": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Average Revenue per Purchase": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost by Campaign": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Click by Campaign": [
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Campaign by Country": [
       "Pie Chart",
       "Bar Chart",
-      "Table"
-    ],
-    "Campaign by Location": [
-      "Bar Chart",
+      "Table",
       "Map",
-      "Table"
     ],
+
     "Campaign Performance": [
-      "Table"
+      "Table",
     ],
     "Delivery Overview": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Traffic Overview": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Cost Efficiency": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Conversion Overview": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Performance": [
-      "Table"
+      "Table",
     ],
     "Video Engagement": [
       "Number",
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Video Retention": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Conversion Funnel": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "App Install Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Purchase Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Engagement Breakdown": [
       "Number",
       "Pie Chart",
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "Engagement Efficiency": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Video Completion Overview": [
       "Number",
       "Line Chart",
       "Number and Chart",
-      "Table"
+      "Table",
     ],
     "Landing Page Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "SKAN Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Performance": [
       "Number",
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "Instant Form Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Website Lead Generation": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Website Conversion Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Website Action Performance": [
       "Number",
       "Bar Chart",
       "Table",
-      "Pie Chart"
+      "Pie Chart",
     ],
     "TikTok Shop Funnel": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Revenue Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Cart Efficiency": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Checkout Efficiency": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "TikTok Shop Wishlist Performance": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Engagement": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Instant Experience Video Retention": [
       "Bar Chart",
-      "Table"
+      "Table",
     ],
     "App Install Funnel": [
       "Number",
       "Line Chart",
-      "Table"
+      "Table",
     ],
     "Website Revenue Efficiency": [
       "Number",
       "Line Chart",
-      "Table"
-    ]
+      "Table",
+    ],
   }
 };
   const getMetricCatalogPlatform = (platform) => {
@@ -4401,48 +4343,45 @@ export default function SinglePageDashboard() {
             "Engaged Sessions",
             "Engagement Rate",
             "Key Events",
-            "Total Revenue"
-      ],
+            "Total Revenue",
+          ],
       "Google Analytics|Sessions by Source": [
             "Sessions",
             "Active Users",
             "New Users",
             "Key Events",
-            "Total Revenue"
-      ],
+            "Total Revenue",
+          ],
       "Google Analytics|Top Landing Pages": [
             "Sessions",
             "Active Users",
             "New Users",
             "Key Events",
-            "Total Revenue"
-      ],
+            "Total Revenue",
+          ],
       "Google Analytics|Views by Page": [
             "Views",
             "Event Count",
-            "Active Users"
-      ],
+            "Active Users",
+          ],
       "Google Analytics|Total Users by Country": [
             "Total Users",
-            "Active Users"
-      ],
-      "Google Analytics|Total Users by Location": [
-            "Total Users",
-            "Active Users"
-      ],
+            "Active Users",
+          ],
+
       "Google Analytics|Users by Device Category": [
             "Total Users",
             "Active Users",
-            "Sessions"
-      ],
+            "Sessions",
+          ],
       "Google Analytics|Sessions by Campaign": [
             "Sessions",
             "Active Users",
             "New Users",
             "Engaged Sessions",
             "Key Events",
-            "Total Revenue"
-      ],
+            "Total Revenue",
+          ],
       "Google Ads|Landing Page": [
             "Clicks",
             "Impressions",
@@ -4454,8 +4393,8 @@ export default function SinglePageDashboard() {
             "Conversion Value",
             "All Conversions",
             "Cost per Conversion",
-            "View-through Conversions"
-      ],
+            "View-through Conversions",
+          ],
       "Google Ads|Sitelink": [
             "Clicks",
             "Impressions",
@@ -4464,8 +4403,8 @@ export default function SinglePageDashboard() {
             "Cost",
             "Conversions",
             "Conversion Value",
-            "All Conversions"
-      ],
+            "All Conversions",
+          ],
       "Google Ads|Keyword": [
             "Clicks",
             "Impressions",
@@ -4481,16 +4420,16 @@ export default function SinglePageDashboard() {
             "Search Lost IS (Budget)",
             "Search Lost IS (Rank)",
             "Search Top Impression Share",
-            "Search Absolute Top Impression Share"
-      ],
+            "Search Absolute Top Impression Share",
+          ],
       "Google Ads|Campaign by Country": [
             "Clicks",
             "Impressions",
             "CTR",
             "Cost",
             "Conversions",
-            "Conversion Value"
-      ],
+            "Conversion Value",
+          ],
       "Google Ads|Campaign Performance": [
             "Clicks",
             "Impressions",
@@ -4515,113 +4454,113 @@ export default function SinglePageDashboard() {
             "Video Views",
             "Video View Rate",
             "Average CPV",
-            "View-through Conversions"
-      ],
+            "View-through Conversions",
+          ],
       "Google Ads|Video Completion": [
             "Video Played to 25%",
             "Video Played to 50%",
             "Video Played to 75%",
-            "Video Played to 100%"
-      ],
+            "Video Played to 100%",
+          ],
       "YouTube Analytics|Net Subscribers": [
             "Subscribers Gained",
-            "Subscribers Lost"
-      ],
+            "Subscribers Lost",
+          ],
       "YouTube Analytics|Interaction": [
             "Likes",
             "Comments",
-            "Shares"
-      ],
+            "Shares",
+          ],
       "YouTube Analytics|Video Engagement": [
             "Likes",
             "Comments",
-            "Shares"
-      ],
+            "Shares",
+          ],
       "YouTube Analytics|Each Video Insight": [
             "Views",
             "Likes",
             "Shares",
             "Comments",
-            "Estimated Revenue"
-      ],
+            "Estimated Revenue",
+          ],
       "Facebook Pages (Organic)|Interaction Breakdown": [
             "Likes",
             "Comments",
-            "Shares"
-      ],
+            "Shares",
+          ],
       "Instagram Professional|Interaction Breakdown": [
             "Likes",
             "Comments",
-            "Shares"
-      ],
+            "Shares",
+          ],
       "TikTok Organic|Interaction": [
             "Likes",
             "Comments",
-            "Shares"
-      ],
-      "TikTok Organic|Followers by Location": [
+            "Shares",
+          ],
+      "TikTok Organic|Followers by Country": [
             "Followers by Country",
-            "Followers by City"
-      ],
+            "Followers by City",
+          ],
       "TikTok Organic|Video Performance": [
             "Video",
             "Video Views",
             "Reach",
             "Likes",
             "Comments",
-            "Shares"
-      ],
+            "Shares",
+          ],
       "TikTok Ads|Cost per 1,000 People Reached": [
             "Cost per 1",
-            "000 People Reached"
-      ],
+            "000 People Reached",
+          ],
       "TikTok Ads|Conversion Rate": [
             "Conversion Rate (CVR",
-            "Clicks)"
-      ],
+            "Clicks)",
+          ],
       "TikTok Ads|Real-time Conversion Rate": [
             "Real-time Conversion Rate (CVR",
-            "Clicks)"
-      ],
+            "Clicks)",
+          ],
       "TikTok Ads|Real-time Conversion Rate (Impressions)": [
             "Real-time Conversion Rate (CVR",
-            "Impressions)"
-      ],
+            "Impressions)",
+          ],
       "TikTok Ads|Cost per 1,000 Video Views": [
             "Cost per 1",
-            "000 Video Views"
-      ],
+            "000 Video Views",
+          ],
       "TikTok Organic|Top Videos by Likes": [
             "Video",
-            "Likes"
-      ],
+            "Likes",
+          ],
       "TikTok Organic|Top Videos by Comments": [
             "Video",
-            "Comments"
-      ],
+            "Comments",
+          ],
       "TikTok Organic|Top Videos by Shares": [
             "Video",
-            "Shares"
-      ],
+            "Shares",
+          ],
       "TikTok Organic|Top Videos by Reach": [
             "Video",
-            "Reach"
-      ],
+            "Reach",
+          ],
       "TikTok Organic|Top Videos by Engagement Rate": [
             "Video",
             "Likes",
             "Comments",
             "Shares",
-            "Video Views"
-      ],
+            "Video Views",
+          ],
       "TikTok Organic|Video Engagement Overview": [
             "Video",
             "Video Views",
             "Likes",
             "Comments",
             "Shares",
-            "Reach"
-      ],
+            "Reach",
+          ],
       "Google Ads|Sitelink Performance": [
             "Clicks",
             "Impressions",
@@ -4630,8 +4569,8 @@ export default function SinglePageDashboard() {
             "Cost",
             "Conversions",
             "Conversion Value",
-            "All Conversions"
-      ],
+            "All Conversions",
+          ],
       "Google Ads|Keyword Performance": [
             "Clicks",
             "Impressions",
@@ -4647,8 +4586,8 @@ export default function SinglePageDashboard() {
             "Search Lost IS (Budget)",
             "Search Lost IS (Rank)",
             "Search Top Impression Share",
-            "Search Absolute Top Impression Share"
-      ]
+            "Search Absolute Top Impression Share",
+          ],
 };
     const legacyMap = {
       'Google Analytics|Traffic Acquisition': ['Engaged Sessions', 'Engagement Rate', 'Event Count', 'Key Events', 'Average Engagement Time'],
