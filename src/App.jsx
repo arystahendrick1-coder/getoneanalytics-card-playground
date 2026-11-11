@@ -1277,10 +1277,10 @@ export default function SinglePageDashboard() {
   const [userActionMenuId, setUserActionMenuId] = useState(null);
   const [userConfirmAction, setUserConfirmAction] = useState(null);
   const [userRows, setUserRows] = useState([
-    { id: 'u1', property: 'Prasana Villas Uluwatu', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: false },
+    { id: 'u1', property: 'Prasana Villas Uluwatu', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: true },
     { id: 'u2', property: 'Prasana Villas Uluwatu', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Active' },
     { id: 'u3', property: 'Bumi Kinar Ubud', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Member', status: 'Active', you: true, isOwner: false },
-    { id: 'u4', property: 'Selong Selo Resort & Villas', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: false },
+    { id: 'u4', property: 'Selong Selo Resort & Villas', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: true },
     { id: 'u5', property: 'Patra Bali', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: false },
     { id: 'u6', property: 'Bumi Kinar Ubud', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
     { id: 'u7', property: 'Patra Bali', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Active' },
