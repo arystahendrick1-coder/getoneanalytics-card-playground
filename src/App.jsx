@@ -1276,7 +1276,7 @@ export default function SinglePageDashboard() {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [userRows, setUserRows] = useState([
     { id: 'u1', property: 'Prasana Villas Uluwatu', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
-    { id: 'u2', property: 'Prasana Villas Uluwatu', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
+    { id: 'u2', property: 'Prasana Villas Uluwatu', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
     { id: 'u3', property: 'Bumi Kinar Ubud', email: 'ah@gmail.com', type: 'Member', status: 'Active', you: true },
     { id: 'u4', property: 'Selong Selo Resort & Villas', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
     { id: 'u5', property: 'Patra Bali', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
@@ -5434,10 +5434,10 @@ export default function SinglePageDashboard() {
     }));
     const prasanaCustomReports = [
       { id: 'r2', name: 'Prasana Villas Uluwatu - September 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 16, 2026' },
-      { id: 'r3', name: 'Prasana Villas Uluwatu - October 2026', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Oct 20, 2026' },
+      { id: 'r3', name: 'Prasana Villas Uluwatu - October 2026', client: 'Prasana Villas Uluwatu', userId: 'u2', user: 'Hospio Team', type: 'Member', created: 'Oct 20, 2026' },
       { id: 'r4', name: 'Prasana Villas Uluwatu - August 2026', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Sep 02, 2026' },
       { id: 'r5', name: 'Prasana Villas Uluwatu - September 2025', client: 'Prasana Villas Uluwatu', user: 'Arysta Hendrik', type: 'Admin', created: 'Oct 15, 2025' },
-      { id: 'r6', name: 'Prasana Villas Uluwatu - August 2025', client: 'Prasana Villas Uluwatu', user: 'Hospio Team', type: 'Member', created: 'Sep 05, 2025' },
+      { id: 'r6', name: 'Prasana Villas Uluwatu - August 2025', client: 'Prasana Villas Uluwatu', userId: 'u2', user: 'Hospio Team', type: 'Member', created: 'Sep 05, 2025' },
     ];
     const sortedPrasanaReports = prasanaCustomReports.sort((a, b) => new Date(b.created) - new Date(a.created));
     return [...sortedPrasanaReports, ...demoReports];
@@ -6258,7 +6258,7 @@ export default function SinglePageDashboard() {
                       <th className="py-3 px-4">Name</th>
                       <th className="py-3 px-4">Download</th>
                       <th className="py-3 px-4">Property</th>
-                      <th className="py-3 px-4">Member</th>
+                      <th className="py-3 px-4">User</th>
                       <th className="py-3 px-4">Type</th>
                       <th className="py-3 px-4">Created</th>
                       <th className="py-3 px-4 text-right">Action</th>
@@ -6318,7 +6318,7 @@ export default function SinglePageDashboard() {
                             </button>
                           </td>
                           <td className="py-3.5 px-4">{rep.client}</td>
-                          <td className="py-3.5 px-4 font-semibold text-slate-800">{rep.user}</td>
+                          <td className="py-3.5 px-4 font-semibold text-slate-800">{(rep.userId && userRows.find((u) => u.id === rep.userId)?.name) || rep.user}</td>
                           <td className="py-3.5 px-4">
                             <span className={`px-2.5 py-1 rounded font-semibold text-xs ${rep.type === 'Admin' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
                               {rep.type}
@@ -6475,7 +6475,7 @@ export default function SinglePageDashboard() {
             <div className="border-t border-slate-100 pt-5"><h2 className="font-bold text-slate-900 mb-3">Change Password</h2><div className="grid md:grid-cols-3 gap-3">{['Current Password','New Password','Confirm New Password'].map(x=><input key={x} type="password" placeholder={x} className="border border-slate-200 rounded-lg p-2.5 text-sm"/>)}</div></div><div className="border-t border-slate-100 pt-4 flex justify-between items-center"><div><span className="text-xs text-slate-500">Account Created · 12 March 2026</span>{profileSaved&&<p className="text-xs text-emerald-600 font-semibold mt-1">Profile changes saved for this session.</p>}</div><button onClick={()=>setProfileSaved(true)} className={`px-5 py-2.5 rounded-lg font-semibold ${profileSaved?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-700'}`}>{profileSaved?'Saved':'Save Profile'}</button></div></div></main>}
 
           {/* ACCOUNT: USERS */}
-          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage user access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{userRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...userRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=>{const canManageUserRow=getCurrentUserRoleForProperty(row.property)==='Admin';return <tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3">{canManageUserRow?<select aria-label={`User actions for ${row.email}`} className="border border-slate-200 rounded-md p-1 text-xs" defaultValue=""><option value="" disabled>⋮</option>{(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']).map(action=><option key={action}>{action}</option>)}</select>:<span className="inline-flex items-center gap-1.5 text-xs text-slate-400" title="Only property Admins can manage users"><icon name="lock" size="xs"/> View only</span>}</td></tr>})}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
+          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage user access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{userRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...userRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=>{const canManageUserRow=getCurrentUserRoleForProperty(row.property)==='Admin';return <tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.name ? <><div className="font-medium text-slate-800">{row.name}</div><div className="text-xs text-slate-500">{row.email}</div></> : <>{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3">{canManageUserRow?<select aria-label={`User actions for ${row.email}`} className="border border-slate-200 rounded-md p-1 text-xs" defaultValue=""><option value="" disabled>⋮</option>{(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']).map(action=><option key={action}>{action}</option>)}</select>:<span className="inline-flex items-center gap-1.5 text-xs text-slate-400" title="Only property Admins can manage users"><icon name="lock" size="xs"/> View only</span>}</td></tr>})}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
 
           {/* ACCOUNT: BILLING */}
           {activeTab === 'billing' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
