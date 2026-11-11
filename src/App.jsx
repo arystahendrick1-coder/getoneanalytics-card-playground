@@ -5509,6 +5509,8 @@ export default function SinglePageDashboard() {
     return rows * metricCellHeight + Math.max(0, rows - 1) * 12 + 24;
   };
 
+  const isAccountSection = ['profile', 'users', 'billing', 'settings'].includes(activeTab);
+
   return (
     <div className={`h-screen w-screen bg-slate-50 text-slate-800 flex font-sans overflow-hidden ${viewingSavedReport ? 'saved-report-mode' : ''}`}>
       <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } .saved-report-mode { height: auto !important; width: 100% !important; overflow: visible !important; display: block !important; position: static !important; } body * { visibility: hidden !important; } #report-print-root, #report-print-root * { visibility: visible !important; } #report-print-root { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: white !important; display: block !important; } #report-print-root [data-report-page] { break-after: page; page-break-after: always; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; margin: 0 0 8mm 0 !important; width: 100% !important; min-height: 250mm; overflow: visible !important; } #report-print-root [data-metric-grid] { overflow: visible !important; } #report-print-root [data-metric-id] { break-inside: avoid; page-break-inside: avoid; } .print\:hidden { display: none !important; } } .saved-report-mode [data-metric-grid] { pointer-events: none !important; } .saved-report-mode [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-grid] { pointer-events: none !important; } @keyframes goaDropPulse { 0%,100% { box-shadow: 0 4px 14px rgba(37,99,235,.10); background-color: rgba(239,246,255,.78); } 50% { box-shadow: 0 6px 20px rgba(37,99,235,.20); background-color: rgba(219,234,254,.88); } }`}</style>
@@ -5583,6 +5585,9 @@ export default function SinglePageDashboard() {
         {/* TOP BAR */}
         <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 shadow-sm">
           <div className="flex items-center gap-3">
+            {isAccountSection ? (
+              <span className="text-sm font-bold text-slate-800 px-1">{profileFirstName} {profileLastName}</span>
+            ) : <>
             {/* CUSTOM CLIENT DROPDOWN */}
             <div className={`relative inline-block ${viewingSavedReport ? 'hidden' : ''}`} ref={clientDropdownRef}>
               <div 
@@ -5634,6 +5639,7 @@ export default function SinglePageDashboard() {
             </div>
 
             <span className="text-xs text-slate-500 font-medium hidden md:inline bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">{activePropertyRole}</span>
+            </>}
           </div>
 
           {activeTab === 'dashboard' ? (
