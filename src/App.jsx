@@ -6615,7 +6615,7 @@ export default function SinglePageDashboard() {
               <label className="text-xs font-bold text-slate-700">Save option</label>
               <select value={saveTargetReportId} onChange={(e) => { setSaveTargetReportId(e.target.value); if (e.target.value) { const target = reportList.find((report) => report.id === e.target.value); if (target) setReportName(target.name); } }} className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 font-medium">
                 <option value="">Save as a new report</option>
-                {reportList.map((report) => <option key={report.id} value={report.id}>Overwrite: {report.name}</option>)}
+                {reportList.filter((report) => (report.type === 'Demo' ? report.propertyClient === selectedClient : report.client === selectedClient)).map((report) => <option key={report.id} value={report.id}>Overwrite: {report.name}</option>)}
               </select>
               <p className="text-[11px] text-slate-400">Choose an existing report to replace its saved snapshot, or save a separate copy.</p>
             </div>
