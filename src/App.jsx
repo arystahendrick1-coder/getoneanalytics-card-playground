@@ -5254,9 +5254,26 @@ export default function SinglePageDashboard() {
   }[pageTitle] || pageTitle);
   const visibleReportPages = selectedClient ? reportPages : [];
   const getPageIntegrationStatus = (pageTitle) => {
-    const sourceName = pageIntegrationName(pageTitle);
+    const normalizedTitle = String(pageTitle || '').replace(/ \(Copy(?: \d+)?\)$/i, '').trim();
+    const sourceName = pageIntegrationName(normalizedTitle);
     const matchingSource = propertyDataSources.find((source) => source.name === sourceName);
     return matchingSource?.status || null;
+  };
+  const getPageSourceTitle = (page) => {
+    const candidate = page?.sourceTitle || page?.title || '';
+    const normalized = String(candidate).replace(/ \(Copy(?: \d+)?\)$/i, '').trim();
+    const platformTitles = new Set([
+      'Google Analytics', 'Google Ads', 'Google Business Profile',
+      'YouTube Analytics', 'Meta Ads', 'Facebook Pages',
+      'Facebook Pages (Organic)', 'Instagram Professional',
+      'TikTok Organic', 'TikTok Ads',
+    ]);
+    return platformTitles.has(normalized) ? normalized : null;
+  };
+  const isPageIntegrationWarningRequired = (page) => {
+    const sourceTitle = getPageSourceTitle(page);
+    if (!sourceTitle || page?.isCover || page?.title === 'Cover Page') return false;
+    return getPageIntegrationStatus(sourceTitle) !== 'Connected';
   };
   const isMetricPlatformConnected = (metric) => {
     const platformPageName = ({
@@ -6016,7 +6033,7 @@ export default function SinglePageDashboard() {
                         ) : (
                           <span className="flex items-center gap-1.5 min-w-0 truncate">
                             <span className="truncate">{page.title}</span>
-                            {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) !== 'Connected' && page.title !== 'Cover Page' && !page.isCover && !page.isCustom && (
+                            {isPageIntegrationWarningRequired(page) && (
                               <span
                                 className="inline-flex items-center justify-center shrink-0 text-amber-600"
                                 title="Integration disconnected. Reconnect this data source to restore live data."
