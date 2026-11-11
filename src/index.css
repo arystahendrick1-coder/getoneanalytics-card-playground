@@ -36,3 +36,39 @@ body { font-family: Arial, Helvetica, sans-serif; }
 .goa-dashboard-page [data-metric-content] [class~="text-3xl"] { font-size: 34px !important; }
 .goa-dashboard-page [data-metric-content] [class~="text-4xl"] { font-size: 40px !important; }
 .goa-dashboard-page [data-metric-content] [class~="text-5xl"] { font-size: 52px !important; }
+
+/* Desktop: a fixed 1440 x 900 composition scales uniformly like a browser PDF zoom. */
+.goa-viewport { width: 100vw; height: 100dvh; display: flex; align-items: flex-start; justify-content: center; overflow: auto; }
+.goa-desktop-canvas { width: 1440px; height: 900px; flex: 0 0 auto; transform: scale(var(--goa-scale, 1)); transform-origin: top center; }
+.goa-app-layout { width: 1440px; height: 900px; }
+.goa-mobile-nav { display: none; }
+
+@media (max-width: 767px) {
+  .goa-viewport { display: block; width: 100vw; height: 100dvh; }
+  .goa-desktop-canvas { width: 100%; height: 100%; transform: none; }
+  .goa-app-layout { width: 100%; height: 100%; flex-direction: column; }
+  .goa-main-sidebar, .goa-page-sidebar, .goa-customize-sidebar { display: none !important; }
+  .goa-app-layout > div.flex-1.flex.flex-col { min-width: 0; width: 100%; }
+  .goa-app-layout header { min-height: 62px; padding: 8px 10px !important; gap: 8px; }
+  .goa-app-layout header > div:first-child .relative.inline-block { display: none !important; }
+  .goa-app-layout header > div:first-child > span { display: none !important; }
+  .goa-app-layout header > div:last-child { min-width: 0; gap: 6px; }
+  .goa-app-layout header button { white-space: nowrap; font-size: 11px !important; padding: 8px 9px !important; }
+  .goa-app-layout header .text-sm { font-size: 11px !important; }
+  #report-print-root { width: 100%; padding: 12px 8px 84px !important; }
+  #report-print-root [data-report-page] { width: 100% !important; min-width: 0 !important; min-height: 0 !important; padding: 10px !important; }
+  #report-print-root [data-report-page] > .min-h-\[620px\] { min-height: 260px !important; }
+  /* Mobile dashboard cards must flow vertically. Their desktop grid coordinates are inline styles,
+     so explicitly reset both axes to prevent cards occupying the same rows on narrow screens. */
+  #report-print-root [data-metric-grid] { display: grid !important; width: 100% !important; min-height: 0 !important; height: auto !important; grid-template-columns: minmax(0, 1fr) !important; grid-auto-flow: row !important; grid-auto-rows: minmax(150px, auto) !important; gap: 10px !important; }
+  #report-print-root [data-metric-id] { grid-column: 1 / -1 !important; grid-row: auto !important; min-width: 0 !important; min-height: 150px !important; height: auto !important; align-self: stretch !important; }
+  #report-print-root [data-metric-id] [data-metric-content] { min-width: 0; min-height: 0; overflow: auto; }
+  .goa-app-layout main.flex-1.p-6, .goa-app-layout main.flex-1.p-6.md\:p-8 { padding: 12px 10px 88px !important; }
+  .goa-app-layout main { min-width: 0 !important; width: 100% !important; }
+  #report-print-root { align-items: stretch !important; overflow-x: hidden !important; }
+  #report-print-root [data-report-page] { box-sizing: border-box !important; overflow: visible !important; }
+  .goa-mobile-nav { position: fixed; display: flex; z-index: 80; left: 0; right: 0; bottom: 0; height: 64px; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.97); border-top: 1px solid #e2e8f0; box-shadow: 0 -4px 16px rgba(15,23,42,.06); gap: 10px; }
+  .goa-mobile-nav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 10px; color: #64748b; font-size: 11px; font-weight: 600; }
+  .goa-mobile-nav button span { font-size: 19px; line-height: 20px; }
+  .goa-mobile-nav button.active { color: #2563eb; background: #eff6ff; }
+}
