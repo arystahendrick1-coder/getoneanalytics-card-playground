@@ -5612,38 +5612,11 @@ export default function SinglePageDashboard() {
   const isAccountSection = ['profile', 'users', 'billing', 'settings'].includes(activeTab);
 
   return (
-    <div className={`h-screen w-screen bg-slate-50 text-slate-800 flex font-sans overflow-hidden ${viewingSavedReport ? 'saved-report-mode' : ''}`}>
-      <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } .saved-report-mode { height: auto !important; width: 100% !important; overflow: visible !important; display: block !important; position: static !important; } body * { visibility: hidden !important; } #report-print-root, #report-print-root * { visibility: visible !important; } #report-print-root { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: white !important; display: block !important; } #report-print-root [data-report-page] { break-after: page; page-break-after: always; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; margin: 0 0 8mm 0 !important; width: 100% !important; min-height: 250mm; overflow: visible !important; } #report-print-root [data-metric-grid] { overflow: visible !important; } #report-print-root [data-metric-id] { break-inside: avoid; page-break-inside: avoid; } .print\:hidden { display: none !important; } @media (max-width: 767px) {
-  html, body, #root { width:100%; min-width:0; height:100%; overflow:hidden; }
-  #root > div { width:100%; min-width:0; height:100dvh; }
-  #report-print-root { width:100%; min-width:0; padding:10px 8px 76px !important; overflow-x:hidden !important; }
-  #report-print-root [data-report-page] { width:100% !important; min-width:0 !important; max-width:none !important; flex:0 0 auto !important; padding:12px !important; margin:0 !important; }
-  #report-print-root [data-metric-grid] {
-    display:grid !important;
-    grid-template-columns:minmax(0,1fr) !important;
-    grid-auto-rows:auto !important;
-    gap:10px !important;
-    min-height:0 !important;
-    padding:2px !important;
-  }
-  #report-print-root [data-metric-grid] > [data-metric-id] {
-    grid-column:1 / -1 !important;
-    grid-row:auto !important;
-    width:100% !important;
-    min-width:0 !important;
-    max-width:100% !important;
-    height:auto !important;
-    min-height:150px !important;
-    position:relative !important;
-  }
-  #report-print-root [data-metric-grid] > [data-metric-id] [data-metric-content] { min-width:0; overflow-x:auto; }
-  #report-print-root [data-report-page] .min-h-\\[620px\\] { min-height:420px !important; }
-  header { max-width:100vw; }
-}
-} .saved-report-mode [data-metric-grid] { pointer-events: none !important; } .saved-report-mode [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-grid] { pointer-events: none !important; } @keyframes goaDropPulse { 0%,100% { box-shadow: 0 4px 14px rgba(37,99,235,.10); background-color: rgba(239,246,255,.78); } 50% { box-shadow: 0 6px 20px rgba(37,99,235,.20); background-color: rgba(219,234,254,.88); } }`}</style>
+    <div className={`goa-app-shell h-screen w-screen bg-slate-50 text-slate-800 flex font-sans overflow-hidden ${viewingSavedReport ? 'saved-report-mode' : ''}`}>
+      <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } .saved-report-mode { height: auto !important; width: 100% !important; overflow: visible !important; display: block !important; position: static !important; } body * { visibility: hidden !important; } #report-print-root, #report-print-root * { visibility: visible !important; } #report-print-root { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: white !important; display: block !important; } #report-print-root [data-report-page] { break-after: page; page-break-after: always; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; margin: 0 0 8mm 0 !important; width: 100% !important; min-height: 250mm; overflow: visible !important; } #report-print-root [data-metric-grid] { overflow: visible !important; } #report-print-root [data-metric-id] { break-inside: avoid; page-break-inside: avoid; } .print\:hidden { display: none !important; } } .saved-report-mode [data-metric-grid] { pointer-events: none !important; } .saved-report-mode [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-grid] { pointer-events: none !important; } @keyframes goaDropPulse { 0%,100% { box-shadow: 0 4px 14px rgba(37,99,235,.10); background-color: rgba(239,246,255,.78); } 50% { box-shadow: 0 6px 20px rgba(37,99,235,.20); background-color: rgba(219,234,254,.88); } }`}</style>
       
       {/* 1. SIDEBAR KIRI UTAMA */}
-      {!viewingSavedReport && <aside className="hidden md:flex w-64 bg-white border-r border-slate-200 flex-col justify-between p-4 shrink-0 shadow-sm z-30 h-full">
+      {!viewingSavedReport && <aside className="goa-main-sidebar w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-30 h-full">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3 px-2 py-1">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
@@ -5710,25 +5683,13 @@ export default function SinglePageDashboard() {
       <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden text-[13px]">
         
         {/* TOP BAR */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 shadow-sm max-md:flex-col max-md:items-stretch max-md:gap-2 max-md:px-3 max-md:py-2">
-          <div className="hidden max-md:flex items-center gap-2 w-full">
-            <label htmlFor="mobile-property-selector" className="sr-only">Select Property</label>
-            <select
-              id="mobile-property-selector"
-              value={selectedClient}
-              onChange={(e) => { setSelectedClient(e.target.value); setIsClientDropdownOpen(false); setActivePropertyMenu(null); }}
-              disabled={viewingSavedReport || accessibleProperties.length === 0}
-              className="w-full min-w-0 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-500"
-            >
-              {accessibleProperties.map((property) => <option key={property} value={property}>{property}</option>)}
-            </select>
-          </div>
-          <div className="flex items-center gap-3 max-md:hidden">
+        <header className="goa-topbar bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 shadow-sm">
+          <div className="flex items-center gap-3">
             {isAccountSection ? (
               <span className="text-sm font-bold text-slate-800 px-1">{profileFirstName} {profileLastName}</span>
             ) : <>
             {/* CUSTOM CLIENT DROPDOWN */}
-            <div className={`relative inline-block ${viewingSavedReport ? 'hidden' : ''}`} ref={clientDropdownRef}>
+            <div className={`goa-property-selector relative inline-block ${viewingSavedReport ? 'hidden' : ''}`} ref={clientDropdownRef}>
               <div 
                 onClick={() => {
                   setIsClientDropdownOpen((open) => {
@@ -5798,10 +5759,10 @@ export default function SinglePageDashboard() {
                 <button onClick={closeSavedReport} className="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">Back to Reports</button>
               </div>
             ) : (
-            <div className="flex items-center gap-3 relative max-md:w-full max-md:justify-between max-md:gap-2" ref={datePickerRef}>
+            <div className="flex items-center gap-3 relative" ref={datePickerRef}>
               <div 
                 onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-                className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 shadow-sm cursor-default hover:bg-slate-100 select-none max-md:min-w-0 max-md:flex-1 max-md:justify-center max-md:text-xs max-md:px-2"
+                className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 shadow-sm cursor-default hover:bg-slate-100 select-none"
               >
                 <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -5925,7 +5886,7 @@ export default function SinglePageDashboard() {
 
               <button 
                 onClick={() => setIsSavedModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition-all flex items-center gap-2 cursor-default max-md:shrink-0 max-md:px-3 max-md:text-xs"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition-all flex items-center gap-2 cursor-default"
               >
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
@@ -5942,11 +5903,11 @@ export default function SinglePageDashboard() {
         </header>
 
         {/* CONTAINER UTAMA BAWAH */}
-        <div className="flex flex-1 min-h-0 overflow-hidden">
+        <div className="goa-main-workspace flex flex-1 min-h-0 overflow-hidden">
           
           {/* SUB-SIDEBAR HALAMAN (HANYA DI DASHBOARD) DENGAN ANIMASI LEBIH PELAN & ELEGAN */}
           {activeTab === 'dashboard' && !viewingSavedReport && (
-            <aside className="hidden md:flex w-64 bg-white border-r border-slate-200 p-4 flex-col gap-4 shrink-0 shadow-sm h-full overflow-y-auto">
+            <aside className="goa-page-sidebar w-64 bg-white border-r border-slate-200 p-4 flex flex-col gap-4 shrink-0 shadow-sm h-full overflow-y-auto">
               
               {/* Admin page controls; Members use this panel only for quick navigation. */}
               {!isActivePropertyUser && <div className="relative" ref={addPageDropdownRef}>
@@ -6232,7 +6193,7 @@ export default function SinglePageDashboard() {
 
           {/* REPORT CANVAS: continuous vertical stack of paper pages */}
           {activeTab === 'dashboard' && (
-            <main id="report-print-root" ref={reportScrollRef} className={`flex-1 min-w-0 px-6 md:px-8 pt-5 pb-10 flex flex-col items-center gap-5 overflow-y-auto h-full bg-slate-100/70 scroll-smooth ${isActivePropertyUser && !viewingSavedReport ? 'max-w-7xl w-full mx-auto' : ''} ${viewingSavedReport ? 'saved-report-readonly' : ''}`}>
+            <main id="report-print-root" ref={reportScrollRef} className={`goa-report-canvas flex-1 min-w-0 px-6 md:px-8 pt-5 pb-10 flex flex-col items-center gap-5 overflow-y-auto h-full bg-slate-100/70 scroll-smooth ${isActivePropertyUser && !viewingSavedReport ? 'max-w-7xl w-full mx-auto' : ''} ${viewingSavedReport ? 'saved-report-readonly' : ''}`}>
               {visibleReportPages.map((page) => (
                 <section
                   key={page.id}
@@ -6683,7 +6644,7 @@ export default function SinglePageDashboard() {
 
           {/* CUSTOMIZE METRIC */}
           {activeTab === 'dashboard' && !viewingSavedReport && !isActivePropertyUser && (
-            <aside className="hidden md:flex relative w-80 bg-white border-l border-slate-200 p-4 flex-col gap-3 shrink-0 shadow-sm h-full overflow-hidden">
+            <aside className="goa-customize-sidebar relative w-80 bg-white border-l border-slate-200 p-4 flex flex-col gap-3 shrink-0 shadow-sm h-full overflow-hidden">
               <div className={`absolute inset-0 p-4 flex flex-col gap-3 transition-transform duration-300 ease-out ${selectedMetricPlatform ? '-translate-x-full' : 'translate-x-0'}`}>
                 <span className="font-bold text-slate-900 uppercase tracking-wide mb-1 text-xs">CUSTOMIZE METRIC</span>
                 <input type="text" value={metricSearch} onChange={(e) => setMetricSearch(e.target.value)} placeholder="Search platform..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500" />
@@ -6732,17 +6693,6 @@ export default function SinglePageDashboard() {
         </div>
 
       </div>
-
-      {!viewingSavedReport && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-2 py-2 flex gap-2 shadow-[0_-4px_14px_rgba(15,23,42,0.06)]">
-          <button type="button" onClick={() => { setActiveTab('dashboard'); setViewingSavedReport(null); }} className={`flex-1 rounded-lg py-2 text-xs font-semibold flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'bg-blue-50 text-blue-600' : 'text-slate-500'}`}>
-            <span aria-hidden="true">▦</span><span>Live Dashboard</span>
-          </button>
-          <button type="button" onClick={() => { setActiveTab('reports'); setViewingSavedReport(null); }} className={`flex-1 rounded-lg py-2 text-xs font-semibold flex flex-col items-center gap-1 ${activeTab === 'reports' ? 'bg-blue-50 text-blue-600' : 'text-slate-500'}`}>
-            <span aria-hidden="true">▤</span><span>Reports</span>
-          </button>
-        </nav>
-      )}
 
       {/* MODAL SAVE REPORT */}
       {isSavedModalOpen && (
@@ -7045,6 +6995,15 @@ export default function SinglePageDashboard() {
       {tableColumnDrag?.moved && (
         <div aria-hidden="true" className="pointer-events-none fixed z-[9999] rounded-md border-2 border-blue-500 bg-white px-2 py-1 text-[14px] font-semibold text-blue-700 shadow-2xl" style={{ left: tableColumnDrag.pointerX - tableColumnDrag.offsetX, top: tableColumnDrag.top + 2, minWidth: `${Math.max(48, tableColumnDrag.width)}px`, opacity: 0.97 }}>{tableColumnDrag.label}</div>
       )}
+
+      {!viewingSavedReport && <nav className="goa-mobile-bottom-nav" aria-label="Mobile navigation">
+        <button type="button" onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? 'active' : ''}>
+          <span aria-hidden="true">▦</span><small>Live Dashboard</small>
+        </button>
+        <button type="button" onClick={() => setActiveTab('reports')} className={activeTab === 'reports' ? 'active' : ''}>
+          <span aria-hidden="true">▤</span><small>Reports</small>
+        </button>
+      </nav>}
 
     </div>
   );

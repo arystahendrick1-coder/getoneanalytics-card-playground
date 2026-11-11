@@ -36,3 +36,205 @@ body { font-family: Arial, Helvetica, sans-serif; }
 .goa-dashboard-page [data-metric-content] [class~="text-3xl"] { font-size: 34px !important; }
 .goa-dashboard-page [data-metric-content] [class~="text-4xl"] { font-size: 40px !important; }
 .goa-dashboard-page [data-metric-content] [class~="text-5xl"] { font-size: 52px !important; }
+
+
+/* Desktop: one fixed design canvas, like a PDF page. Browser zoom scales the
+   complete application; the columns and dashboard grid never reflow. */
+html, body, #root { min-height: 100%; }
+body { overflow-x: auto; }
+.goa-app-shell {
+  width: 1720px !important;
+  min-width: 1720px !important;
+  max-width: 1720px !important;
+  margin-inline: auto;
+  transform: none !important;
+}
+.goa-main-sidebar,
+.goa-page-sidebar,
+.goa-customize-sidebar { flex-shrink: 0 !important; }
+.goa-report-canvas { min-width: 0; }
+.goa-mobile-bottom-nav { display: none; }
+
+/* Mobile is a focused view of the same dashboard/report state. */
+@media (max-width: 767px) {
+  html, body, #root { width: 100%; min-width: 0; height: 100%; overflow: hidden; }
+  body { overflow: hidden; }
+  .goa-app-shell {
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  .goa-main-sidebar,
+  .goa-page-sidebar,
+  .goa-customize-sidebar { display: none !important; }
+  .goa-app-shell > .flex-1.flex.flex-col {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+    height: 100%;
+  }
+  .goa-topbar {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 9px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+  }
+  .goa-topbar > div:first-child {
+    width: 100%;
+    min-width: 0;
+  }
+  .goa-topbar > div:first-child .goa-property-selector {
+    width: 100%;
+    display: block !important;
+  }
+  .goa-topbar > div:first-child .goa-property-selector > div:first-child {
+    width: 100%;
+    min-width: 0 !important;
+    min-height: 38px;
+    padding: 8px 34px 8px 11px !important;
+  }
+  .goa-topbar > div:first-child > span { display: none !important; }
+  .goa-topbar > div:nth-child(2) {
+    width: 100%;
+    min-width: 0;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px !important;
+  }
+  .goa-topbar > div:nth-child(2) > div:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 8px 7px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+  .goa-topbar > div:nth-child(2) > div:first-child span:nth-of-type(1) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .goa-topbar > div:nth-child(2) > button {
+    flex: 0 0 auto;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+  .goa-topbar [class*="w-[720px]"] {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    top: 108px !important;
+    width: auto !important;
+    max-height: calc(100dvh - 180px);
+    overflow: auto;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 14px !important;
+  }
+  .goa-topbar [class*="w-72"] { width: 100% !important; }
+  .goa-main-workspace { width: 100%; min-width: 0; overflow: hidden !important; }
+  .goa-report-canvas {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 8px 8px 84px !important;
+    gap: 12px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    align-items: stretch !important;
+  }
+  .goa-report-canvas [data-report-page] {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 12px !important;
+    border-radius: 10px !important;
+    overflow: visible !important;
+  }
+  .goa-report-canvas [data-report-page]:not(:has([data-metric-grid])) {
+    min-height: 480px;
+  }
+  .goa-dashboard-page [data-metric-grid] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-rows: minmax(160px, auto) !important;
+    grid-auto-flow: row !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .goa-dashboard-page [data-metric-id] {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 160px !important;
+    height: auto !important;
+    overflow: hidden;
+  }
+  .goa-dashboard-page [data-metric-id] > div:first-child {
+    min-height: 38px;
+  }
+  .goa-dashboard-page [data-metric-id] [data-metric-content] {
+    min-width: 0 !important;
+    overflow: auto !important;
+  }
+  .goa-dashboard-page [data-metric-id] table,
+  .goa-dashboard-page [data-metric-id] [data-table-column-grid] {
+    min-width: 520px;
+  }
+  .goa-dashboard-page [data-metric-id]:has(svg[viewBox]) {
+    min-height: 210px !important;
+  }
+  .goa-mobile-bottom-nav {
+    position: fixed;
+    z-index: 60;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex !important;
+    gap: 6px;
+    padding: 6px 8px max(6px, env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.98);
+    border-top: 1px solid #e2e8f0;
+  }
+  .goa-mobile-bottom-nav button {
+    flex: 1;
+    min-width: 0;
+    min-height: 42px;
+    border-radius: 9px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: #64748b;
+    font-size: 15px;
+  }
+  .goa-mobile-bottom-nav button small {
+    font-size: 9px;
+    line-height: 1.2;
+  }
+  .goa-mobile-bottom-nav button.active {
+    color: #2563eb;
+    background: #eff6ff;
+  }
+  /* Tables retain their own horizontal scroll; the page itself stays within
+     the phone viewport. */
+  .goa-dashboard-page [data-metric-id] .overflow-x-auto {
+    max-width: 100%;
+    overflow-x: auto !important;
+  }
+}
