@@ -5423,7 +5423,7 @@ export default function SinglePageDashboard() {
     const demoReports = demoProperties.map((property) => ({
       id: property.id,
       name: 'Demo Report',
-      client: 'System',
+      client: 'Get One Analytics',
       user: 'System',
       type: 'Demo',
       created: property.created,
@@ -6105,9 +6105,9 @@ export default function SinglePageDashboard() {
                   {page.title === 'Cover Page' || page.isCover ? (
                     <div className="min-h-[620px] flex flex-col items-center justify-center text-center px-8 py-16">
                       <div className="w-20 h-20 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center mb-8 text-slate-400 overflow-hidden">
-                        {propertyLogo[selectedClient] ? <img src={propertyLogo[selectedClient]} alt={`${selectedClient} logo`} className="w-full h-full object-contain" /> : <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M4 20V5l8-3 8 3v15M8 20v-5h8v5M8 8h.01M16 8h.01" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        {viewingSavedReport?.type !== 'Demo' && propertyLogo[selectedClient] ? <img src={propertyLogo[selectedClient]} alt={`${selectedClient} logo`} className="w-full h-full object-contain" /> : <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M4 20V5l8-3 8 3v15M8 20v-5h8v5M8 8h.01M16 8h.01" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                       </div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400 mb-4">{selectedClient}</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400 mb-4">{viewingSavedReport?.type === 'Demo' ? 'Get One Analytics' : selectedClient}</div>
                       <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">Digital Marketing Report</h1>
                       <div className="w-16 h-1 bg-blue-600 rounded-full my-7"></div>
                       <p className="text-base text-slate-500">{dateRange || 'Reporting Period'}</p>
