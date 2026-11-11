@@ -52,11 +52,7 @@ body { overflow-x: auto; }
 .goa-main-sidebar,
 .goa-page-sidebar,
 .goa-customize-sidebar { flex-shrink: 0 !important; }
-.goa-report-canvas {
-  min-width: 0;
-  flex: 0 0 calc(100% + 150px);
-  width: calc(100% + 150px);
-}
+.goa-report-canvas { min-width: 0; flex: 1 1 auto; }
 .goa-mobile-bottom-nav { display: none; }
 
 /* Mobile is a focused view of the same dashboard/report state. */
@@ -149,7 +145,6 @@ body { overflow-x: auto; }
   .goa-topbar [class*="w-72"] { width: 100% !important; }
   .goa-main-workspace { width: 100%; min-width: 0; overflow: hidden !important; }
   .goa-report-canvas {
-    flex: 1 1 auto !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: none !important;
