@@ -5273,8 +5273,14 @@ export default function SinglePageDashboard() {
       .filter(Boolean);
     const matchedTitle = candidates.find((candidate) => platformTitles.has(candidate));
     if (matchedTitle) return matchedTitle;
-    // Fall back to the original platform page ID so renamed/copied platform pages
-    // still inherit the integration warning from their source platform.
+    // For renamed or duplicated pages, infer the source platform from the metrics
+    // assigned to that page before falling back to the original default page ID.
+    const metricPlatform = dashboardMetrics.find((metric) => metric.pageId === page.id)?.platform;
+    const normalizedMetricPlatform = ({
+      'Facebook Pages (Organic)': 'Facebook Pages',
+      'Facebook Pages': 'Facebook Pages',
+    }[metricPlatform] || metricPlatform);
+    if (normalizedMetricPlatform && platformTitles.has(normalizedMetricPlatform)) return normalizedMetricPlatform;
     const platformByPageId = {
       p3: 'Google Analytics',
       p5: 'Google Ads',
