@@ -54,10 +54,10 @@ This is a front-end prototype with sample display values. It does not connect to
 - Geographic metric and dimension combinations must be validated against the current Google Ads API field compatibility rules before live integration.
 
 
-## Geographic card consolidation (10 November 2026)
-
-- Consolidated geographic `By Location` cards into their matching `By Country` cards in the Add Metric catalogue.
-- Added `Map` as an available visualisation for the consolidated `By Country` cards, retaining Bar/Table/Pie options where already supported.
-- Renamed existing Default Page geographic cards from `By Location` to `By Country` without changing their visualisation type, position, or size. Existing Map cards remain Maps.
-- Kept source/API metric references and API audit labels unchanged; geographic source data can use native location data when available, with country-to-map processing as fallback.
-- Updated the Master Metrics workbook card labels and visualisation availability, plus the relevant Default View titles.
+## Geographic card consolidation (11 November 2026)
+- Removed separate By Location card definitions by merging them into the matching By Country card for each reporting platform.
+- Card names are unique per platform in the Master Metrics catalogue.
+- The merged card supports Map alongside the other compatible visualisations.
+- Existing Default Page map cards retain their Map visualisation, position, and dimensions; only their card title changes to By Country.
+- Original API metric names and API field references are retained.
+- Map uses native geographic breakdowns when available; otherwise the application can derive map coordinates from country-level data.
