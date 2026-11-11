@@ -5258,6 +5258,13 @@ export default function SinglePageDashboard() {
     const matchingSource = propertyDataSources.find((source) => source.name === sourceName);
     return matchingSource?.status || null;
   };
+  const isMetricPlatformConnected = (metric) => {
+    const platformPageName = ({
+      'Facebook Pages (Organic)': 'Facebook Pages',
+      'Facebook Pages': 'Facebook Pages',
+    }[metric.platform] || metric.platform);
+    return getPageIntegrationStatus(platformPageName) === 'Connected';
+  };
 
   const [viewingSavedReport, setViewingSavedReport] = useState(null);
   const dashboardBackupRef = useRef(null);
@@ -6252,7 +6259,12 @@ export default function SinglePageDashboard() {
                           )}
                         </div>
                       </div>
-                      <div data-metric-content className="flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
+                      <div data-metric-content className="relative flex-1 min-h-0 p-3 flex flex-col overflow-hidden">
+                        {!isMetricPlatformConnected(metric) && (
+                          <div className="absolute inset-0 z-10 bg-white flex items-center justify-center">
+                            <span className="text-2xl font-bold tracking-tight text-slate-900 tabular-nums">0</span>
+                          </div>
+                        )}
                         {metric.type === 'Table' && (() => {
                           const table = sortedMetricTable(metric);
                           const available = relatedTableMetrics(metric);
