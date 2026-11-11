@@ -1323,6 +1323,7 @@ export default function SinglePageDashboard() {
     'Selong Selo Resort & Villas',
     'Patra Bali'
   ]);
+  const [newPropertyNames, setNewPropertyNames] = useState([]);
 
   // Billing subscription records are kept per property in this UI prototype.
   const [billingSubscriptions, setBillingSubscriptions] = useState([
@@ -5190,9 +5191,11 @@ export default function SinglePageDashboard() {
 
   // Data source rows are scoped to the selected property. Prasana uses the supplied
   // reference records; other properties receive independent prototype/demo records.
-  const propertyDataSources = selectedClient === 'Prasana Villas Uluwatu'
-    ? dataSources.filter((source) => source.property === selectedClient)
-    : dataSources.map((source, index) => ({
+  const propertyDataSources = !selectedClient || newPropertyNames.includes(selectedClient)
+    ? []
+    : selectedClient === 'Prasana Villas Uluwatu'
+      ? dataSources.filter((source) => source.property === selectedClient)
+      : dataSources.map((source, index) => ({
         ...source,
         id: `${selectedClient}-${source.id}`,
         property: selectedClient,
@@ -5248,11 +5251,7 @@ export default function SinglePageDashboard() {
     'TikTok Organic': 'TikTok Organic',
     'TikTok Ads': 'TikTok Ads',
   }[pageTitle] || pageTitle);
-  const visibleReportPages = reportPages.filter((page) => {
-    if (page.title === 'Cover Page' || page.isCover || page.isCustom) return true;
-    const sourceName = pageIntegrationName(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, ''));
-    return propertyDataSources.some((source) => source.name === sourceName);
-  });
+  const visibleReportPages = selectedClient ? reportPages : [];
   const getPageIntegrationStatus = (pageTitle) => {
     const sourceName = pageIntegrationName(pageTitle);
     const matchingSource = propertyDataSources.find((source) => source.name === sourceName);
@@ -5503,7 +5502,19 @@ export default function SinglePageDashboard() {
     if (newClientInputValue && newClientInputValue.trim() !== '') {
       const trimmed = newClientInputValue.trim();
       if (!clientList.includes(trimmed)) {
-        setClientList([...clientList, trimmed]);
+        setClientList(current => [...current, trimmed]);
+        setNewPropertyNames(current => [...current, trimmed]);
+        setUserRows(current => [...current, {
+          id: `user-${Date.now()}`,
+          property: trimmed,
+          account: `${profileFirstName} ${profileLastName}`.trim(),
+          name: `${profileFirstName} ${profileLastName}`.trim(),
+          email: currentUserEmail,
+          type: 'Admin',
+          status: 'Active',
+          you: true,
+          isOwner: true,
+        }]);
       }
       setSelectedClient(trimmed);
       setNewClientInputValue('');
@@ -5972,7 +5983,7 @@ export default function SinglePageDashboard() {
                         ) : (
                           <span className="flex items-center gap-1.5 min-w-0 truncate">
                             <span className="truncate">{page.title}</span>
-                            {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) === 'Disconnected' && (
+                            {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) !== 'Connected' && page.title !== 'Cover Page' && !page.isCover && !page.isCustom && (
                               <span
                                 className="inline-flex items-center justify-center shrink-0 text-amber-600"
                                 title="Integration disconnected. Reconnect this data source to restore live data."
@@ -6704,6 +6715,9 @@ export default function SinglePageDashboard() {
                 } else {
                   setUserRows(current=>current.filter(item=>item.property!==row.property));
                   setClientList(current=>current.filter(property=>property!==row.property));
+                  setNewPropertyNames(current=>current.filter(property=>property!==row.property));
+                  setReportList(current=>current.filter(report=>report.propertyClient!==row.property && report.client!==row.property));
+                  setDataSources(current=>current.filter(source=>source.property!==row.property));
                   setBillingSubscriptions(current=>current.filter(item=>item.property!==row.property));
                   if(selectedBillingProperty===row.property)setSelectedBillingProperty('');
                   if(selectedClient===row.property){
