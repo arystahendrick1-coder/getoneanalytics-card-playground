@@ -5260,19 +5260,37 @@ export default function SinglePageDashboard() {
     return matchingSource?.status || null;
   };
   const getPageSourceTitle = (page) => {
-    const candidate = page?.sourceTitle || page?.title || '';
-    const normalized = String(candidate).replace(/ \(Copy(?: \d+)?\)$/i, '').trim();
+    if (!page || page.isCover || page.title === 'Cover Page' || page.isCustom) return null;
     const platformTitles = new Set([
       'Google Analytics', 'Google Ads', 'Google Business Profile',
       'YouTube Analytics', 'Meta Ads', 'Facebook Pages',
       'Facebook Pages (Organic)', 'Instagram Professional',
       'TikTok Organic', 'TikTok Ads',
     ]);
-    return platformTitles.has(normalized) ? normalized : null;
+    const normalize = (value) => String(value || '').replace(/ \\(Copy(?: \\d+)?\\)$/i, '').trim();
+    const candidates = [page.sourceTitle, page.title, page.platform, page.sourcePlatform]
+      .map(normalize)
+      .filter(Boolean);
+    const matchedTitle = candidates.find((candidate) => platformTitles.has(candidate));
+    if (matchedTitle) return matchedTitle;
+    // Fall back to the original platform page ID so renamed/copied platform pages
+    // still inherit the integration warning from their source platform.
+    const platformByPageId = {
+      p3: 'Google Analytics',
+      p5: 'Google Ads',
+      p4: 'Google Business Profile',
+      p9: 'YouTube Analytics',
+      p6: 'Meta Ads',
+      p8: 'Facebook Pages',
+      p7: 'Instagram Professional',
+      p10: 'TikTok Organic',
+      p11: 'TikTok Ads',
+    };
+    return platformByPageId[page.id] || null;
   };
   const isPageIntegrationWarningRequired = (page) => {
     const sourceTitle = getPageSourceTitle(page);
-    if (!sourceTitle || page?.isCover || page?.title === 'Cover Page') return false;
+    if (!sourceTitle) return false;
     return getPageIntegrationStatus(sourceTitle) !== 'Connected';
   };
   const isMetricPlatformConnected = (metric) => {
