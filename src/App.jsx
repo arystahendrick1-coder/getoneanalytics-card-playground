@@ -6257,7 +6257,7 @@ export default function SinglePageDashboard() {
                     <tr className="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/30">
                       <th className="py-3 px-4">Name</th>
                       <th className="py-3 px-4">Download</th>
-                      <th className="py-3 px-4">Client</th>
+                      <th className="py-3 px-4">Property</th>
                       <th className="py-3 px-4">Member</th>
                       <th className="py-3 px-4">Type</th>
                       <th className="py-3 px-4">Created</th>
