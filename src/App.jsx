@@ -5680,16 +5680,16 @@ export default function SinglePageDashboard() {
       </aside>}
 
       {/* AREA KANAN UTAMA */}
-      <div className="goa-main-area flex-1 flex flex-col h-full min-h-0 overflow-hidden text-[13px]">
+      <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden text-[13px]">
         
         {/* TOP BAR */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 shadow-sm">
+        <header className="goa-topbar bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 z-20 shadow-sm">
           <div className="flex items-center gap-3">
             {isAccountSection ? (
               <span className="text-sm font-bold text-slate-800 px-1">{profileFirstName} {profileLastName}</span>
             ) : <>
             {/* CUSTOM CLIENT DROPDOWN */}
-            <div className={`relative inline-block ${viewingSavedReport ? 'hidden' : ''}`} ref={clientDropdownRef}>
+            <div className={`goa-property-selector relative inline-block ${viewingSavedReport ? 'hidden' : ''}`} ref={clientDropdownRef}>
               <div 
                 onClick={() => {
                   setIsClientDropdownOpen((open) => {
@@ -5903,7 +5903,7 @@ export default function SinglePageDashboard() {
         </header>
 
         {/* CONTAINER UTAMA BAWAH */}
-        <div className={`goa-workspace flex flex-1 min-h-0 overflow-hidden ${activeTab === 'dashboard' && !viewingSavedReport ? 'goa-dashboard-active' : ''}`}>
+        <div className="goa-main-workspace flex flex-1 min-h-0 overflow-hidden">
           
           {/* SUB-SIDEBAR HALAMAN (HANYA DI DASHBOARD) DENGAN ANIMASI LEBIH PELAN & ELEGAN */}
           {activeTab === 'dashboard' && !viewingSavedReport && (
@@ -6995,6 +6995,15 @@ export default function SinglePageDashboard() {
       {tableColumnDrag?.moved && (
         <div aria-hidden="true" className="pointer-events-none fixed z-[9999] rounded-md border-2 border-blue-500 bg-white px-2 py-1 text-[14px] font-semibold text-blue-700 shadow-2xl" style={{ left: tableColumnDrag.pointerX - tableColumnDrag.offsetX, top: tableColumnDrag.top + 2, minWidth: `${Math.max(48, tableColumnDrag.width)}px`, opacity: 0.97 }}>{tableColumnDrag.label}</div>
       )}
+
+      {!viewingSavedReport && <nav className="goa-mobile-bottom-nav" aria-label="Mobile navigation">
+        <button type="button" onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? 'active' : ''}>
+          <span aria-hidden="true">▦</span><small>Live Dashboard</small>
+        </button>
+        <button type="button" onClick={() => setActiveTab('reports')} className={activeTab === 'reports' ? 'active' : ''}>
+          <span aria-hidden="true">▤</span><small>Reports</small>
+        </button>
+      </nav>}
 
     </div>
   );
