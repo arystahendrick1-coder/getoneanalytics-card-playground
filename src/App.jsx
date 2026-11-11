@@ -1255,8 +1255,13 @@ export default function SinglePageDashboard() {
       }));
     }
   }, [dashboardMetrics]);
-  const [selectedClient, setSelectedClient] = useState(() => { try { return localStorage.getItem('goa:lastSelectedProperty') || 'Prasana Villas Uluwatu'; } catch (_) { return 'Prasana Villas Uluwatu'; } });
-  useEffect(() => { try { localStorage.setItem('goa:lastSelectedProperty', selectedClient); } catch (_) {} }, [selectedClient]);
+  // Property creation is temporary in this frontend prototype. Do not persist the
+  // selected property across refreshes: clientList and the rest of the demo data
+  // reset to their initial state, so selectedClient must reset with them.
+  const [selectedClient, setSelectedClient] = useState('Prasana Villas Uluwatu');
+  useEffect(() => {
+    try { localStorage.removeItem('goa:lastSelectedProperty'); } catch (_) {}
+  }, []);
   useEffect(() => { try { localStorage.setItem('goa:lastActiveTab', activeTab); } catch (_) {} }, [activeTab]);
   const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
   const clientDropdownRef = useRef(null);
@@ -6215,7 +6220,7 @@ export default function SinglePageDashboard() {
                         </div>
                         <span className="text-[10px] text-slate-400">Demo data</span>
                       </div>
-                      {getPageIntegrationStatus(page.sourceTitle || page.title.replace(/ \(Copy(?: \d+)?\)$/i, '')) === 'Disconnected' && (
+                      {isPageIntegrationWarningRequired(page) && (
                         <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 overflow-hidden">
                           <svg viewBox="0 0 240 220" className="w-[min(36vw,340px)] h-auto text-red-600 opacity-[0.19] drop-shadow-sm" fill="currentColor">
                             <path d="M120 12 226 198H14L120 12Z" />
