@@ -1281,6 +1281,7 @@ export default function SinglePageDashboard() {
     { id: 'u4', property: 'Selong Selo Resort & Villas', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
     { id: 'u5', property: 'Patra Bali', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true },
     { id: 'u6', property: 'Bumi Kinar Ubud', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
+    { id: 'u7', property: 'Patra Bali', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
   ]);
   const [billingPlan, setBillingPlan] = useState('Pro');
   const [userSort, setUserSort] = useState({ key: 'property', direction: 'asc' });
