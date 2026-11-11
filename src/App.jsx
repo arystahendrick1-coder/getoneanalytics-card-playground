@@ -1297,6 +1297,7 @@ export default function SinglePageDashboard() {
 
   // State untuk modal Add Property kustom
   const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+  const [showConnectPropertyPrompt, setShowConnectPropertyPrompt] = useState(false);
   const [newClientInputValue, setNewClientInputValue] = useState('');
 
   // State untuk modal Delete Report kustom (tabel reports)
@@ -5515,10 +5516,35 @@ export default function SinglePageDashboard() {
           you: true,
           isOwner: true,
         }]);
+        setReportList(current => [{
+          id: `demo-${Date.now()}`,
+          name: 'Demo Report',
+          client: 'Get One Analytics',
+          user: 'System',
+          type: 'Demo',
+          created: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          propertyClient: trimmed,
+          active: true,
+          dateRange,
+          snapshot: {
+            dashboardMetrics: dashboardMetrics.map(metric => ({ ...metric })),
+            reportPages: reportPages.map(page => ({ ...page })),
+            selectedClient: trimmed,
+            dateRange,
+            startDate,
+            endDate,
+            datePreset,
+            isCompareEnabled,
+            compareMode,
+            compareStartDate,
+            compareEndDate,
+          },
+        }, ...current]);
       }
       setSelectedClient(trimmed);
       setNewClientInputValue('');
       setIsAddClientModalOpen(false);
+      setShowConnectPropertyPrompt(true);
     }
   };
 
@@ -6643,6 +6669,25 @@ export default function SinglePageDashboard() {
             <div className="flex justify-end gap-2.5 mt-4 pt-3 border-t border-slate-100">
               <button onClick={() => setIsSavedModalOpen(false)} className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-default">Cancel</button>
               <button onClick={handleSaveReport} className="px-4 py-2 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm cursor-default">Confirm & Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PROMPT TO CONNECT DATA SOURCES AFTER ADD PROPERTY */}
+      {showConnectPropertyPrompt && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 flex flex-col gap-4 text-sm animate-in fade-in zoom-in duration-200">
+            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+              <icon name="plug" size="xl"/>
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-base font-bold text-slate-900">Your Property Is Ready!</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">Your property has been created successfully. Connect your data sources to start building your marketing dashboard.</p>
+            </div>
+            <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
+              <button type="button" onClick={()=>setShowConnectPropertyPrompt(false)} className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Maybe Later</button>
+              <button type="button" onClick={()=>{setShowConnectPropertyPrompt(false);setActiveTab('datasource');}} className="px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm">Connect Data Sources</button>
             </div>
           </div>
         </div>
