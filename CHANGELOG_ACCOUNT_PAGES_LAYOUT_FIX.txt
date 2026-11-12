@@ -1,0 +1,10 @@
+Account pages layout refinement
+
+- Removed the account-page max-width caps and auto-centering so Profile, Users, Billing, and Settings share the Users table content frame and use the available main workspace width.
+- Applied consistent 30px desktop side padding to account pages, widening the content slightly while retaining equal left/right margins.
+- Increased account-page typography modestly for readability.
+- Kept Billing's vertical scrolling on its full-width main content element so its scrollbar sits at the far right edge of the main workspace rather than beside a centred narrow content column.
+- Hid the mobile-only account popover on desktop; desktop Logout remains only in the expanded Account menu.
+- Account navigation clicks no longer collapse the expanded Account menu. Outside clicks continue to be handled by the existing outside-click behavior.
+
+No account form, table, billing, or settings business logic was intentionally changed.

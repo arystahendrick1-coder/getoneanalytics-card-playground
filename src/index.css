@@ -310,3 +310,33 @@ body { overflow-x: auto; }
 @media (prefers-reduced-motion: reduce) {
   .goa-account-menu-expand, .goa-account-section { transition: none !important; }
 }
+
+/* Account pages share the Users table frame as their alignment reference. */
+@media (min-width: 768px) {
+  .goa-account-page {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    font-size: 15px;
+    scrollbar-gutter: stable;
+  }
+  .goa-account-page h1 { font-size: 30px !important; line-height: 1.2 !important; }
+  .goa-account-page h2 { font-size: 18px; }
+  .goa-account-page p,
+  .goa-account-page label,
+  .goa-account-page input,
+  .goa-account-page select,
+  .goa-account-page button,
+  .goa-account-page table { font-size: 15px; }
+  .goa-account-page .text-xs { font-size: 13px !important; }
+  .goa-account-page .text-sm { font-size: 15px !important; }
+  .goa-account-page .text-base { font-size: 17px !important; }
+  .goa-mobile-account-popover { display: none !important; }
+}
+@media (max-width: 767px) {
+  .goa-account-page { max-width: 100%; width: 100%; }
+}
