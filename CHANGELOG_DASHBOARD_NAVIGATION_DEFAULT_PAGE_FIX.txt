@@ -1,0 +1,10 @@
+GetOneAnalytics Dashboard Navigation Default Page Fix
+
+- Dashboard navigation now consistently opens the second report page, Google Analytics.
+- Applies when Dashboard is opened from Reports, Data Source, the desktop sidebar, or mobile navigation.
+- The Google Analytics sidebar item is set active and the report canvas scrolls to the matching page.
+- The behavior is no longer a one-time login-only action; it also runs when the authenticated app becomes available and whenever Dashboard is opened again.
+- Cover Page remains in the report and stays in the first position.
+- Saved report viewing is left unchanged.
+
+Validation: source changes and ZIP integrity checked. Production deployment and browser behavior have not been verified here.

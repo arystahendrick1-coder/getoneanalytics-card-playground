@@ -2000,18 +2000,32 @@ export default function SinglePageDashboard() {
     };
   }, [activeTab, reportPages.length]);
 
-  // Open the report on Google Analytics by default, while keeping every paper mounted.
-  const didSetInitialReportPositionRef = useRef(false);
+  // Dashboard always opens on the second report page (Google Analytics),
+  // regardless of login state or which section the user navigated from.
+  const openDashboardPage = () => {
+    if (viewingSavedReport) return;
+    setReportPages((pages) => pages.map((page) => ({ ...page, active: page.id === 'p3' })));
+    let attempts = 0;
+    const alignToGoogleAnalytics = () => {
+      const analyticsPage = reportPaperRefs.current['p3'];
+      const scroller = reportScrollRef.current;
+      if (!analyticsPage || !scroller) {
+        attempts += 1;
+        if (attempts < 20) requestAnimationFrame(alignToGoogleAnalytics);
+        return;
+      }
+      const offset = analyticsPage.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+      scroller.scrollTo({ top: Math.max(0, scroller.scrollTop + offset), behavior: 'auto' });
+    };
+    requestAnimationFrame(() => requestAnimationFrame(alignToGoogleAnalytics));
+  };
+
+  // Also apply the same destination when Dashboard is reached programmatically
+  // (for example after leaving Reports or Data Source).
   useEffect(() => {
-    if (activeTab !== 'dashboard' || didSetInitialReportPositionRef.current) return;
-    const analyticsPage = reportPaperRefs.current['p3'];
-    const scroller = reportScrollRef.current;
-    if (!analyticsPage || !scroller) return;
-    didSetInitialReportPositionRef.current = true;
-    requestAnimationFrame(() => {
-      scroller.scrollTop = Math.max(0, scroller.scrollTop + analyticsPage.getBoundingClientRect().top - scroller.getBoundingClientRect().top);
-    });
-  }, [activeTab]);
+    if (!isAuthenticated || activeTab !== 'dashboard' || viewingSavedReport) return;
+    openDashboardPage();
+  }, [isAuthenticated, activeTab, viewingSavedReport]);
 
   useEffect(() => {
     if (!draggedPageId) return;
@@ -5671,6 +5685,7 @@ export default function SinglePageDashboard() {
       setUserRows(rows => rows.map(row => ({ ...row, you: row.email.toLowerCase() === nextEmail })));
       const nextProperty = userRows.find(row => row.email.toLowerCase() === nextEmail && row.status === 'Active')?.property || '';
       setSelectedClient(nextProperty);
+      setReportPages((pages) => pages.map((page) => ({ ...page, active: page.id === 'p3' })));
       setActiveTab('dashboard');
       setIsAuthenticated(true);
     }} />;
@@ -5695,7 +5710,7 @@ export default function SinglePageDashboard() {
 
           <nav className="flex flex-col gap-1.5 text-sm font-medium">
             <button 
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => { setActiveTab('dashboard'); openDashboardPage(); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-default ${activeTab === 'dashboard' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}
             >
               <svg className={`w-4 h-4 ${activeTab === 'dashboard' ? 'fill-blue-600' : 'fill-blue-500'}`} viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3H3z"/></svg> 
@@ -6711,7 +6726,7 @@ export default function SinglePageDashboard() {
           {activeTab === 'settings' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-4xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Settings</h1><p className="text-sm text-slate-500 mt-1">Manage account and workspace preferences.</p></div><div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100"> <div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Appearance</h3><p className="text-xs text-slate-500 mt-1">Choose your dashboard theme.</p></div><select value={appearance} onChange={e=>setAppearance(e.target.value)} className="border border-slate-200 rounded-lg p-2 text-sm"><option>Light Mode</option><option>Dark Mode</option></select></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">White Label Branding</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Branding</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Custom Domain</h3><p className="text-xs text-slate-500 mt-1">Available on Agency plan.</p></div><button disabled={billingPlan!=='Agency'} className="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-400 disabled:cursor-default">Configure Domain</button></div><div className="p-5 flex justify-between items-center"><div><h3 className="font-bold">Delete Account</h3><p className="text-xs text-slate-500 mt-1">Permanently delete your account.</p></div><button onClick={()=>setShowDeleteAccountConfirm(true)} className="px-4 py-2 rounded-lg border border-rose-200 text-rose-600 text-sm font-semibold">Delete Account</button></div></div></main>}
 
           {showAddUserModal && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-md"><h3 className="font-bold text-lg mb-4">Add User</h3><label className="block text-xs font-semibold mb-3">Property<select id="invite-property" className="mt-1 w-full border rounded-lg p-2.5">{clientList.filter(c=>getCurrentUserRoleForProperty(c)==='Admin').map(c=><option key={c}>{c}</option>)}</select></label><label className="block text-xs font-semibold mb-3">Email<input id="invite-email" type="email" placeholder="name@example.com" className="mt-1 w-full border rounded-lg p-2.5"/></label><label className="block text-xs font-semibold mb-4">Type<select id="invite-type" className="mt-1 w-full border rounded-lg p-2.5"><option>Member</option><option>Admin</option></select></label><div className="flex justify-end gap-2"><button onClick={()=>setShowAddUserModal(false)} className="px-4 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{const email=document.getElementById('invite-email')?.value;const prop=document.getElementById('invite-property')?.value;const type=document.getElementById('invite-type')?.value;if(email&&prop){setUserRows(rows=>[...rows,{id:'u'+Date.now(),property:prop,email,type,status:'Pending'}]);setShowAddUserModal(false);}}} className="px-4 py-2 rounded-lg bg-blue-600 text-white">Send Invitation</button></div></div></div>}
-          {showLogoutConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Log out?</h3><p className="text-sm text-slate-500 my-3">Are you sure you want to log out?</p><div className="flex gap-2"><button onClick={()=>setShowLogoutConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{setShowLogoutConfirm(false);setUserActionMenuId(null);setUserConfirmAction(null);setEditingUser(null);setActiveTab('dashboard');setIsAuthenticated(false);}} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Logout</button></div></div></div>}
+          {showLogoutConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Log out?</h3><p className="text-sm text-slate-500 my-3">Are you sure you want to log out?</p><div className="flex gap-2"><button onClick={()=>setShowLogoutConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>{setShowLogoutConfirm(false);setUserActionMenuId(null);setUserConfirmAction(null);setEditingUser(null);const scroller=reportScrollRef.current;if(scroller)scroller.scrollTop=0;setReportPages((pages)=>pages.map((page)=>({...page,active:page.id==='p3'})));setActiveTab('dashboard');setIsAuthenticated(false);}} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Logout</button></div></div></div>}
           {showDeleteAccountConfirm && <div className="fixed inset-0 bg-slate-900/40 z-[70] flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-sm text-center"><h3 className="font-bold text-lg">Delete Account?</h3><p className="text-sm text-slate-500 my-3">This is a prototype confirmation. Property data and saved reports are not deleted here.</p><div className="flex gap-2"><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-slate-100">Cancel</button><button onClick={()=>setShowDeleteAccountConfirm(false)} className="flex-1 py-2 rounded-lg bg-rose-600 text-white">Confirm Delete</button></div></div></div>}
 
           {/* CUSTOMIZE METRIC */}
@@ -7100,7 +7115,7 @@ export default function SinglePageDashboard() {
       )}
 
       {!viewingSavedReport && <nav className="goa-mobile-bottom-nav" aria-label="Mobile navigation">
-        <button type="button" onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? 'active' : ''}>
+        <button type="button" onClick={() => { setActiveTab('dashboard'); openDashboardPage(); }} className={activeTab === 'dashboard' ? 'active' : ''}>
           <span aria-hidden="true">▦</span><small>Live Dashboard</small>
         </button>
         <button type="button" onClick={() => setActiveTab('reports')} className={activeTab === 'reports' ? 'active' : ''}>
