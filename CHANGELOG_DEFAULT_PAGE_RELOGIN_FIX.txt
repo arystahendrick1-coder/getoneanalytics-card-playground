@@ -1,7 +1,0 @@
-Default Dashboard Page on Re-login Fix
-
-- Reset the one-time initial-page alignment guard on logout.
-- Reset the dashboard scroll container to the top when logging out.
-- Keep Google Analytics (page id p3) selected on logout and login.
-- Retry the initial scroll alignment for a short series of animation frames while the dashboard page DOM mounts.
-- Cover Page remains first in the report page order.

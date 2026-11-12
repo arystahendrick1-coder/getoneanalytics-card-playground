@@ -1,7 +1,0 @@
-Profile Photo Session Fix
-
-- Added per-account profile photo state keyed by email.
-- On login/account switch, restore the selected account photo instead of always clearing it.
-- Uploading a photo updates only the active account photo.
-- Photo remains available across logout/login while the application session remains mounted.
-- Frontend demo state only: a full browser refresh clears it; it is not uploaded to Supabase or persistent storage.

@@ -1,7 +1,0 @@
-GetOneAnalytics Account Name Sync Fix
-
-- Saving Profile now updates the account display name for every Users table membership row with the same email.
-- Profile names are maintained per login email during the current app session.
-- Switching accounts loads the saved name for that account.
-- No changes were made to workspace membership roles, ownership, Edit/Remove permissions, or Leave & Transfer Ownership.
-- Profile and Users data remain local session state; no Supabase persistence was added.

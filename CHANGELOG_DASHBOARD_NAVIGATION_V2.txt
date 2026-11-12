@@ -1,7 +1,0 @@
-Dashboard navigation correction
-
-- Dashboard navigation now waits for the Google Analytics page and scroll container to mount.
-- It checks that the page position has stabilised before scrolling.
-- It sets the scroll position directly and verifies it once after the browser applies layout.
-- This is application-level React code and is not specific to Cloudflare or Vercel.
-- Vercel's blank page still requires the browser Console error to identify its cause; this change does not claim to diagnose that separate runtime issue.
