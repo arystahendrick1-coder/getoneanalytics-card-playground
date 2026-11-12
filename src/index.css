@@ -45,15 +45,32 @@ body { overflow-x: auto; }
 .goa-app-shell {
   width: 1870px !important;
   min-width: 1870px !important;
-  max-width: 1870px !important;
-  margin-inline: auto;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   transform: none !important;
+  transform-origin: top left !important;
 }
 .goa-main-sidebar,
 .goa-page-sidebar,
 .goa-customize-sidebar { flex-shrink: 0 !important; }
 .goa-report-canvas { min-width: 0; flex: 1 1 auto; }
 .goa-mobile-bottom-nav { display: none; }
+
+
+/* Desktop/tablet canvas is width-scaled as one fixed-ratio application.
+   The four panels keep their native proportions and independent scroll areas. */
+@media (min-width: 768px) {
+  html, body, #root { width: 100%; min-width: 0; height: 100%; overflow: hidden; }
+  body { margin: 0; overflow: hidden; }
+  .goa-app-shell { position: relative; top: 0; left: 0; overflow: hidden !important; }
+  .goa-main-sidebar { min-height: 0; }
+  .goa-main-sidebar > :first-child { min-height: 0; overflow-y: auto; }
+  .goa-main-sidebar > :last-child { flex: 0 0 auto; margin-top: auto; }
+  .goa-page-sidebar { min-height: 0; }
+  .goa-report-canvas { min-height: 0; overflow-y: auto; }
+  .goa-customize-sidebar { min-height: 0; }
+}
 
 /* Mobile is a focused view of the same dashboard/report state. */
 @media (max-width: 767px) {
@@ -262,11 +279,3 @@ body { overflow-x: auto; }
   .saved-report-mode .goa-report-canvas { overflow: auto !important; align-items: flex-start !important; }
   .saved-report-mode .goa-report-canvas [data-report-page] { width: 1100px !important; min-width: 1100px !important; max-width: 1100px !important; }
 }
-
-/* Keep the account control anchored to the bottom of the first navigation panel.
-   The navigation area above it owns any vertical overflow, so the account control
-   remains reachable without changing the width or proportions of the four panels. */
-.goa-main-sidebar { display: flex; flex-direction: column; min-height: 0; }
-.goa-main-sidebar-top { flex: 1 1 auto; min-height: 0; }
-.goa-main-sidebar-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-.goa-desktop-account-menu { flex: 0 0 auto; margin-top: auto; position: relative; }
