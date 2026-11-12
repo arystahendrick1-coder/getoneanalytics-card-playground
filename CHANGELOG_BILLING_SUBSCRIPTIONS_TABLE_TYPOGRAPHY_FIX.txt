@@ -1,0 +1,11 @@
+GetOneAnalytics – Billing Subscription Table Typography Fix
+
+Changes:
+- Reduced the Property Subscriptions table typography by one Tailwind size step (text-sm to text-xs).
+- Reduced the Admin Access Required notice typography to match the table.
+- Kept status notes on one line using whitespace-nowrap and removed the 190px max-width constraint.
+- Added a 220px minimum width to the Status cell so the notice has room to remain on one line.
+- Reduced the status badge text slightly for visual balance.
+
+No billing logic, subscription actions, data, or other Account pages were changed.
+Build was not run because dependencies are not installed in this workspace.
