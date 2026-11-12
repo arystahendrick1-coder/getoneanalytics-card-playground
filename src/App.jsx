@@ -2000,28 +2000,53 @@ export default function SinglePageDashboard() {
     };
   }, [activeTab, reportPages.length]);
 
-  // Dashboard always opens on the second report page (Google Analytics),
-  // regardless of login state or which section the user navigated from.
+  // Always land on Google Analytics whenever the Dashboard is opened.
+  // Retry after React mounts the dashboard canvas and page sections, then
+  // set scrollTop directly so CSS smooth scrolling cannot leave the view mid-way.
   const openDashboardPage = () => {
     if (viewingSavedReport) return;
     setReportPages((pages) => pages.map((page) => ({ ...page, active: page.id === 'p3' })));
+
     let attempts = 0;
+    let previousTop = null;
+    let stableFrames = 0;
     const alignToGoogleAnalytics = () => {
-      const analyticsPage = reportPaperRefs.current['p3'];
       const scroller = reportScrollRef.current;
-      if (!analyticsPage || !scroller) {
+      const analyticsPage = reportPaperRefs.current['p3'];
+      if (!scroller || !analyticsPage || !scroller.isConnected || !analyticsPage.isConnected) {
         attempts += 1;
-        if (attempts < 20) requestAnimationFrame(alignToGoogleAnalytics);
+        if (attempts < 60) requestAnimationFrame(alignToGoogleAnalytics);
         return;
       }
-      const offset = analyticsPage.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
-      scroller.scrollTo({ top: Math.max(0, scroller.scrollTop + offset), behavior: 'auto' });
+
+      const currentTop = analyticsPage.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+      if (previousTop !== null && Math.abs(currentTop - previousTop) < 1) stableFrames += 1;
+      else stableFrames = 0;
+      previousTop = currentTop;
+      attempts += 1;
+
+      if (stableFrames < 2 && attempts < 60) {
+        requestAnimationFrame(alignToGoogleAnalytics);
+        return;
+      }
+
+      const targetTop = Math.max(0, scroller.scrollTop + currentTop);
+      scroller.style.scrollBehavior = 'auto';
+      scroller.scrollTop = targetTop;
+      // Recheck once after the browser has applied the layout/scroll position.
+      requestAnimationFrame(() => {
+        const finalTop = analyticsPage.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+        if (Math.abs(finalTop) > 2) {
+          scroller.scrollTop = Math.max(0, scroller.scrollTop + finalTop);
+        }
+        scroller.style.scrollBehavior = '';
+      });
     };
+
     requestAnimationFrame(() => requestAnimationFrame(alignToGoogleAnalytics));
   };
 
-  // Also apply the same destination when Dashboard is reached programmatically
-  // (for example after leaving Reports or Data Source).
+  // Also apply the destination when Dashboard is reached programmatically.
   useEffect(() => {
     if (!isAuthenticated || activeTab !== 'dashboard' || viewingSavedReport) return;
     openDashboardPage();
