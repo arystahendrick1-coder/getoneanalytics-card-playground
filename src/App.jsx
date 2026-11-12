@@ -5761,10 +5761,10 @@ export default function SinglePageDashboard() {
             </div>
           </div>
 
-          <div className="border-y border-slate-200 py-3 relative" ref={accountMenuRef}>
+          <div className={`goa-account-section border-y border-slate-200 py-3 ${isAccountMenuOpen ? 'is-open' : ''}`} ref={accountMenuRef}>
             <div
               onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-              className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-100 cursor-default select-none"
+              className="goa-account-trigger flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-100 cursor-default select-none"
             >
               <div className="w-9 h-9 bg-slate-900 rounded-full text-white flex items-center justify-center text-xs font-bold shadow-sm overflow-hidden">{profilePhoto ? <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" /> : 'AH'}</div>
               <div className="flex flex-col min-w-0">
@@ -5773,17 +5773,17 @@ export default function SinglePageDashboard() {
               </div>
             </div>
 
-            {isAccountMenuOpen && (
-              <div className="absolute top-full left-2 mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-2xl p-2.5 z-50 flex flex-col text-sm">
-                <div className="px-3 py-2 border-b border-slate-100 mb-1">
+            <div className={`goa-account-menu-expand ${isAccountMenuOpen ? 'is-open' : ''}`} aria-hidden={!isAccountMenuOpen}>
+              <div className="goa-account-menu-content flex flex-col text-sm">
+                <div className="px-3 py-2 border-b border-slate-200 mb-1">
                   <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
-                  <p className="text-xs text-slate-400">{profileEmail}</p>
+                  <p className="text-xs text-slate-500">{profileEmail}</p>
                 </div>
-                {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
-                <div className="border-t border-slate-100 my-1"></div>
+                {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-white/70 text-slate-700 font-medium">{label}</button>)}
+                <div className="border-t border-slate-200 my-1"></div>
                 <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
               </div>
-            )}
+            </div>
           </div>
 
           <nav className="flex flex-col gap-1.5 text-sm font-medium">

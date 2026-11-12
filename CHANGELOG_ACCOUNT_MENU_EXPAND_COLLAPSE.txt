@@ -1,0 +1,8 @@
+Account menu expand/collapse revision
+- Changed desktop account menu from absolute overlay to normal document flow.
+- Menu content expands below the account identity and pushes Dashboard/Reports/Data Source down.
+- Account section grey background and bottom border expand with the menu.
+- Added a light 220ms height transition and opacity fade; supports prefers-reduced-motion.
+- Preserved Profile, User, Billing, Settings, and Logout actions.
+- Existing outside-click handler closes the menu when clicking elsewhere.
+- Mobile navigation/menu behavior was not changed.
