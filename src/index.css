@@ -319,8 +319,9 @@ body { overflow-x: auto; }
     min-width: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
-    padding-left: 75px !important;
-    padding-right: 75px !important;
+    /* Match the horizontal inset to the existing md:p-7 top inset (28px). */
+    padding-left: 28px !important;
+    padding-right: 28px !important;
     font-size: 15px;
     scrollbar-gutter: stable;
   }
@@ -335,6 +336,7 @@ body { overflow-x: auto; }
   .goa-account-page .text-xs { font-size: 13px !important; }
   .goa-account-page .text-sm { font-size: 15px !important; }
   .goa-account-page .text-base { font-size: 17px !important; }
+  .goa-account-page .billing-status-note { font-size: 11px !important; line-height: 1.25 !important; white-space: nowrap !important; }
   .goa-mobile-account-popover { display: none !important; }
 }
 @media (max-width: 767px) {
