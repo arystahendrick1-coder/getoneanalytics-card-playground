@@ -1388,6 +1388,24 @@ export default function SinglePageDashboard() {
   const getCurrentUserRoleForProperty = (property) => userRows.find(row =>
     row.email.toLowerCase() === currentUserEmail && row.property === property && row.status === 'Active'
   )?.type || 'No Access';
+  const getActiveMembershipForCurrentUser = (property) => userRows.find(row =>
+    row.email.toLowerCase() === currentUserEmail && row.property === property && row.status === 'Active'
+  );
+  const getEligibleOwnershipSuccessors = (property) => userRows.filter(row =>
+    row.property === property && row.status === 'Active' && row.type === 'Admin' &&
+    row.email.toLowerCase() !== currentUserEmail
+  );
+  const canCurrentUserLeaveProperty = (property) => {
+    const membership = getActiveMembershipForCurrentUser(property);
+    if (!membership) return false;
+    if (membership.isOwner) return getEligibleOwnershipSuccessors(property).length > 0;
+    const otherActiveMembers = userRows.filter(row =>
+      row.property === property && row.status === 'Active' && row.id !== membership.id
+    );
+    if (otherActiveMembers.length === 0) return false;
+    if (membership.type === 'Admin') return otherActiveMembers.some(row => row.type === 'Admin');
+    return true;
+  };
   const isActivePropertyUser = activePropertyRole === 'Member';
   
   const getInitialDates = () => {
@@ -5717,6 +5735,7 @@ export default function SinglePageDashboard() {
                           {userRows.find(row=>row.email.toLowerCase()===currentUserEmail&&row.property===client&&row.status==='Active')?.isOwner && <>
                             <button onClick={() => { setPropertyAction({type:'rename',name:client}); setPropertyNameInput(client); setActivePropertyMenu(null); }} className="text-left px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 transition-colors duration-150">Rename</button>
                             <label className="px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 cursor-default transition-colors duration-150">Upload Logo<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file=e.target.files?.[0]; if(file) setPropertyLogo(prev=>({...prev,[client]:URL.createObjectURL(file)})); setActivePropertyMenu(null); }} /></label>
+                            <button type="button" disabled={!canCurrentUserLeaveProperty(client)} title={!canCurrentUserLeaveProperty(client)?'Another active Admin is required to receive ownership.':''} onClick={() => { const membership=getActiveMembershipForCurrentUser(client); if(membership)setUserConfirmAction({type:'ownerLeave',row:membership,successorId:''}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className={`text-left px-3 py-2 rounded-md text-xs ${canCurrentUserLeaveProperty(client)?'hover:bg-rose-50 text-rose-600':'text-slate-400 cursor-not-allowed'}`}>Leave</button>
                             <button onClick={() => { setUserConfirmAction({type:'deleteWorkspace',row:{property:client}}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className="text-left px-3 py-2 rounded-md hover:bg-rose-50 text-xs text-rose-600">Delete Property</button>
                           </>}
                           {!userRows.find(row=>row.email.toLowerCase()===currentUserEmail&&row.property===client&&row.status==='Active')?.isOwner && <>
@@ -5724,7 +5743,7 @@ export default function SinglePageDashboard() {
                               <button onClick={() => { setPropertyAction({type:'rename',name:client}); setPropertyNameInput(client); setActivePropertyMenu(null); }} className="text-left px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 transition-colors duration-150">Rename</button>
                               <label className="px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 cursor-default text-xs">Upload Logo<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file=e.target.files?.[0]; if(file) setPropertyLogo(prev=>({...prev,[client]:URL.createObjectURL(file)})); setActivePropertyMenu(null); }} /></label>
                             </>}
-                            <button onClick={() => { const membership=userRows.find(row=>row.email.toLowerCase()===currentUserEmail&&row.property===client&&row.status==='Active'); if(membership)setUserConfirmAction({type:'leave',row:membership}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className="text-left px-3 py-2 rounded-md hover:bg-rose-50 text-xs text-rose-600">Leave</button>
+                            <button type="button" disabled={!canCurrentUserLeaveProperty(client)} title={!canCurrentUserLeaveProperty(client)?'You cannot leave until another active member can maintain this Workspace.':''} onClick={() => { const membership=getActiveMembershipForCurrentUser(client); if(membership)setUserConfirmAction({type:'leave',row:membership}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className={`text-left px-3 py-2 rounded-md text-xs ${canCurrentUserLeaveProperty(client)?'hover:bg-rose-50 text-rose-600':'text-slate-400 cursor-not-allowed'}`}>Leave</button>
                           </>}
                         </div>}
                       </div>
@@ -6597,7 +6616,7 @@ export default function SinglePageDashboard() {
             <div className="border-t border-slate-100 pt-5"><h2 className="font-bold text-slate-900 mb-3">Change Password</h2><div className="grid md:grid-cols-3 gap-3">{['Current Password','New Password','Confirm New Password'].map(x=><input key={x} type="password" placeholder={x} className="border border-slate-200 rounded-lg p-2.5 text-sm"/>)}</div></div><div className="border-t border-slate-100 pt-4 flex justify-between items-center"><div><span className="text-xs text-slate-500">Account Created · 12 March 2026</span>{profileSaved&&<p className="text-xs text-emerald-600 font-semibold mt-1">Profile changes saved for this session.</p>}</div><button onClick={()=>setProfileSaved(true)} className={`px-5 py-2.5 rounded-lg font-semibold ${profileSaved?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-700'}`}>{profileSaved?'Saved':'Save Profile'}</button></div></div></main>}
 
           {/* ACCOUNT: USERS */}
-          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage user access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{visibleUserRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['account','Account'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...visibleUserRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=>{const canManageUserRow=getCurrentUserRoleForProperty(row.property)==='Admin';return <tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.account || (row.you ? `${profileFirstName} ${profileLastName}`.trim() : '—')}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><div className="relative inline-block user-action-container">{(canManageUserRow||(row.email.toLowerCase()===currentUserEmail&&row.status==='Active'))?<><button type="button" aria-label={`Actions for ${row.email} at ${row.property}`} onClick={()=>setUserActionMenuId(current=>current===row.id?null:row.id)} className="px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100">•••</button>{userActionMenuId===row.id&&<div className="absolute right-0 top-full mt-1 z-50 w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-lg text-left">{(row.email.toLowerCase()===currentUserEmail?(row.status==='Active'?(row.isOwner?['Delete Property']:['Leave']):[]):canManageUserRow?(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']):[]).map(action=><button key={action} type="button" onClick={()=>{if(action==='Leave'||action==='Delete Property'){setUserConfirmAction({type:action==='Leave'?'leave':'deleteWorkspace',row});}else if(['Remove','Cancel'].includes(action)){setUserRows(current=>current.filter(item=>item.id!==row.id));}setUserActionMenuId(null);}} className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${['Remove','Cancel','Leave','Delete Property'].includes(action)?'text-rose-600':'text-slate-700'}`}>{action}</button>)}</div>}</>:<span className="inline-flex items-center gap-1.5 text-xs text-slate-400" title="Only property Admins can manage users"><icon name="lock" size="xs"/> View only</span>}</div></td></tr>})}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
+          {activeTab === 'users' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage user access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{visibleUserRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['account','Account'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...visibleUserRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=>{const canManageUserRow=getCurrentUserRoleForProperty(row.property)==='Admin';return <tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.account || (row.you ? `${profileFirstName} ${profileLastName}`.trim() : '—')}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><div className="relative inline-block user-action-container">{(canManageUserRow||(row.email.toLowerCase()===currentUserEmail&&row.status==='Active'))?<><button type="button" aria-label={`Actions for ${row.email} at ${row.property}`} onClick={()=>setUserActionMenuId(current=>current===row.id?null:row.id)} className="px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100">•••</button>{userActionMenuId===row.id&&<div className="absolute right-0 top-full mt-1 z-50 w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-lg text-left">{(row.email.toLowerCase()===currentUserEmail?(row.status==='Active'?(row.isOwner?['Leave','Delete Property']:['Leave']):[]):canManageUserRow?(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']):[]).map(action=>{const leaveDisabled=action==='Leave'&&!canCurrentUserLeaveProperty(row.property);return <button key={action} type="button" disabled={leaveDisabled} title={leaveDisabled?(row.isOwner?'Another active Admin is required to receive ownership.':'Another active member or Admin must remain in this Workspace.'):''} onClick={()=>{if(action==='Leave'||action==='Delete Property'){setUserConfirmAction({type:action==='Leave'?(row.isOwner?'ownerLeave':'leave'):'deleteWorkspace',row,successorId:''});}else if(['Remove','Cancel'].includes(action)){setUserRows(current=>current.filter(item=>item.id!==row.id));}setUserActionMenuId(null);}} className={`w-full px-3 py-2 text-left text-sm ${leaveDisabled?'text-slate-400 cursor-not-allowed':'hover:bg-slate-50'} ${['Remove','Cancel','Leave','Delete Property'].includes(action)?(leaveDisabled?'text-slate-400':'text-rose-600'):'text-slate-700'}`}>{action}</button>})}</div>}</>:<span className="inline-flex items-center gap-1.5 text-xs text-slate-400" title="Only property Admins can manage users"><icon name="lock" size="xs"/> View only</span>}</div></td></tr>})}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
 
           {/* ACCOUNT: BILLING */}
           {activeTab === 'billing' && <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
@@ -6799,19 +6818,31 @@ export default function SinglePageDashboard() {
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[75] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 flex flex-col items-center text-center gap-4 text-sm animate-in fade-in zoom-in duration-200">
             <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-xl shadow-inner font-bold">!</div>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-base font-bold text-slate-900">{userConfirmAction.type==='leave'?'Leave Workspace?':'Delete Property?'}</h3>
+            <div className="flex flex-col gap-1 w-full">
+              <h3 className="text-base font-bold text-slate-900">{userConfirmAction.type==='ownerLeave'?'Transfer Ownership & Leave?':userConfirmAction.type==='leave'?'Leave Workspace?':'Delete Property?'}</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                {userConfirmAction.type==='leave'
-                  ? <>Are you sure you want to leave <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? Your access will be removed and this workspace will disappear from your property list.</>
-                  : <>Are you sure you want to delete the property <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? All users assigned to this property will lose access. This action cannot be undone.</>}
+                {userConfirmAction.type==='ownerLeave'
+                  ? <>Choose an active Admin to become the new Owner of <strong className="text-slate-800">{userConfirmAction.row.property}</strong>. Your access will be removed after ownership is transferred.</>
+                  : userConfirmAction.type==='leave'
+                    ? <>Are you sure you want to leave <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? Your access will be removed and this workspace will disappear from your property list.</>
+                    : <>Are you sure you want to delete the property <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? All users assigned to this property will lose access. This action cannot be undone.</>}
               </p>
             </div>
+            {userConfirmAction.type==='ownerLeave' && <label className="w-full text-left text-xs font-semibold text-slate-600">New Owner
+              <select value={userConfirmAction.successorId||''} onChange={e=>setUserConfirmAction(current=>({...current,successorId:e.target.value}))} className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 bg-white text-sm font-normal">
+                <option value="">Select an active Admin</option>
+                {getEligibleOwnershipSuccessors(userConfirmAction.row.property).map(admin=><option key={admin.id} value={admin.id}>{admin.account||admin.name||admin.email} ({admin.email})</option>)}
+              </select>
+            </label>}
             <div className="flex gap-2.5 w-full mt-2">
               <button onClick={()=>setUserConfirmAction(null)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition-all cursor-default">Cancel</button>
-              <button onClick={()=>{
-                const {type,row}=userConfirmAction;
-                if(type==='leave'){
+              <button disabled={userConfirmAction.type==='ownerLeave'&&!userConfirmAction.successorId} onClick={()=>{
+                const {type,row,successorId}=userConfirmAction;
+                if(type==='ownerLeave'){
+                  setUserRows(current=>current.filter(item=>item.id!==row.id).map(item=>item.id===successorId?{...item,isOwner:true}:item));
+                  const remainingProperties=[...new Set(userRows.filter(item=>item.email.toLowerCase()===currentUserEmail&&item.status==='Active'&&item.id!==row.id).map(item=>item.property))];
+                  if(selectedClient===row.property)setSelectedClient(remainingProperties[0]||'');
+                } else if(type==='leave'){
                   const remainingProperties=[...new Set(userRows.filter(item=>item.email.toLowerCase()===currentUserEmail&&item.status==='Active'&&item.id!==row.id).map(item=>item.property))];
                   setUserRows(current=>current.filter(item=>item.id!==row.id));
                   if(selectedClient===row.property)setSelectedClient(remainingProperties[0]||'');
@@ -6829,7 +6860,7 @@ export default function SinglePageDashboard() {
                   }
                 }
                 setUserConfirmAction(null);
-              }} className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-xl text-xs shadow-sm transition-all cursor-default">{userConfirmAction.type==='leave'?'Leave Workspace':'Delete Property'}</button>
+              }} className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 disabled:text-slate-500 text-white font-semibold py-2.5 rounded-xl text-xs shadow-sm transition-all disabled:cursor-not-allowed">{userConfirmAction.type==='ownerLeave'?'Transfer & Leave':userConfirmAction.type==='leave'?'Leave Workspace':'Delete Property'}</button>
             </div>
           </div>
         </div>
