@@ -1,0 +1,10 @@
+GetOneAnalytics JavaScript Error Diagnostic
+
+Purpose
+- Enable source maps and disable minification for the Vite production build.
+- This makes browser stack traces point to original source files and line numbers instead of minified identifiers such as "Se".
+
+Important
+- This is a diagnostic build configuration, not a confirmed fix for the ReferenceError.
+- No application UI, data, or navigation logic was intentionally changed in this package.
+- Once the original source line is identified, the underlying ReferenceError should be fixed and this diagnostic configuration can be reverted if desired.
