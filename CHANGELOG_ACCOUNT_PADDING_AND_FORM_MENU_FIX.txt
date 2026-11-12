@@ -1,0 +1,11 @@
+GetOneAnalytics – Account horizontal padding and form interaction fix
+
+- Set desktop/tablet Account page horizontal padding to 75px on both sides.
+- Preserved the existing top and bottom padding (the existing md:p-7 top spacing is unchanged).
+- Kept the approved Account page typography and Billing notice typography unchanged.
+- Updated outside-click handling so interacting with inputs, selects, textareas, buttons, and labels inside Account pages does not collapse the expanded Account menu.
+- Clicking non-interactive space outside the Account menu still collapses it; navigation within the Account menu remains expanded.
+- Mobile layout is not changed by the desktop/tablet padding rule.
+
+No form, table, billing, or settings business logic was intentionally changed.
+Build was not run because dependencies are not installed in this workspace.

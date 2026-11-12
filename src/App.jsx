@@ -1734,7 +1734,13 @@ export default function SinglePageDashboard() {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+      // Interacting with Account page controls is not an outside-dismiss action.
+      // Keep the Account menu expanded while the user edits forms, selects options,
+      // uploads a profile photo, or activates an Account page control.
+      const accountPageControl = event.target.closest(
+        '.goa-account-page input, .goa-account-page select, .goa-account-page textarea, .goa-account-page button, .goa-account-page label'
+      );
+      if (!accountPageControl && accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
         setIsAccountMenuOpen(false);
       }
       if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
