@@ -1,0 +1,9 @@
+Dashboard Page 2 Alignment Fix
+
+- Made the Dashboard navigation action explicitly select Google Analytics (page 2).
+- Replaced the one-time initial scroll with a repeatable alignment effect that runs whenever Dashboard is opened, including repeated clicks while Dashboard is already active.
+- Waits for the Google Analytics page element and its layout to be available before scrolling the report canvas.
+- Keeps Cover Page as page 1 and preserves the existing page list and report content.
+- Applied the same Dashboard navigation action to desktop and mobile navigation, plus existing internal Dashboard entry points.
+
+Validation: source-level edits and ZIP integrity checked. Build not run because Vite dependencies are not installed in this environment.
