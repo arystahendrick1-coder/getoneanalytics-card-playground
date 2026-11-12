@@ -1,0 +1,5 @@
+Account menu navigation persistence revision
+- Selecting Profile, User, Billing, or Settings now navigates to the selected account page without collapsing the expanded account menu.
+- Outside-click behavior remains unchanged and still collapses the menu.
+- Logout behavior remains unchanged: it collapses the menu and opens the logout confirmation.
+- Expand/collapse animation, layout, and mobile navigation were not changed.
