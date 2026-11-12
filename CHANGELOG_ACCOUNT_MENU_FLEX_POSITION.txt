@@ -1,0 +1,8 @@
+GetOneAnalytics Account Menu Flexible Position Fix
+
+- Kept the existing four-panel application layout and panel widths unchanged.
+- Made the first navigation panel a min-height-safe vertical flex layout.
+- The main navigation list now owns vertical overflow when the panel is short.
+- Anchored the desktop account menu at the bottom of the first navigation panel using flex layout (mt-auto / shrink-0).
+- Preserved the existing mobile bottom navigation account entry and Logout popover.
+- No dashboard, report, metric, or saved-report behavior was intentionally changed.

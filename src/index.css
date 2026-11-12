@@ -262,3 +262,11 @@ body { overflow-x: auto; }
   .saved-report-mode .goa-report-canvas { overflow: auto !important; align-items: flex-start !important; }
   .saved-report-mode .goa-report-canvas [data-report-page] { width: 1100px !important; min-width: 1100px !important; max-width: 1100px !important; }
 }
+
+/* Keep the account control anchored to the bottom of the first navigation panel.
+   The navigation area above it owns any vertical overflow, so the account control
+   remains reachable without changing the width or proportions of the four panels. */
+.goa-main-sidebar { display: flex; flex-direction: column; min-height: 0; }
+.goa-main-sidebar-top { flex: 1 1 auto; min-height: 0; }
+.goa-main-sidebar-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.goa-desktop-account-menu { flex: 0 0 auto; margin-top: auto; position: relative; }

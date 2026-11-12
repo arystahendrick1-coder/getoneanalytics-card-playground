@@ -5711,9 +5711,9 @@ export default function SinglePageDashboard() {
       <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } .saved-report-mode { height: auto !important; width: 100% !important; overflow: visible !important; display: block !important; position: static !important; } body * { visibility: hidden !important; } #report-print-root, #report-print-root * { visibility: visible !important; } #report-print-root { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: white !important; display: block !important; } #report-print-root [data-report-page] { break-after: page; page-break-after: always; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; margin: 0 0 8mm 0 !important; width: 100% !important; min-height: 250mm; overflow: visible !important; } #report-print-root [data-metric-grid] { overflow: visible !important; } #report-print-root [data-metric-id] { break-inside: avoid; page-break-inside: avoid; } .print\:hidden { display: none !important; } } .saved-report-mode [data-metric-grid] { pointer-events: none !important; } .saved-report-mode [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-grid] { pointer-events: none !important; } @keyframes goaDropPulse { 0%,100% { box-shadow: 0 4px 14px rgba(37,99,235,.10); background-color: rgba(239,246,255,.78); } 50% { box-shadow: 0 6px 20px rgba(37,99,235,.20); background-color: rgba(219,234,254,.88); } }`}</style>
       
       {/* 1. SIDEBAR KIRI UTAMA */}
-      {!viewingSavedReport && <aside className="goa-main-sidebar w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-30 h-full">
-        <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-3 px-2 py-1">
+      {!viewingSavedReport && <aside className="goa-main-sidebar w-64 bg-white border-r border-slate-200 flex flex-col p-4 shrink-0 shadow-sm z-30 h-full min-h-0">
+        <div className="goa-main-sidebar-top flex flex-col gap-6 flex-1 min-h-0">
+          <div className="flex items-center gap-3 px-2 py-1 shrink-0">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
               <img src="/favicon-32x32.png" alt="Get One Analytics" className="w-8 h-8 object-contain" />
             </div>
@@ -5723,7 +5723,7 @@ export default function SinglePageDashboard() {
             </div>
           </div>
 
-          <nav className="flex flex-col gap-1.5 text-sm font-medium">
+          <nav className="goa-main-sidebar-nav flex flex-col gap-1.5 text-sm font-medium flex-1 min-h-0 overflow-y-auto">
             <button 
               onClick={() => { setActiveTab('dashboard'); setDashboardNavigationRequest((value) => value + 1); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-default ${activeTab === 'dashboard' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}
@@ -5748,7 +5748,7 @@ export default function SinglePageDashboard() {
           </nav>
         </div>
 
-        <div className="border-t border-slate-200 pt-3 relative" ref={accountMenuRef}>
+        <div className="goa-desktop-account-menu border-t border-slate-200 pt-3 relative mt-auto shrink-0" ref={accountMenuRef}>
           <div 
             onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
             className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-100 cursor-default select-none"
