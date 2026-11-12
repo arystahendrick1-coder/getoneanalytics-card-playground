@@ -1,0 +1,13 @@
+GetOneAnalytics checkpoint update
+
+Changes made:
+1. Moved the account profile block into the top section of the first navigation panel, directly below the logo and above Dashboard / Reports / Data Source.
+2. Added separator lines above and below the account block.
+3. Kept the existing account dropdown actions (Profile, User, Billing, Settings, Logout).
+4. Replaced desktop/tablet CSS zoom scaling with transform: scale() calculated from viewport width. This is intended to make the complete fixed-width canvas, including text and icons, scale consistently in Safari on iPad as well as desktop browsers.
+5. Mobile breakpoint and mobile bottom navigation were not intentionally changed.
+
+Validation:
+- Source archive extracted successfully and modified.
+- Full Vite production build was not verified because dependency installation timed out in this environment.
+- Please test on the actual iPad Air 11-inch M3, especially landscape and portrait orientations.

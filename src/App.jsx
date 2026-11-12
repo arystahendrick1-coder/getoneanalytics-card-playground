@@ -12,15 +12,21 @@ export default function SinglePageDashboard() {
       const shell = document.querySelector('.goa-app-shell');
       if (!shell) return;
       if (window.innerWidth <= 767) {
-        shell.style.zoom = '';
+        shell.style.transform = '';
         shell.style.width = '';
         shell.style.height = '';
         shell.style.marginLeft = '';
+        shell.style.position = '';
         return;
       }
       const baseWidth = 1870;
       const scale = Math.max(0.1, window.innerWidth / baseWidth);
-      shell.style.zoom = String(scale);
+      // Use transform scaling rather than CSS zoom for consistent Safari/iPad rendering.
+      shell.style.position = 'absolute';
+      shell.style.left = '0';
+      shell.style.top = '0';
+      shell.style.transform = `scale(${scale})`;
+      shell.style.transformOrigin = 'top left';
       shell.style.width = `${baseWidth}px`;
       shell.style.height = `${window.innerHeight / scale}px`;
       shell.style.minHeight = '0';
@@ -5743,7 +5749,7 @@ export default function SinglePageDashboard() {
       <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } .saved-report-mode { height: auto !important; width: 100% !important; overflow: visible !important; display: block !important; position: static !important; } body * { visibility: hidden !important; } #report-print-root, #report-print-root * { visibility: visible !important; } #report-print-root { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: white !important; display: block !important; } #report-print-root [data-report-page] { break-after: page; page-break-after: always; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; margin: 0 0 8mm 0 !important; width: 100% !important; min-height: 250mm; overflow: visible !important; } #report-print-root [data-metric-grid] { overflow: visible !important; } #report-print-root [data-metric-id] { break-inside: avoid; page-break-inside: avoid; } .print\:hidden { display: none !important; } } .saved-report-mode [data-metric-grid] { pointer-events: none !important; } .saved-report-mode [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-id] button { display: none !important; } .goa-user-dashboard-page [data-metric-grid] { pointer-events: none !important; } @keyframes goaDropPulse { 0%,100% { box-shadow: 0 4px 14px rgba(37,99,235,.10); background-color: rgba(239,246,255,.78); } 50% { box-shadow: 0 6px 20px rgba(37,99,235,.20); background-color: rgba(219,234,254,.88); } }`}</style>
       
       {/* 1. SIDEBAR KIRI UTAMA */}
-      {!viewingSavedReport && <aside className="goa-main-sidebar w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-30 h-full">
+      {!viewingSavedReport && <aside className="goa-main-sidebar w-64 bg-white border-r border-slate-200 flex flex-col justify-start p-4 shrink-0 shadow-sm z-30 h-full">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3 px-2 py-1">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
@@ -5753,6 +5759,31 @@ export default function SinglePageDashboard() {
               <span className="font-bold text-slate-900 text-sm tracking-tight">Get One Analytics</span>
               <span className="text-xs text-slate-400 font-medium">Performance Dashboard</span>
             </div>
+          </div>
+
+          <div className="border-y border-slate-200 py-3 relative" ref={accountMenuRef}>
+            <div
+              onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+              className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-100 cursor-default select-none"
+            >
+              <div className="w-9 h-9 bg-slate-900 rounded-full text-white flex items-center justify-center text-xs font-bold shadow-sm overflow-hidden">{profilePhoto ? <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" /> : 'AH'}</div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-bold text-slate-900 leading-tight truncate">{profileFirstName} {profileLastName}</span>
+                <span className="text-xs text-slate-500 font-medium">Account</span>
+              </div>
+            </div>
+
+            {isAccountMenuOpen && (
+              <div className="absolute top-full left-2 mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-2xl p-2.5 z-50 flex flex-col text-sm">
+                <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                  <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
+                  <p className="text-xs text-slate-400">{profileEmail}</p>
+                </div>
+                {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
+                <div className="border-t border-slate-100 my-1"></div>
+                <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
+              </div>
+            )}
           </div>
 
           <nav className="flex flex-col gap-1.5 text-sm font-medium">
@@ -5780,30 +5811,6 @@ export default function SinglePageDashboard() {
           </nav>
         </div>
 
-        <div className="border-t border-slate-200 pt-3 relative" ref={accountMenuRef}>
-          <div 
-            onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-            className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-100 cursor-default select-none"
-          >
-            <div className="w-9 h-9 bg-slate-900 rounded-full text-white flex items-center justify-center text-xs font-bold shadow-sm overflow-hidden">{profilePhoto ? <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" /> : 'AH'}</div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-slate-900 leading-tight">{profileFirstName} {profileLastName}</span>
-              <span className="text-xs text-slate-500 font-medium">Account</span>
-            </div>
-          </div>
-
-          {isAccountMenuOpen && (
-            <div className="absolute bottom-16 left-2 w-56 bg-white border border-slate-200 rounded-xl shadow-2xl p-2.5 z-50 flex flex-col text-sm">
-              <div className="px-3 py-2 border-b border-slate-100 mb-1">
-                <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
-                <p className="text-xs text-slate-400">{profileEmail}</p>
-              </div>
-              {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-700 font-medium">{label}</button>)}
-              <div className="border-t border-slate-100 my-1"></div>
-              <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
-            </div>
-          )}
-        </div>
       </aside>}
 
       {/* AREA KANAN UTAMA */}

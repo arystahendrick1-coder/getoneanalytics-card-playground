@@ -48,7 +48,6 @@ body { overflow-x: auto; }
   max-width: none !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
-  transform: none !important;
   transform-origin: top left !important;
 }
 .goa-main-sidebar,
@@ -65,8 +64,7 @@ body { overflow-x: auto; }
   body { margin: 0; overflow: hidden; }
   .goa-app-shell { position: relative; top: 0; left: 0; overflow: hidden !important; }
   .goa-main-sidebar { min-height: 0; }
-  .goa-main-sidebar > :first-child { min-height: 0; overflow-y: auto; }
-  .goa-main-sidebar > :last-child { flex: 0 0 auto; margin-top: auto; }
+  .goa-main-sidebar > :first-child { min-height: 0; overflow-y: auto; flex: 0 1 auto; }
   .goa-page-sidebar { min-height: 0; }
   .goa-report-canvas { min-height: 0; overflow-y: auto; }
   .goa-customize-sidebar { min-height: 0; }
