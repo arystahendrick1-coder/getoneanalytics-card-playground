@@ -1,0 +1,10 @@
+GetOneAnalytics - Account spacing and menu interaction fix
+
+Changes:
+1. Desktop/tablet Account pages now use 112px left and right padding as the first measured approximation of the visible grey breathing space above the content card. Existing top and bottom spacing remains unchanged.
+2. The Account menu no longer collapses when clicking anywhere inside the Account page, including form fields, dropdowns, upload controls, buttons, and blank content space. Clicking outside both the Account menu and Account page still collapses it.
+3. Existing typography, Billing notice sizing, account page content, and mobile styles are preserved.
+
+Validation:
+- ZIP archive integrity checked after creation.
+- Vite build not run (dependencies are not installed in this working copy).

@@ -1734,13 +1734,12 @@ export default function SinglePageDashboard() {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      // Interacting with Account page controls is not an outside-dismiss action.
-      // Keep the Account menu expanded while the user edits forms, selects options,
-      // uploads a profile photo, or activates an Account page control.
-      const accountPageControl = event.target.closest(
-        '.goa-account-page input, .goa-account-page select, .goa-account-page textarea, .goa-account-page button, .goa-account-page label'
-      );
-      if (!accountPageControl && accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
+      // The whole Account page is an inside interaction area. Clicking form fields,
+      // labels, upload controls, whitespace, or other page content must not collapse
+      // the expanded Account menu. Only a click outside both the Account menu and
+      // the Account page dismisses it.
+      const insideAccountPage = event.target.closest('.goa-account-page');
+      if (!insideAccountPage && accountMenuRef.current && !accountMenuRef.current.contains(event.target)) {
         setIsAccountMenuOpen(false);
       }
       if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
