@@ -7,6 +7,7 @@ import Home from './Home.jsx';
 export default function SinglePageDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState(() => { try { return localStorage.getItem('goa:lastActiveTab') || 'dashboard'; } catch (_) { return 'dashboard'; } });
+  const [dashboardNavigationRequest, setDashboardNavigationRequest] = useState(0);
   // Metric builder state for Master V4
   const [selectedMetricPlatform, setSelectedMetricPlatform] = useState(null);
   const [metricSearch, setMetricSearch] = useState('');
@@ -2000,18 +2001,46 @@ export default function SinglePageDashboard() {
     };
   }, [activeTab, reportPages.length]);
 
-  // Open the report on Google Analytics by default, while keeping every paper mounted.
-  const didSetInitialReportPositionRef = useRef(false);
+  // Every Dashboard entry must open on Google Analytics (page 2).
+  // The login screen can leave activeTab as 'dashboard' before the dashboard DOM exists,
+  // so this effect also watches authentication and an explicit navigation request.
   useEffect(() => {
-    if (activeTab !== 'dashboard' || didSetInitialReportPositionRef.current) return;
-    const analyticsPage = reportPaperRefs.current['p3'];
-    const scroller = reportScrollRef.current;
-    if (!analyticsPage || !scroller) return;
-    didSetInitialReportPositionRef.current = true;
-    requestAnimationFrame(() => {
-      scroller.scrollTop = Math.max(0, scroller.scrollTop + analyticsPage.getBoundingClientRect().top - scroller.getBoundingClientRect().top);
+    if (!isAuthenticated || activeTab !== 'dashboard') return;
+
+    let cancelled = false;
+    let frame = 0;
+    let attempts = 0;
+
+    setReportPages((pages) => pages.map((page) => ({ ...page, active: page.id === 'p3' })));
+
+    const alignGoogleAnalytics = () => {
+      if (cancelled) return;
+      const scroller = reportScrollRef.current;
+      const analyticsPage = reportPaperRefs.current['p3'];
+
+      // Wait for the authenticated Dashboard and its page refs to finish mounting.
+      if (!scroller || !analyticsPage || scroller.clientHeight === 0 || analyticsPage.getBoundingClientRect().height === 0) {
+        attempts += 1;
+        if (attempts < 30) frame = requestAnimationFrame(alignGoogleAnalytics);
+        return;
+      }
+
+      const scrollerRect = scroller.getBoundingClientRect();
+      const pageRect = analyticsPage.getBoundingClientRect();
+      const targetTop = Math.max(0, scroller.scrollTop + pageRect.top - scrollerRect.top);
+      scroller.scrollTo({ top: targetTop, behavior: 'auto' });
+    };
+
+    // Two frames allow React to commit the active page and the browser to lay out the papers.
+    frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(alignGoogleAnalytics);
     });
-  }, [activeTab]);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [isAuthenticated, activeTab, selectedClient, dashboardNavigationRequest]);
 
   useEffect(() => {
     if (!draggedPageId) return;
@@ -5671,6 +5700,7 @@ export default function SinglePageDashboard() {
       setUserRows(rows => rows.map(row => ({ ...row, you: row.email.toLowerCase() === nextEmail })));
       const nextProperty = userRows.find(row => row.email.toLowerCase() === nextEmail && row.status === 'Active')?.property || '';
       setSelectedClient(nextProperty);
+      setReportPages((pages) => pages.map((page) => ({ ...page, active: page.id === 'p3' })));
       setActiveTab('dashboard');
       setIsAuthenticated(true);
     }} />;
@@ -5695,7 +5725,7 @@ export default function SinglePageDashboard() {
 
           <nav className="flex flex-col gap-1.5 text-sm font-medium">
             <button 
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => { setActiveTab('dashboard'); setDashboardNavigationRequest((value) => value + 1); }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-default ${activeTab === 'dashboard' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}
             >
               <svg className={`w-4 h-4 ${activeTab === 'dashboard' ? 'fill-blue-600' : 'fill-blue-500'}`} viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3H3z"/></svg> 
@@ -7100,7 +7130,7 @@ export default function SinglePageDashboard() {
       )}
 
       {!viewingSavedReport && <nav className="goa-mobile-bottom-nav" aria-label="Mobile navigation">
-        <button type="button" onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? 'active' : ''}>
+        <button type="button" onClick={() => { setActiveTab('dashboard'); setDashboardNavigationRequest((value) => value + 1); }} className={activeTab === 'dashboard' ? 'active' : ''}>
           <span aria-hidden="true">▦</span><small>Live Dashboard</small>
         </button>
         <button type="button" onClick={() => setActiveTab('reports')} className={activeTab === 'reports' ? 'active' : ''}>

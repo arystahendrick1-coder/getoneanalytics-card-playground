@@ -8,3 +8,9 @@ Important
 - This is a diagnostic build configuration, not a confirmed fix for the ReferenceError.
 - No application UI, data, or navigation logic was intentionally changed in this package.
 - Once the original source line is identified, the underlying ReferenceError should be fixed and this diagnostic configuration can be reverted if desired.
+
+Dashboard page 2 navigation correction (12 Nov 2026)
+- Fixed Dashboard entry so the automatic page alignment runs after authentication, not only when activeTab changes.
+- Every Dashboard navigation request selects Google Analytics (p3) and scrolls the report canvas to that page after its DOM refs and layout are ready.
+- The behavior also runs when switching properties and when Dashboard is clicked while already on the Dashboard tab.
+- Cover Page remains the first report page and is not removed or reordered.
