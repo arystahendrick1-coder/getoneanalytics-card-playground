@@ -10,7 +10,9 @@ export default function Home({ onLogin }) {
   const [loginName, setLoginName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [signupName, setSignupName] = useState('');
+  const [signupFirstName, setSignupFirstName] = useState('');
+  const [signupLastName, setSignupLastName] = useState('');
+  const [signupProperty, setSignupProperty] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [success, setSuccess] = useState('');
@@ -39,7 +41,7 @@ export default function Home({ onLogin }) {
       </header>
 
       {view === 'home' && <main className="flex-1 flex flex-col items-center justify-center text-center px-4 py-16 max-w-5xl mx-auto w-full">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-6">All Your Digital Marketing Analytics in One Single Dashboard</h1>
+        <h1 className="text-4xl md:text-[42px] font-extrabold text-slate-900 leading-tight mb-6">All Your Digital Marketing Analytics in One Single Dashboard</h1>
         <p className="text-slate-600 text-base md:text-lg max-w-2xl mb-8 leading-relaxed">Unify Google Analytics 4, Meta Ads, and multi-channel performance data. Stop logging into multiple portals and start making data-driven marketing decisions.</p>
         <button onClick={() => setView('signup')} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg">Get Started</button>
         <div id="features" className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 w-full text-left">
@@ -68,15 +70,18 @@ export default function Home({ onLogin }) {
 
       {view === 'signup' && <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 w-full max-w-md">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Create Your Account</h2>
-          <p className="text-sm text-slate-500 mb-6">Start your 38-day free trial.</p>
-          <form onSubmit={e => { e.preventDefault(); setSuccess('Sign Up is still in testing and is not connected to the database yet.'); }} className="space-y-4">
-            <div><label className="block text-xs font-semibold mb-1.5">Full Name</label><input value={signupName} onChange={e=>setSignupName(e.target.value)} placeholder="Your name" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm" required /></div>
-            <div><label className="block text-xs font-semibold mb-1.5">Email Address</label><input type="email" value={signupEmail} onChange={e=>setSignupEmail(e.target.value)} placeholder="you@example.com" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm" required /></div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-1">Start your free 38-day trial</h2>
+          <p className="text-xs text-slate-500 mb-6">No credit card required · Automatically registered as Admin</p>
+          <form onSubmit={e => { e.preventDefault(); setSuccess('Sign Up is still in testing and is not connected to the database yet.'); }} className="space-y-3">
+            <div><label className="block text-xs font-semibold mb-1.5">First Name</label><input value={signupFirstName} onChange={e=>setSignupFirstName(e.target.value)} placeholder="Enter first name" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm" required /></div>
+            <div><label className="block text-xs font-semibold mb-1.5">Last Name</label><input value={signupLastName} onChange={e=>setSignupLastName(e.target.value)} placeholder="Enter last name" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm" required /></div>
+            <div><label className="block text-xs font-semibold mb-1.5">Property Name</label><input value={signupProperty} onChange={e=>setSignupProperty(e.target.value)} placeholder="Enter Company Name" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm" required /></div>
+            <div><label className="block text-xs font-semibold mb-1.5">Email</label><input type="email" value={signupEmail} onChange={e=>setSignupEmail(e.target.value)} placeholder="Enter email" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm" required /></div>
             <div><label className="block text-xs font-semibold mb-1.5">Password</label><input type="password" value={signupPassword} onChange={e=>setSignupPassword(e.target.value)} placeholder="Create password" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm" required /></div>
             <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm">Create Account</button>
           </form>
-          <button onClick={() => setSuccess('Google Sign Up is still in testing.')} className="w-full mt-4 border border-slate-300 text-slate-700 font-medium py-2.5 rounded-lg text-sm">Sign up with Google</button>
+          <div className="flex items-center gap-3 my-4 text-xs text-slate-400"><span className="h-px bg-slate-200 flex-1"/>OR<span className="h-px bg-slate-200 flex-1"/></div>
+          <button onClick={() => setSuccess('Google Sign Up is still in testing.')} className="w-full border border-slate-300 text-slate-700 font-medium py-2.5 rounded-lg text-sm">Sign up with Google</button>
           {success && <p className="text-xs text-amber-700 bg-amber-50 rounded-lg p-3 mt-4">{success}</p>}
           <div className="text-center mt-6 text-xs text-slate-600">Already have an account? <button onClick={() => setView('login')} className="text-blue-600 font-semibold">Log in</button></div>
           <div className="text-center mt-6"><button onClick={() => setView('home')} className="text-xs text-slate-500">← Back to Home</button></div>
