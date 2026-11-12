@@ -238,3 +238,77 @@ body { overflow-x: auto; }
     overflow-x: auto !important;
   }
 }
+
+
+/* Mobile-only refinements: keep the desktop canvas and typography unchanged. */
+@media (max-width: 767px) {
+  /* The public Home/Login/Signup screen owns its own vertical scrolling because
+     the mobile app shell intentionally locks document scrolling. */
+  .goa-home-screen {
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    justify-content: flex-start !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .goa-home-screen > header,
+  .goa-home-screen > footer {
+    flex: 0 0 auto;
+  }
+  .goa-home-screen > main {
+    flex: 1 0 auto;
+  }
+
+  /* The desktop report typography enhancement should not enlarge the mobile
+     dashboard. Restore the normal Tailwind text scale on phone screens. */
+  .goa-dashboard-page [class~="text-[7px]"] { font-size: 7px !important; }
+  .goa-dashboard-page [class~="text-[8px]"] { font-size: 8px !important; }
+  .goa-dashboard-page [class~="text-[9px]"] { font-size: 9px !important; }
+  .goa-dashboard-page [class~="text-[10px]"] { font-size: 10px !important; }
+  .goa-dashboard-page [class~="text-xs"] { font-size: 12px !important; }
+  .goa-dashboard-page [class~="text-sm"] { font-size: 14px !important; }
+  .goa-dashboard-page [class~="text-base"] { font-size: 16px !important; }
+  .goa-dashboard-page [class~="text-lg"] { font-size: 18px !important; }
+  .goa-dashboard-page [class~="text-xl"] { font-size: 20px !important; }
+  .goa-dashboard-page [class~="text-2xl"] { font-size: 24px !important; }
+  .goa-dashboard-page [class~="text-3xl"] { font-size: 30px !important; }
+  .goa-dashboard-page [class~="text-4xl"] { font-size: 36px !important; }
+  .goa-dashboard-page [class~="text-5xl"] { font-size: 48px !important; }
+
+  .goa-dashboard-page [data-metric-content] { font-size: 14px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-[7px]"] { font-size: 7px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-[8px]"] { font-size: 8px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-[9px]"] { font-size: 9px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-[10px]"] { font-size: 10px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-xs"] { font-size: 12px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-sm"] { font-size: 14px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-base"] { font-size: 16px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-lg"] { font-size: 18px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-xl"] { font-size: 20px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-2xl"] { font-size: 24px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-3xl"] { font-size: 30px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-4xl"] { font-size: 36px !important; }
+  .goa-dashboard-page [data-metric-content] [class~="text-5xl"] { font-size: 48px !important; }
+
+  /* Reports table scrolls horizontally inside its own rounded card, so the
+     card border does not end awkwardly below the Download column. */
+  .goa-reports-table-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden !important;
+  }
+  .goa-reports-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .goa-reports-table {
+    width: max-content !important;
+    min-width: 820px !important;
+    table-layout: auto;
+  }
+}

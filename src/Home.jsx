@@ -31,7 +31,7 @@ export default function Home({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between font-sans">
+    <div className="goa-home-screen min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between font-sans">
       <header className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white">
         <div className="text-xl font-bold text-blue-600 tracking-wide cursor-pointer" onClick={() => setView('home')}>GetOneAnalytics</div>
         <div className="flex items-center gap-6 text-sm text-slate-600">

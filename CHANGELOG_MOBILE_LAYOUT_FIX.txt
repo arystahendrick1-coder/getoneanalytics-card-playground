@@ -1,0 +1,12 @@
+GetOneAnalytics Mobile Layout Fix
+Date: 12 November 2026
+
+Changes:
+1. Home, Login, and Signup screens now own a vertically scrollable mobile viewport, so the Home footer can be reached even while the app document is locked against scrolling.
+2. Mobile Dashboard typography is restored to the normal Tailwind scale. The existing desktop typography enhancements remain unchanged.
+3. Reports table is wrapped in an internal horizontal scroll container with a stable minimum table width. The rounded card clips the table at its edges, preventing the partial border/box below the Download column.
+
+Scope:
+- Mobile-only CSS adjustments plus a Reports table wrapper.
+- No changes to dashboard navigation logic or desktop layout.
+- Build/browser verification has not been run in this environment.

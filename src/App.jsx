@@ -6469,8 +6469,9 @@ export default function SinglePageDashboard() {
           {activeTab === 'reports' && (
             <main className="flex-1 p-6 md:p-8 flex flex-col gap-6 max-w-7xl w-full mx-auto overflow-y-auto h-full pb-24">
               <h1 className="text-xl font-bold text-slate-900">Report</h1>
-              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm">
-                <table className="w-full text-left text-sm border-collapse">
+              <div className="goa-reports-table-card bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div className="goa-reports-table-wrap w-full overflow-x-auto">
+                <table className="goa-reports-table w-full text-left text-sm border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 text-slate-400 font-semibold bg-slate-50/30">
                       <th className="py-3 px-4">Name</th>
@@ -6624,6 +6625,7 @@ export default function SinglePageDashboard() {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
             </main>
           )}
