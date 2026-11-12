@@ -1,0 +1,4 @@
+Billing subscription status note adjustment
+- Removed the trailing full stop from “Some integrations will be disabled”.
+- Changed the note text colour to red and applied italic styling.
+- No other billing layout, spacing, typography, navigation, or interaction changes were made.
