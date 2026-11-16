@@ -1,0 +1,16 @@
+LEAVE / OWNERSHIP TRANSFER FIX
+
+Baseline: GetOneAnalytics_Billing_Status_Note_Style_Fix(1).zip
+
+Changes limited to src/App.jsx:
+- Owner Leave remains disabled when there are no other active memberships in the same Property. Delete Property remains available from the Owner property menu.
+- When an Owner leaves a Property with other active members, the confirmation modal requires two explicit selections: New Owner and New Admin.
+- Both dropdowns are populated only from active user memberships whose property exactly matches the Property being left. Users from other Properties are excluded.
+- The New Owner and New Admin may be the same person or two different people.
+- On confirmation, the selected membership receives isOwner=true and the selected Admin membership receives type='Admin'; the departing Owner membership is removed.
+- Existing non-owner Leave eligibility and other application areas are unchanged.
+
+Validation:
+- JSX/JavaScript syntax transpilation passed with zero diagnostics.
+- ZIP integrity check performed after packaging.
+- Full Vite production build not run because dependencies are not installed in this environment.
