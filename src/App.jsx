@@ -5786,19 +5786,15 @@ export default function SinglePageDashboard() {
               <div className="w-9 h-9 bg-slate-900 rounded-full text-white flex items-center justify-center text-xs font-bold shadow-sm overflow-hidden">{profilePhoto ? <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" /> : 'AH'}</div>
               <div className="flex flex-col min-w-0">
                 <span className="text-sm font-bold text-slate-900 leading-tight truncate">{profileFirstName} {profileLastName}</span>
-                <span className="text-xs text-slate-500 font-medium">Account</span>
+                <span className="text-xs text-slate-500 font-medium truncate">{profileEmail}</span>
               </div>
             </div>
 
             <div className={`goa-account-menu-expand ${isAccountMenuOpen ? 'is-open' : ''}`} aria-hidden={!isAccountMenuOpen}>
               <div className="goa-account-menu-content flex flex-col text-sm">
-                <div className="px-3 py-2 border-b border-slate-200 mb-1">
-                  <p className="font-bold text-slate-900 text-sm">{profileFirstName} {profileLastName}</p>
-                  <p className="text-xs text-slate-500">{profileEmail}</p>
-                </div>
-                {[['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); }} className="text-left px-3 py-2 rounded-lg hover:bg-white/70 text-slate-700 font-medium">{label}</button>)}
+                {[['notifications','Notifications'],['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-1.5 rounded-lg hover:bg-white/70 text-slate-700 font-medium">{label}</button>)}
                 <div className="border-t border-slate-200 my-1"></div>
-                <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
+                <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-1.5 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
               </div>
             </div>
           </div>
