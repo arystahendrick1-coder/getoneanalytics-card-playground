@@ -2104,12 +2104,9 @@ export default function SinglePageDashboard() {
         return;
       }
 
-      const scrollerRect = scroller.getBoundingClientRect();
-      const pageRect = analyticsPage.getBoundingClientRect();
-      // Leave a small top inset so the page title and reporting period are fully visible.
-      // Keep the existing smooth animation; only adjust the Dashboard-entry target by pixels.
-      const targetTop = Math.max(0, scroller.scrollTop + pageRect.top - scrollerRect.top - 40);
-      scroller.scrollTo({ top: targetTop, behavior: 'smooth' });
+      // Use the exact same positioning method as clicking the Google Analytics
+      // item in the Page List, so Dashboard entry has no extra top gap.
+      analyticsPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     // Two frames allow React to commit the active page and the browser to lay out the papers.
