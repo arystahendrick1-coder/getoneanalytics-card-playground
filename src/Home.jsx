@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const DEMO_ACCOUNTS = [
   { name: 'Arysta Hendrik', email: 'ah@gmail.com', password: '000000', firstName: 'Arysta', lastName: 'Hendrik' },
   { name: 'Hospio Team', email: 'marketing@example.com', password: '000000', firstName: 'Hospio', lastName: 'Team' },
+  { name: 'Sundrik', email: 'sundrik@example.com', password: '0000', firstName: 'Sundrik', lastName: '' },
 ];
 
 export default function Home({ onLogin }) {
@@ -58,7 +59,7 @@ export default function Home({ onLogin }) {
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome Back</h2>
           <p className="text-sm text-slate-500 mb-6">Log in to access your analytics dashboard.</p>
           <form onSubmit={submitLogin} className="space-y-4">
-            <div><label className="block text-xs font-semibold text-slate-700 mb-1.5">Account Name or Email</label><input value={loginName} onChange={e => setLoginName(e.target.value)} placeholder="Arysta Hendrik or Hospio Team" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-blue-600" required /></div>
+            <div><label className="block text-xs font-semibold text-slate-700 mb-1.5">Account Name or Email</label><input value={loginName} onChange={e => setLoginName(e.target.value)} placeholder="Arysta Hendrik, Hospio Team or Sundrik" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-blue-600" required /></div>
             <div><label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-blue-600" required /></div>
             {error && <p className="text-sm text-rose-600">{error}</p>}
             <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm">Log In</button>

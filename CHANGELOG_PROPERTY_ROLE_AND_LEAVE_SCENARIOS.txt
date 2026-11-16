@@ -1,0 +1,26 @@
+GetOneAnalytics - Property Role & Leave Scenario Update
+
+Baseline: GetOneAnalytics_Billing_Status_Note_Style_Fix LEAVE GAGAL.zip
+
+Changes:
+- Updated demo membership data to the agreed four-property role matrix:
+  * Prasana Villas Uluwatu: Arysta Hendrik = Admin Owner; Sundrik = Admin Invited.
+  * Selong Selo Resort & Villas: Arysta Hendrik = Admin Owner; Sundrik = Member.
+  * Bumi Kinar Ubud: Sundrik = Admin Owner; Arysta Hendrik = Member; Hospio Team = Pending Member.
+  * Patra Bali: Sundrik = Admin Owner; Arysta Hendrik = Admin Invited; Hospio Team = Active Member.
+- Added a Sundrik demo login (sundrik@example.com / password 0000).
+- Leave is enabled for Members and Admin Invited users.
+- Admin Owner Leave is enabled only when at least one other Active member exists in the same Property. Pending invitations do not count.
+- Delete Property is available only to Admin Owners. It remains available when the Admin Owner is the only Active member.
+- Admin Owners leaving must choose New Owner and New Admin separately from Active members of that same Property. The same person may be selected for both roles.
+- Property menu shows Rename and Upload Logo to Admin Owner and Admin Invited users; Leave according to the agreed condition; Delete Property to Admin Owner only.
+- Pending invitations retain Resend and Cancel actions and are not eligible for role transfer.
+
+Scope:
+- Modified src/App.jsx and src/Home.jsx.
+- No intentional layout, dashboard, billing, or metric changes.
+
+Validation:
+- JSX syntax transpilation passed for src/App.jsx and src/Home.jsx using the installed TypeScript JSX transpiler.
+- Full Vite build was not run because project dependencies are not installed in this environment.
+- This is demo/front-end state only. Sundrik's login is not a production authentication account and does not create a backend user.

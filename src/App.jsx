@@ -1319,7 +1319,7 @@ export default function SinglePageDashboard() {
   const [profileLastName, setProfileLastName] = useState('Hendrik');
   const [profileEmail, setProfileEmail] = useState('ah@gmail.com');
   const [activeAccountEmail, setActiveAccountEmail] = useState('ah@gmail.com');
-  const [profileNamesByEmail, setProfileNamesByEmail] = useState({ 'ah@gmail.com': { firstName: 'Arysta', lastName: 'Hendrik' }, 'marketing@example.com': { firstName: 'Hospio', lastName: 'Team' } });
+  const [profileNamesByEmail, setProfileNamesByEmail] = useState({ 'ah@gmail.com': { firstName: 'Arysta', lastName: 'Hendrik' }, 'marketing@example.com': { firstName: 'Hospio', lastName: 'Team' }, 'sundrik@example.com': { firstName: 'Sundrik', lastName: '' } });
   const [recoveryEmail, setRecoveryEmail] = useState('');
   const [appearance, setAppearance] = useState('Light Mode');
   const [showAddUserModal, setShowAddUserModal] = useState(false);
@@ -1334,13 +1334,20 @@ export default function SinglePageDashboard() {
     setEditingUser(null);
   };
   const [userRows, setUserRows] = useState([
+    // Prasana Villas Uluwatu: Arysta is Admin Owner; Sundrik is Invited Admin.
     { id: 'u1', property: 'Prasana Villas Uluwatu', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: true },
-    { id: 'u2', property: 'Prasana Villas Uluwatu', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Active' },
-    { id: 'u3', property: 'Bumi Kinar Ubud', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Member', status: 'Active', you: true, isOwner: false },
-    { id: 'u4', property: 'Selong Selo Resort & Villas', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: true },
-    { id: 'u5', property: 'Patra Bali', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: false },
-    { id: 'u6', property: 'Bumi Kinar Ubud', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Pending' },
-    { id: 'u7', property: 'Patra Bali', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Active' },
+    { id: 'u2', property: 'Prasana Villas Uluwatu', account: 'Sundrik', email: 'sundrik@example.com', type: 'Admin', status: 'Active', isOwner: false },
+    // Selong Selo: Arysta is Admin Owner; Sundrik is an invited Member.
+    { id: 'u3', property: 'Selong Selo Resort & Villas', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: true },
+    { id: 'u4', property: 'Selong Selo Resort & Villas', account: 'Sundrik', email: 'sundrik@example.com', type: 'Member', status: 'Active', isOwner: false },
+    // Bumi Kinar: Sundrik is Admin Owner; Arysta is Member; Hospio invitation is Pending.
+    { id: 'u5', property: 'Bumi Kinar Ubud', account: 'Sundrik', email: 'sundrik@example.com', type: 'Admin', status: 'Active', isOwner: true },
+    { id: 'u6', property: 'Bumi Kinar Ubud', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Member', status: 'Active', you: true, isOwner: false },
+    { id: 'u7', property: 'Bumi Kinar Ubud', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Pending', isOwner: false },
+    // Patra Bali: Sundrik is Admin Owner; Arysta is Invited Admin; Hospio is Active Member.
+    { id: 'u8', property: 'Patra Bali', account: 'Sundrik', email: 'sundrik@example.com', type: 'Admin', status: 'Active', isOwner: true },
+    { id: 'u9', property: 'Patra Bali', account: 'Arysta Hendrik', email: 'ah@gmail.com', type: 'Admin', status: 'Active', you: true, isOwner: false },
+    { id: 'u10', property: 'Patra Bali', account: 'Hospio Team', name: 'Hospio Team', email: 'marketing@example.com', type: 'Member', status: 'Active', isOwner: false },
   ]);
   const [billingPlan, setBillingPlan] = useState('Pro');
   const [userSort, setUserSort] = useState({ key: 'property', direction: 'asc' });
@@ -1453,16 +1460,26 @@ export default function SinglePageDashboard() {
   const getActiveMembershipForCurrentUser = (property) => userRows.find(row =>
     row.email.toLowerCase() === currentUserEmail && row.property === property && row.status === 'Active'
   );
-  // Role successors must belong to this exact Property and have an Active membership.
-  const getEligiblePropertySuccessors = (property) => userRows.filter(row =>
+  // Any other active workspace member can receive ownership. The selected
+  // successor is promoted to Admin as part of the ownership transfer.
+  const getEligibleOwnershipSuccessors = (property) => userRows.filter(row =>
     row.property === property && row.status === 'Active' &&
     row.email.toLowerCase() !== currentUserEmail
   );
-  const getEligibleOwnershipSuccessors = getEligiblePropertySuccessors;
+  const getOtherActivePropertyMembers = (property, membershipId) => userRows.filter(row =>
+    row.property === property && row.status === 'Active' && row.id !== membershipId
+  );
+  // Leave/Delete availability follows the agreed property-level matrix.
+  // Pending invitations are not members and never count as successors.
   const canCurrentUserLeaveProperty = (property) => {
     const membership = getActiveMembershipForCurrentUser(property);
-    return Boolean(membership && getEligiblePropertySuccessors(property).length > 0);
+    if (!membership) return false;
+    if (membership.isOwner) return getOtherActivePropertyMembers(property, membership.id).length > 0;
+    return true;
   };
+  const canCurrentUserDeleteProperty = (property) => Boolean(
+    getActiveMembershipForCurrentUser(property)?.isOwner
+  );
   const isActivePropertyUser = activePropertyRole === 'Member';
   
   const getInitialDates = () => {
@@ -5846,19 +5863,12 @@ export default function SinglePageDashboard() {
                           <button onClick={() => { setSelectedClient(client); setIsClientDropdownOpen(false); setActivePropertyMenu(null); }} className={`flex-1 min-w-0 text-left px-2 py-1.5 font-medium truncate ${selectedClient === client ? 'text-blue-600 font-bold' : 'text-slate-700'}`}>{client}</button>
                         </div>
                         {activePropertyMenu === client && <div className="ml-2 mr-1 mb-1 rounded-lg border border-slate-200 bg-white shadow-sm p-1 flex flex-col">
-                          {userRows.find(row=>row.email.toLowerCase()===currentUserEmail&&row.property===client&&row.status==='Active')?.isOwner && <>
+                          {getCurrentUserRoleForProperty(client)==='Admin' && <>
                             <button onClick={() => { setPropertyAction({type:'rename',name:client}); setPropertyNameInput(client); setActivePropertyMenu(null); }} className="text-left px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 transition-colors duration-150">Rename</button>
                             <label className="px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 cursor-default transition-colors duration-150">Upload Logo<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file=e.target.files?.[0]; if(file) setPropertyLogo(prev=>({...prev,[client]:URL.createObjectURL(file)})); setActivePropertyMenu(null); }} /></label>
-                            <button type="button" disabled={!canCurrentUserLeaveProperty(client)} title={!canCurrentUserLeaveProperty(client)?'Another active team member is required to receive ownership.':''} onClick={() => { const membership=getActiveMembershipForCurrentUser(client); if(membership)setUserConfirmAction({type:'ownerLeave',row:membership,successorId:'',adminSuccessorId:''}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className={`text-left px-3 py-2 rounded-md text-xs ${canCurrentUserLeaveProperty(client)?'hover:bg-rose-50 text-rose-600':'text-slate-400 cursor-not-allowed'}`}>Leave</button>
-                            <button onClick={() => { setUserConfirmAction({type:'deleteWorkspace',row:{property:client}}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className="text-left px-3 py-2 rounded-md hover:bg-rose-50 text-xs text-rose-600">Delete Property</button>
                           </>}
-                          {!userRows.find(row=>row.email.toLowerCase()===currentUserEmail&&row.property===client&&row.status==='Active')?.isOwner && <>
-                            {getCurrentUserRoleForProperty(client)==='Admin' && <>
-                              <button onClick={() => { setPropertyAction({type:'rename',name:client}); setPropertyNameInput(client); setActivePropertyMenu(null); }} className="text-left px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 transition-colors duration-150">Rename</button>
-                              <label className="px-3 py-2 rounded-md hover:bg-blue-100 text-xs text-slate-700 cursor-default text-xs">Upload Logo<input type="file" accept="image/*" className="hidden" onChange={(e) => { const file=e.target.files?.[0]; if(file) setPropertyLogo(prev=>({...prev,[client]:URL.createObjectURL(file)})); setActivePropertyMenu(null); }} /></label>
-                            </>}
-                            <button type="button" disabled={!canCurrentUserLeaveProperty(client)} title={!canCurrentUserLeaveProperty(client)?'You cannot leave until another active member can maintain this Workspace.':''} onClick={() => { const membership=getActiveMembershipForCurrentUser(client); if(membership)setUserConfirmAction({type:membership.type==='Admin'?'adminLeave':'leave',row:membership,adminSuccessorId:''}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className={`text-left px-3 py-2 rounded-md text-xs ${canCurrentUserLeaveProperty(client)?'hover:bg-rose-50 text-rose-600':'text-slate-400 cursor-not-allowed'}`}>Leave</button>
-                          </>}
+                          <button type="button" disabled={!canCurrentUserLeaveProperty(client)} title={!canCurrentUserLeaveProperty(client)?'An Admin Owner cannot leave without another active member in this Property.':''} onClick={() => { const membership=getActiveMembershipForCurrentUser(client); if(membership)setUserConfirmAction({type:membership.isOwner?'ownerLeave':'leave',row:membership,successorId:'',adminSuccessorId:''}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className={`text-left px-3 py-2 rounded-md text-xs ${canCurrentUserLeaveProperty(client)?'hover:bg-rose-50 text-rose-600':'text-slate-400 cursor-not-allowed'}`}>Leave</button>
+                          {canCurrentUserDeleteProperty(client) && <button onClick={() => { setUserConfirmAction({type:'deleteWorkspace',row:{property:client}}); setActivePropertyMenu(null); setIsClientDropdownOpen(false); }} className="text-left px-3 py-2 rounded-md hover:bg-rose-50 text-xs text-rose-600">Delete Property</button>}
                         </div>}
                       </div>
                     ))}
@@ -6736,7 +6746,7 @@ export default function SinglePageDashboard() {
             }} className={`px-5 py-2.5 rounded-lg font-semibold ${profileSaved?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-700'}`}>{profileSaved?'Saved':'Save Profile'}</button></div></div></main>}
 
           {/* ACCOUNT: USERS */}
-          {activeTab === 'users' && <main className="goa-account-page flex-1 min-w-0 w-full p-6 md:p-7 overflow-y-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage user access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{visibleUserRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['account','Account'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...visibleUserRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=>{const canManageUserRow=canManageUserMembership(row) || (getCurrentUserRoleForProperty(row.property)==='Admin' && row.status==='Pending' && !row.isOwner && row.email.toLowerCase()!==currentUserEmail);return <tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.account || (row.you ? `${profileFirstName} ${profileLastName}`.trim() : '—')}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><div className="relative inline-block user-action-container">{(canManageUserRow||(row.email.toLowerCase()===currentUserEmail&&row.status==='Active'))?<><button type="button" aria-label={`Actions for ${row.email} at ${row.property}`} onClick={()=>setUserActionMenuId(current=>current===row.id?null:row.id)} className="px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100">•••</button>{userActionMenuId===row.id&&<div className="absolute right-0 top-full mt-1 z-50 w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-lg text-left">{(row.email.toLowerCase()===currentUserEmail?(row.status==='Active'?(row.isOwner?['Leave','Delete Property']:['Leave']):[]):canManageUserRow?(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']):[]).map(action=>{const leaveDisabled=action==='Leave'&&!canCurrentUserLeaveProperty(row.property);return <button key={action} type="button" disabled={leaveDisabled} title={leaveDisabled?(row.isOwner?'Another active team member is required to receive ownership.':'Another active member or Admin must remain in this Workspace.'):''} onClick={()=>{if(action==='Leave'||action==='Delete Property'){setUserConfirmAction({type:action==='Leave'?(row.isOwner?'ownerLeave':row.type==='Admin'?'adminLeave':'leave'):'deleteWorkspace',row,successorId:'',adminSuccessorId:''});}else if(action==='Edit'){if(canManageUserMembership(row))openUserEdit(row);}else if(action==='Remove'){if(canManageUserMembership(row))setUserRows(current=>current.filter(item=>item.id!==row.id&&!item.isOwner));}else if(action==='Cancel'&&getCurrentUserRoleForProperty(row.property)==='Admin'&&!row.isOwner&&row.email.toLowerCase()!==currentUserEmail){setUserRows(current=>current.filter(item=>item.id!==row.id));}setUserActionMenuId(null);}} className={`w-full px-3 py-2 text-left text-sm ${leaveDisabled?'text-slate-400 cursor-not-allowed':'hover:bg-slate-50'} ${['Remove','Cancel','Leave','Delete Property'].includes(action)?(leaveDisabled?'text-slate-400':'text-rose-600'):'text-slate-700'}`}>{action}</button>})}</div>}</>:<span className="inline-flex items-center gap-1.5 text-xs text-slate-400" title="Only property Admins can manage users"><icon name="lock" size="xs"/> View only</span>}</div></td></tr>})}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
+          {activeTab === 'users' && <main className="goa-account-page flex-1 min-w-0 w-full p-6 md:p-7 overflow-y-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Users</h1><p className="text-sm text-slate-500 mt-1">Manage user access for each property.</p></div><div className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-4 flex justify-between items-center"><span className="text-sm font-semibold text-slate-600">{visibleUserRows.length} users</span></div><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{[['property','Property'],['account','Account'],['email','Email'],['type','Type'],['status','Status']].map(([key,label])=><th key={key} className="px-4 py-3"><button onClick={()=>setUserSort(prev=>({key,direction:prev.key===key&&prev.direction==='asc'?'desc':'asc'}))}>{label} ↕</button></th>)}<th className="px-4 py-3"> </th></tr></thead><tbody className="divide-y divide-slate-100">{[...visibleUserRows].sort((a,b)=>String(a[userSort.key]).localeCompare(String(b[userSort.key]))*(userSort.direction==='asc'?1:-1)).map(row=>{const canManageUserRow=canManageUserMembership(row) || (getCurrentUserRoleForProperty(row.property)==='Admin' && row.status==='Pending' && !row.isOwner && row.email.toLowerCase()!==currentUserEmail);return <tr key={row.id}><td className="px-4 py-3">{row.property}</td><td className="px-4 py-3">{row.account || (row.you ? `${profileFirstName} ${profileLastName}`.trim() : '—')}</td><td className="px-4 py-3">{row.email} {row.you&&<span className="text-slate-400">(You)</span>}</td><td className="px-4 py-3">{row.type}</td><td className="px-4 py-3"><span className={`text-xs rounded-full px-2.5 py-1 ${row.status==='Active'?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{row.status}</span></td><td className="px-4 py-3"><div className="relative inline-block user-action-container">{(canManageUserRow||(row.email.toLowerCase()===currentUserEmail&&row.status==='Active'))?<><button type="button" aria-label={`Actions for ${row.email} at ${row.property}`} onClick={()=>setUserActionMenuId(current=>current===row.id?null:row.id)} className="px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100">•••</button>{userActionMenuId===row.id&&<div className="absolute right-0 top-full mt-1 z-50 w-40 rounded-xl border border-slate-200 bg-white py-1 shadow-lg text-left">{(row.email.toLowerCase()===currentUserEmail?(row.status==='Active'?(row.isOwner?['Leave','Delete Property']:['Leave']):[]):canManageUserRow?(row.status==='Active'?['Edit','Remove']:['Resend','Cancel']):[]).map(action=>{const leaveDisabled=action==='Leave'&&!canCurrentUserLeaveProperty(row.property);return <button key={action} type="button" disabled={leaveDisabled} title={leaveDisabled?'An Admin Owner cannot leave without another active member in this Property.':''} onClick={()=>{if(action==='Leave'||action==='Delete Property'){setUserConfirmAction({type:action==='Leave'?(row.isOwner?'ownerLeave':'leave'):'deleteWorkspace',row,successorId:'',adminSuccessorId:''});}else if(action==='Edit'){if(canManageUserMembership(row))openUserEdit(row);}else if(action==='Remove'){if(canManageUserMembership(row))setUserRows(current=>current.filter(item=>item.id!==row.id&&!item.isOwner));}else if(action==='Cancel'&&getCurrentUserRoleForProperty(row.property)==='Admin'&&!row.isOwner&&row.email.toLowerCase()!==currentUserEmail){setUserRows(current=>current.filter(item=>item.id!==row.id));}setUserActionMenuId(null);}} className={`w-full px-3 py-2 text-left text-sm ${leaveDisabled?'text-slate-400 cursor-not-allowed':'hover:bg-slate-50'} ${['Remove','Cancel','Leave','Delete Property'].includes(action)?(leaveDisabled?'text-slate-400':'text-rose-600'):'text-slate-700'}`}>{action}</button>})}</div>}</>:<span className="inline-flex items-center gap-1.5 text-xs text-slate-400" title="Only property Admins can manage users"><icon name="lock" size="xs"/> View only</span>}</div></td></tr>})}</tbody></table><div className="p-4 border-t border-slate-100"><button onClick={()=>setShowAddUserModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">+ Add User</button></div></div></main>}
 
           {/* ACCOUNT: BILLING */}
           {activeTab === 'billing' && <main className="goa-account-page flex-1 min-w-0 w-full p-6 md:p-7 overflow-y-auto">
@@ -6958,47 +6968,37 @@ export default function SinglePageDashboard() {
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 flex flex-col items-center text-center gap-4 text-sm animate-in fade-in zoom-in duration-200">
             <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-xl shadow-inner font-bold">!</div>
             <div className="flex flex-col gap-1 w-full">
-              <h3 className="text-base font-bold text-slate-900">{userConfirmAction.type==='ownerLeave'?'Transfer Ownership & Leave?':userConfirmAction.type==='adminLeave'?'Assign New Admin & Leave?':userConfirmAction.type==='leave'?'Leave Workspace?':'Delete Property?'}</h3>
+              <h3 className="text-base font-bold text-slate-900">{userConfirmAction.type==='ownerLeave'?'Transfer Ownership & Leave?':userConfirmAction.type==='leave'?'Leave Workspace?':'Delete Property?'}</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 {userConfirmAction.type==='ownerLeave'
-                  ? <>Choose the new Owner and new Admin from active members of <strong className="text-slate-800">{userConfirmAction.row.property}</strong>. You may select the same person for both roles. Your access will be removed after the transfer.</>
-                  : userConfirmAction.type==='adminLeave'
-                    ? <>Choose an active member of <strong className="text-slate-800">{userConfirmAction.row.property}</strong> to become the new Admin. Your access will be removed after the role is reassigned.</>
-                    : userConfirmAction.type==='leave'
-                      ? <>Are you sure you want to leave <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? Your access will be removed and this property will disappear from your property list.</>
-                      : <>Are you sure you want to delete the property <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? All users assigned to this property will lose access. This action cannot be undone.</>}
+                  ? <>Choose an active Property member for the new Owner and a member for the new Admin of <strong className="text-slate-800">{userConfirmAction.row.property}</strong>. Your access will be removed after ownership is transferred.</>
+                  : userConfirmAction.type==='leave'
+                    ? <>Are you sure you want to leave <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? Your access will be removed and this workspace will disappear from your property list.</>
+                    : <>Are you sure you want to delete the property <strong className="text-slate-800">{userConfirmAction.row.property}</strong>? All users assigned to this property will lose access. This action cannot be undone.</>}
               </p>
             </div>
             {userConfirmAction.type==='ownerLeave' && <>
               <label className="w-full text-left text-xs font-semibold text-slate-600">New Owner
                 <select value={userConfirmAction.successorId||''} onChange={e=>setUserConfirmAction(current=>({...current,successorId:e.target.value}))} className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 bg-white text-sm font-normal">
-                  <option value="">Select an active member in this Property</option>
+                  <option value="">Select an active Property member</option>
                   {getEligibleOwnershipSuccessors(userConfirmAction.row.property).map(member=><option key={member.id} value={member.id}>{member.account||member.name||member.email} ({member.type})</option>)}
                 </select>
               </label>
               <label className="w-full text-left text-xs font-semibold text-slate-600">New Admin
                 <select value={userConfirmAction.adminSuccessorId||''} onChange={e=>setUserConfirmAction(current=>({...current,adminSuccessorId:e.target.value}))} className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 bg-white text-sm font-normal">
-                  <option value="">Select an active member in this Property</option>
-                  {getEligiblePropertySuccessors(userConfirmAction.row.property).map(member=><option key={member.id} value={member.id}>{member.account||member.name||member.email} ({member.type})</option>)}
+                  <option value="">Select an active Property member</option>
+                  {getEligibleOwnershipSuccessors(userConfirmAction.row.property).map(member=><option key={member.id} value={member.id}>{member.account||member.name||member.email} ({member.type})</option>)}
                 </select>
               </label>
             </>}
-            {userConfirmAction.type==='adminLeave' && <label className="w-full text-left text-xs font-semibold text-slate-600">New Admin
-              <select value={userConfirmAction.adminSuccessorId||''} onChange={e=>setUserConfirmAction(current=>({...current,adminSuccessorId:e.target.value}))} className="mt-1 w-full border border-slate-200 rounded-lg p-2.5 bg-white text-sm font-normal">
-                <option value="">Select an active member in this Property</option>
-                {getEligiblePropertySuccessors(userConfirmAction.row.property).map(member=><option key={member.id} value={member.id}>{member.account||member.name||member.email} ({member.type})</option>)}
-              </select>
-            </label>}
             <div className="flex gap-2.5 w-full mt-2">
               <button onClick={()=>setUserConfirmAction(null)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-xs transition-all cursor-default">Cancel</button>
-              <button disabled={(userConfirmAction.type==='ownerLeave'&&(!userConfirmAction.successorId||!userConfirmAction.adminSuccessorId))||(userConfirmAction.type==='adminLeave'&&!userConfirmAction.adminSuccessorId)} onClick={()=>{
+              <button disabled={userConfirmAction.type==='ownerLeave'&&(!userConfirmAction.successorId||!userConfirmAction.adminSuccessorId)} onClick={()=>{
                 const {type,row,successorId,adminSuccessorId}=userConfirmAction;
                 if(type==='ownerLeave'){
-                  setUserRows(current=>current.filter(item=>item.id!==row.id).map(item=>({ ...item, ...(item.id===successorId?{isOwner:true}:{}), ...(item.id===adminSuccessorId?{type:'Admin'}:{}) })));
-                  const remainingProperties=[...new Set(userRows.filter(item=>item.email.toLowerCase()===currentUserEmail&&item.status==='Active'&&item.id!==row.id).map(item=>item.property))];
-                  if(selectedClient===row.property)setSelectedClient(remainingProperties[0]||'');
-                } else if(type==='adminLeave'){
-                  setUserRows(current=>current.filter(item=>item.id!==row.id).map(item=>item.id===adminSuccessorId?{...item,type:'Admin'}:item));
+                  const eligibleIds = new Set(getEligibleOwnershipSuccessors(row.property).map(member=>member.id));
+                  if (!eligibleIds.has(successorId) || !eligibleIds.has(adminSuccessorId)) return;
+                  setUserRows(current=>current.filter(item=>item.id!==row.id).map(item=>({ ...item, ...(item.id===successorId?{isOwner:true}:{}), ...(item.id===adminSuccessorId?{type:'Admin'}:{}) }))); 
                   const remainingProperties=[...new Set(userRows.filter(item=>item.email.toLowerCase()===currentUserEmail&&item.status==='Active'&&item.id!==row.id).map(item=>item.property))];
                   if(selectedClient===row.property)setSelectedClient(remainingProperties[0]||'');
                 } else if(type==='leave'){
@@ -7019,7 +7019,7 @@ export default function SinglePageDashboard() {
                   }
                 }
                 setUserConfirmAction(null);
-              }} className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 disabled:text-slate-500 text-white font-semibold py-2.5 rounded-xl text-xs shadow-sm transition-all disabled:cursor-not-allowed">{userConfirmAction.type==='ownerLeave'?'Transfer & Leave':userConfirmAction.type==='adminLeave'?'Assign Admin & Leave':userConfirmAction.type==='leave'?'Leave Workspace':'Delete Property'}</button>
+              }} className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 disabled:text-slate-500 text-white font-semibold py-2.5 rounded-xl text-xs shadow-sm transition-all disabled:cursor-not-allowed">{userConfirmAction.type==='ownerLeave'?'Transfer & Leave':userConfirmAction.type==='leave'?'Leave Workspace':'Delete Property'}</button>
             </div>
           </div>
         </div>
