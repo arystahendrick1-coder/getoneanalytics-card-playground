@@ -2028,30 +2028,54 @@ export default function SinglePageDashboard() {
   }, [reportPages]);
 
   // Keep the sidebar's active page in sync with the paper currently being viewed.
+  // Determine the active paper from its actual on-screen position rather than assuming
+  // the page array and rendered positions always remain in the same order.
   useEffect(() => {
     const scroller = reportScrollRef.current;
     if (!scroller || activeTab !== 'dashboard') return;
     let frame = 0;
+
     const syncActivePage = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const scrollerTop = scroller.getBoundingClientRect().top;
-        const activationLine = scrollerTop + Math.min(120, scroller.clientHeight * 0.22);
-        let activeId = reportPagesRef.current[0]?.id;
-        for (const page of reportPagesRef.current) {
-          const paper = reportPaperRefs.current[page.id];
-          if (paper && paper.getBoundingClientRect().top <= activationLine) activeId = page.id;
-          else if (paper) break;
+        const scrollerRect = scroller.getBoundingClientRect();
+        const activationLine = scrollerRect.top + Math.min(120, scroller.clientHeight * 0.22);
+
+        const visiblePages = reportPagesRef.current
+          .map((page) => {
+            const paper = reportPaperRefs.current[page.id];
+            if (!paper) return null;
+            const rect = paper.getBoundingClientRect();
+            return { id: page.id, top: rect.top, bottom: rect.bottom };
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.top - b.top);
+
+        if (!visiblePages.length) return;
+
+        // Select the last page whose top has crossed the activation line.
+        // If the user is above the first page, keep the first page selected.
+        let activeId = visiblePages[0].id;
+        for (const page of visiblePages) {
+          if (page.top <= activationLine) activeId = page.id;
+          else break;
         }
-        if (activeId && reportPagesRef.current.some((page) => page.id === activeId && !page.active)) {
-          setReportPages((current) => current.map((page) => ({ ...page, active: page.id === activeId })));
+
+        if (!reportPagesRef.current.some((page) => page.id === activeId && page.active)) {
+          setReportPages((current) =>
+            current.map((page) => ({ ...page, active: page.id === activeId }))
+          );
         }
       });
     };
+
     scroller.addEventListener('scroll', syncActivePage, { passive: true });
+    window.addEventListener('resize', syncActivePage, { passive: true });
     syncActivePage();
+
     return () => {
       scroller.removeEventListener('scroll', syncActivePage);
+      window.removeEventListener('resize', syncActivePage);
       cancelAnimationFrame(frame);
     };
   }, [activeTab, reportPages.length]);
