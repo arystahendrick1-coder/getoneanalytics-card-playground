@@ -1,0 +1,14 @@
+GetOneAnalytics - Notifications and Account Menu Persistence Fix
+
+Changes:
+1. Selecting Notifications, Profile, User, Billing, or Settings no longer closes the expanded account menu. The existing outside-click behaviour remains in place.
+2. Added a Notifications page using the same page structure as Profile: page title and description above one white bordered rounded container.
+3. Notifications are presented as one unified list area, without category tabs. The current demo has an empty state until notification records are connected.
+
+Scope:
+- Modified src/App.jsx only.
+- No dashboard, billing, user membership, report, or data-source logic was intentionally changed.
+
+Verification:
+- ZIP integrity and source-level checks performed.
+- Application build not run.

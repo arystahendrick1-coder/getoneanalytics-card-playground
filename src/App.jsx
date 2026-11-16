@@ -5792,7 +5792,7 @@ export default function SinglePageDashboard() {
 
             <div className={`goa-account-menu-expand ${isAccountMenuOpen ? 'is-open' : ''}`} aria-hidden={!isAccountMenuOpen}>
               <div className="goa-account-menu-content flex flex-col text-sm">
-                {[['notifications','Notifications'],['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); setIsAccountMenuOpen(false); }} className="text-left px-3 py-1.5 rounded-lg hover:bg-white/70 text-slate-700 font-medium">{label}</button>)}
+                {[['notifications','Notifications'],['profile','Profile'],['users','User'],['billing','Billing'],['settings','Settings']].map(([tab,label]) => <button key={tab} onClick={() => { setActiveTab(tab); }} className="text-left px-3 py-1.5 rounded-lg hover:bg-white/70 text-slate-700 font-medium">{label}</button>)}
                 <div className="border-t border-slate-200 my-1"></div>
                 <button onClick={() => { setIsAccountMenuOpen(false); setShowLogoutConfirm(true); }} className="text-left px-3 py-1.5 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold">Logout</button>
               </div>
@@ -6730,6 +6730,15 @@ export default function SinglePageDashboard() {
             </main>
             )
           )}
+
+          {/* ACCOUNT: NOTIFICATIONS */}
+          {activeTab === 'notifications' && <main className="goa-account-page flex-1 min-w-0 w-full p-6 md:p-7 overflow-y-auto">
+            <div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Notifications</h1><p className="text-sm text-slate-500 mt-1">Stay informed about updates related to your properties and account.</p></div>
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between"><div><h2 className="font-bold text-slate-900">All Notifications</h2><p className="text-xs text-slate-500 mt-1">Your latest updates will appear here.</p></div></div>
+              <div className="min-h-[260px] flex flex-col items-center justify-center px-6 py-12 text-center"><div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-4"><icon name="bell" size="xl" /></div><h3 className="text-sm font-semibold text-slate-800">No notifications yet</h3><p className="text-sm text-slate-500 mt-1 max-w-md">When there are updates about your property, users, billing, or data sources, they will appear here.</p></div>
+            </div>
+          </main>}
 
           {/* ACCOUNT: PROFILE */}
           {activeTab === 'profile' && <main className="goa-account-page flex-1 min-w-0 w-full p-6 md:p-7 overflow-y-auto"><div className="mb-6"><h1 className="text-2xl font-bold text-slate-900">Profile</h1><p className="text-sm text-slate-500 mt-1">Manage your personal account information.</p></div><div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6">
