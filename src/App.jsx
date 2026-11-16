@@ -2106,7 +2106,9 @@ export default function SinglePageDashboard() {
 
       const scrollerRect = scroller.getBoundingClientRect();
       const pageRect = analyticsPage.getBoundingClientRect();
-      const targetTop = Math.max(0, scroller.scrollTop + pageRect.top - scrollerRect.top - 16);
+      // Leave a small top inset so the page title and reporting period are fully visible.
+      // Keep the existing smooth animation; only adjust the Dashboard-entry target by pixels.
+      const targetTop = Math.max(0, scroller.scrollTop + pageRect.top - scrollerRect.top - 40);
       scroller.scrollTo({ top: targetTop, behavior: 'smooth' });
     };
 
