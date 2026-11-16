@@ -1,0 +1,7 @@
+Property-scoped Billing visibility fix
+
+- Billing subscription rows are filtered to the signed-in account's Active Property memberships.
+- Pending invitations do not grant Billing visibility.
+- Subscription overview, selected subscription, and property usage count now use the same accessible Property scope.
+- Existing Admin/Member Dashboard rendering and Customize Metric conditions were not changed.
+- Existing Property List role-based actions were not changed.
