@@ -1,0 +1,8 @@
+Leave and role transfer correction
+
+- Leave is enabled whenever the current user has at least one other Active membership in the same Property.
+- Admin Leave now opens a confirmation modal requiring selection of a replacement Admin from Active members of that exact Property.
+- Owner Leave requires separate New Owner and New Admin selections from Active members of that exact Property. The same person may be selected for both roles.
+- Member Leave remains a confirmation-only action when another Active member remains.
+- If no other Active member exists in the Property, Leave remains disabled. Owner Delete Property remains available.
+- No other application features or styling were intentionally changed.
