@@ -2028,37 +2028,61 @@ export default function SinglePageDashboard() {
   }, [reportPages]);
 
   // Keep the sidebar's active page in sync with the paper currently being viewed.
+  // Determine the active paper from its actual on-screen position rather than assuming
+  // the page array and rendered positions always remain in the same order.
   useEffect(() => {
     const scroller = reportScrollRef.current;
     if (!scroller || activeTab !== 'dashboard') return;
     let frame = 0;
+
     const syncActivePage = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const scrollerTop = scroller.getBoundingClientRect().top;
-        const activationLine = scrollerTop + Math.min(120, scroller.clientHeight * 0.22);
-        let activeId = reportPagesRef.current[0]?.id;
-        for (const page of reportPagesRef.current) {
-          const paper = reportPaperRefs.current[page.id];
-          if (paper && paper.getBoundingClientRect().top <= activationLine) activeId = page.id;
-          else if (paper) break;
+        const scrollerRect = scroller.getBoundingClientRect();
+        const activationLine = scrollerRect.top + Math.min(120, scroller.clientHeight * 0.22);
+
+        const visiblePages = reportPagesRef.current
+          .map((page) => {
+            const paper = reportPaperRefs.current[page.id];
+            if (!paper) return null;
+            const rect = paper.getBoundingClientRect();
+            return { id: page.id, top: rect.top, bottom: rect.bottom };
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.top - b.top);
+
+        if (!visiblePages.length) return;
+
+        // Select the last page whose top has crossed the activation line.
+        // If the user is above the first page, keep the first page selected.
+        let activeId = visiblePages[0].id;
+        for (const page of visiblePages) {
+          if (page.top <= activationLine) activeId = page.id;
+          else break;
         }
-        if (activeId && reportPagesRef.current.some((page) => page.id === activeId && !page.active)) {
-          setReportPages((current) => current.map((page) => ({ ...page, active: page.id === activeId })));
+
+        if (!reportPagesRef.current.some((page) => page.id === activeId && page.active)) {
+          setReportPages((current) =>
+            current.map((page) => ({ ...page, active: page.id === activeId }))
+          );
         }
       });
     };
+
     scroller.addEventListener('scroll', syncActivePage, { passive: true });
+    window.addEventListener('resize', syncActivePage, { passive: true });
     syncActivePage();
+
     return () => {
       scroller.removeEventListener('scroll', syncActivePage);
+      window.removeEventListener('resize', syncActivePage);
       cancelAnimationFrame(frame);
     };
   }, [activeTab, reportPages.length]);
 
-  // Every Dashboard entry must open at the top of Google Analytics (page 2),
-  // with its page heading and reporting period visible.
-  // This is intentionally limited to Dashboard entry; Page List navigation remains unchanged.
+  // Every Dashboard entry must open on Google Analytics (page 2).
+  // The login screen can leave activeTab as 'dashboard' before the dashboard DOM exists,
+  // so this effect also watches authentication and an explicit navigation request.
   useEffect(() => {
     if (!isAuthenticated || activeTab !== 'dashboard') return;
 
@@ -2073,33 +2097,22 @@ export default function SinglePageDashboard() {
       const scroller = reportScrollRef.current;
       const analyticsPage = reportPaperRefs.current['p3'];
 
-      // Wait until the Dashboard canvas and the Google Analytics page are fully laid out.
+      // Wait for the authenticated Dashboard and its page refs to finish mounting.
       if (!scroller || !analyticsPage || scroller.clientHeight === 0 || analyticsPage.getBoundingClientRect().height === 0) {
         attempts += 1;
-        if (attempts < 60) frame = requestAnimationFrame(alignGoogleAnalytics);
+        if (attempts < 30) frame = requestAnimationFrame(alignGoogleAnalytics);
         return;
       }
 
       const scrollerRect = scroller.getBoundingClientRect();
       const pageRect = analyticsPage.getBoundingClientRect();
-      const targetTop = Math.max(0, scroller.scrollTop + pageRect.top - scrollerRect.top);
-
-      // The canvas uses CSS smooth scrolling. Temporarily override it so a Dashboard
-      // click lands at the exact top instead of capturing an intermediate scroll position.
-      const previousScrollBehavior = scroller.style.scrollBehavior;
-      scroller.style.scrollBehavior = 'auto';
-      scroller.scrollTop = targetTop;
-
-      requestAnimationFrame(() => {
-        if (scroller.isConnected) scroller.style.scrollBehavior = previousScrollBehavior;
-      });
+      const targetTop = Math.max(0, scroller.scrollTop + pageRect.top - scrollerRect.top - 16);
+      scroller.scrollTo({ top: targetTop, behavior: 'smooth' });
     };
 
-    // Allow the active page state and canvas layout to settle before positioning.
+    // Two frames allow React to commit the active page and the browser to lay out the papers.
     frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() => {
-        frame = requestAnimationFrame(alignGoogleAnalytics);
-      });
+      frame = requestAnimationFrame(alignGoogleAnalytics);
     });
 
     return () => {
